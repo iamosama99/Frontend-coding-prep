@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Frontend Interview Prep — 130+ Questions</title>
+<style>
+  :root {
+    --red:#E24B4A; --amber:#EF9F27; --green:#1D9E75;
+    --bg:#ffffff; --bg2:#f5f5f3;
+    --txt:#1a1a1a; --txt2:#666; --txt3:#999;
+    --bdr:rgba(0,0,0,0.1); --bdr2:rgba(0,0,0,0.2);
+    --r:8px; --mono:'SF Mono','Fira Code','Cascadia Code',monospace;
+  }
+  @media(prefers-color-scheme:dark){:root{
+    --bg:#1a1a1a; --bg2:#242424;
+    --txt:#f0f0f0; --txt2:#aaa; --txt3:#666;
+    --bdr:rgba(255,255,255,0.1); --bdr2:rgba(255,255,255,0.2);
+  }}
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);color:var(--txt);padding-bottom:4rem}
+  header{background:var(--bg);border-bottom:1px solid var(--bdr);padding:1rem 1.25rem;position:sticky;top:0;z-index:100}
+  .htop{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:.7rem}
+  h1{font-size:16px;font-weight:600;letter-spacing:-.02em}
+  .sub{font-size:12px;color:var(--txt3);margin-top:2px}
+  .pp{display:flex;align-items:center;gap:7px;margin-left:auto}
+  .ptxt{font-size:12px;color:var(--txt2);white-space:nowrap}
+  .pbar{width:72px;height:5px;background:var(--bdr);border-radius:3px;overflow:hidden}
+  .pfil{height:100%;background:var(--green);border-radius:3px;transition:width .3s}
+  .rbtn{border:1px solid var(--bdr2);border-radius:var(--r);padding:5px 11px;font-size:12px;color:var(--txt2);background:transparent;cursor:pointer;font-family:inherit}
+  .rbtn:hover{background:var(--bg2)}
+  .sbox{width:100%;height:36px;display:flex;align-items:center;gap:8px;background:var(--bg2);border:1px solid var(--bdr);border-radius:var(--r);padding:0 12px;margin-bottom:.55rem}
+  .sbox input{border:none;background:transparent;outline:none;font-size:14px;color:var(--txt);width:100%;font-family:inherit}
+  .sbox input::placeholder{color:var(--txt3)}
+  .frow{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:.4rem}
+  .chip{cursor:pointer;padding:4px 10px;border-radius:20px;font-size:12px;border:1px solid var(--bdr);color:var(--txt2);background:transparent;font-family:inherit;transition:all .15s;white-space:nowrap;line-height:1.6}
+  .chip:hover{background:var(--bg2)}
+  .chip.on{background:var(--txt);color:var(--bg);border-color:var(--txt)}
+  .chip.cm.on{background:#A32D2D;border-color:#A32D2D;color:#fff}
+  .chip.ci.on{background:#854F0B;border-color:#854F0B;color:#fff}
+  .chip.cl.on{background:#3C3489;border-color:#3C3489;color:#fff}
+  .chip.cmc.on{background:#085041;border-color:#085041;color:#fff}
+  .legend{display:flex;gap:12px;padding:.5rem 1.25rem;border-bottom:1px solid var(--bdr);flex-wrap:wrap}
+  .li{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--txt3)}
+  .dot{width:9px;height:9px;border-radius:2px;flex-shrink:0}
+  main{max-width:940px;margin:0 auto;padding:1.25rem}
+  .sec{margin-bottom:1.75rem}
+  .sh{display:flex;align-items:center;gap:8px;margin-bottom:9px;padding-bottom:7px;border-bottom:1px solid var(--bdr)}
+  .slbl{font-size:11px;font-weight:600;letter-spacing:.09em;text-transform:uppercase;color:var(--txt2)}
+  .scnt{margin-left:auto;font-size:11px;color:var(--txt3)}
+  .grid{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+  @media(max-width:580px){.grid{grid-template-columns:1fr}}
+  .card{display:flex;align-items:flex-start;gap:0;padding:8px 10px 8px 0;border-radius:var(--r);border:1px solid var(--bdr);background:var(--bg);cursor:pointer;border-left:3px solid var(--bdr);transition:border-color .15s}
+  .card:hover{border-color:var(--bdr2);border-left-color:inherit}
+  .card.must{border-left-color:var(--red)}
+  .card.imp{border-left-color:var(--amber)}
+  .card.nice{border-left-color:var(--bdr2)}
+  .card.done{opacity:.38}
+  .card.done .qn{text-decoration:line-through;text-decoration-color:var(--txt3)}
+  .ck{width:16px;height:16px;border-radius:3px;border:1.5px solid var(--bdr2);flex-shrink:0;margin-top:2px;margin-left:9px;margin-right:8px;display:flex;align-items:center;justify-content:center;transition:all .15s}
+  .card.done .ck{background:var(--green);border-color:var(--green)}
+  .bd{flex:1;min-width:0}
+  .qn{font-size:13px;color:var(--txt);font-weight:500;font-family:var(--mono);line-height:1.35}
+  .qh{font-size:11px;color:var(--txt3);margin-top:3px;line-height:1.45}
+  .tags{display:flex;gap:3px;flex-wrap:wrap;margin-top:5px}
+  .tag{font-size:10px;padding:1px 6px;border-radius:7px;font-weight:500;line-height:1.6}
+  .hard{background:#F5C4B3;color:#712B13}
+  .med{background:#FAC775;color:#412402}
+  .easy{background:#C0DD97;color:#173404}
+  .live{background:#CECBF6;color:#26215C}
+  .machine{background:#9FE1CB;color:#04342C}
+  .both{background:#B5D4F4;color:#042C53}
+  .empty{text-align:center;padding:3rem;color:var(--txt3)}
+</style>
+</head>
+<body>
+<header>
+  <div class="htop">
+    <div><h1>Frontend Interview Prep</h1><div class="sub">130+ questions · sorted by importance</div></div>
+    <div class="pp">
+      <span class="ptxt"><strong id="pn">0/0</strong> done</span>
+      <div class="pbar"><div class="pfil" id="pf" style="width:0%"></div></div>
+    </div>
+    <button class="rbtn" onclick="done.clear();render()">Reset all</button>
+  </div>
+  <div class="sbox">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="opacity:.4;flex-shrink:0"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+    <input type="text" id="srch" placeholder="Search questions…" oninput="render()">
+  </div>
+  <div class="frow" id="fc"></div>
+  <div class="frow" id="fi"></div>
+  <div class="frow" id="fr"></div>
+</header>
+<div class="legend">
+  <div class="li"><div class="dot" style="background:var(--red)"></div>Must know</div>
+  <div class="li"><div class="dot" style="background:var(--amber)"></div>Important</div>
+  <div class="li"><div class="dot" style="background:var(--bdr2)"></div>Nice to have</div>
+  <div class="li"><div class="dot" style="background:#CECBF6"></div>Live interview</div>
+  <div class="li"><div class="dot" style="background:#9FE1CB"></div>Machine round</div>
+  <div class="li"><div class="dot" style="background:#B5D4F4"></div>Both rounds</div>
+</div>
+<main><div id="lst"></div></main>
+<script>
+const CATS=[
+  {id:'mini', lbl:'Mini Apps (Build This)', ic:'📱'},
+  {id:'hooks',lbl:'Custom Hooks',ic:'🪝'},
+  {id:'ui',   lbl:'UI Components',ic:'🧩'},
+  {id:'js',   lbl:'Vanilla JS',ic:'⚡'},
+  {id:'css',  lbl:'CSS Challenges',ic:'🎨'},
+  {id:'perf', lbl:'Performance',ic:'🚀'},
+  {id:'state',lbl:'State & Patterns',ic:'🔄'},
+  {id:'sys',  lbl:'System Design',ic:'🏗️'},
+  {id:'ds',   lbl:'Data Structures',ic:'🌳'},
+];
+const IR={must:3,imp:2,nice:1},DR={easy:1,med:2,hard:3};
+const Q=[
+  ['mini','Todo list app','Add/delete/complete, filter (all/active/done), localStorage persist','easy','must','machine'],
+  ['mini','Counter app','Increment/decrement/reset, step config, min/max clamp','easy','must','machine'],
+  ['mini','Calculator','Operator chain, decimal, clear/backspace, edge: divide by 0','easy','must','machine'],
+  ['mini','Stopwatch / Timer','setInterval + clearInterval, lap times, format mm:ss:ms','easy','must','machine'],
+  ['mini','Countdown timer','Target date diff, tick with setInterval, flash on zero','easy','must','machine'],
+  ['mini','Shopping cart','Add/remove/qty, total + tax calc, localStorage persist','easy','must','machine'],
+  ['mini','Search & filter list','Live filter on input, highlight match, empty state message','easy','must','machine'],
+  ['mini','Dark / light theme switcher','Toggle CSS class, localStorage persist, system pref fallback','easy','must','machine'],
+  ['mini','Password strength indicator','Regex rules (uppercase/digit/symbol), visual bar + label','easy','must','machine'],
+  ['mini','Character / word counter','Live count on keyup, max limit highlight, remaining label','easy','must','machine'],
+  ['mini','Form with validation','Required, email regex, min-length, inline errors, submit lock','easy','must','machine'],
+  ['mini','Tic-tac-toe','Win detection (rows/cols/diags), X/O turn, reset, draw state','easy','must','machine'],
+  ['mini','Quiz / survey app','Step through Qs, score tally, result screen, restart','med','must','machine'],
+  ['mini','Notes app','CRUD notes, localStorage, search, timestamps','med','must','machine'],
+  ['mini','Expense tracker','Add/delete entries, category tag, running total, chart','med','must','machine'],
+  ['mini','Image gallery + lightbox','Grid layout, click to open modal, prev/next, keyboard nav','med','must','machine'],
+  ['mini','Pomodoro timer','25/5 cycle, session count, browser notification on break','med','must','machine'],
+  ['mini','Weather app (API)','Fetch from OpenWeather, loading/error states, icon display','easy','imp','machine'],
+  ['mini','GitHub user search','Debounced fetch, profile card render, 404 error handling','easy','imp','machine'],
+  ['mini','Currency converter','Fetch live rates, two-way input, swap button, decimal round','easy','imp','machine'],
+  ['mini','Rock Paper Scissors','Random CPU pick, score tracking, win/lose/draw display','easy','imp','machine'],
+  ['mini','URL shortener (UI)','Input + submit, history list, copy-to-clipboard button','easy','imp','machine'],
+  ['mini','Memory match card game','Shuffle deck, flip pairs, match tracking, move counter','med','imp','machine'],
+  ['mini','Kanban board','Columns (To-do/In progress/Done), drag cards between columns','med','imp','machine'],
+  ['mini','Markdown previewer','Textarea input, marked.js parse, live side-by-side preview','med','imp','machine'],
+  ['mini','Infinite photo feed','Unsplash API, IntersectionObserver load-more, masonry grid','med','imp','machine'],
+  ['mini','Snake game (basic)','requestAnimationFrame loop, grid, direction queue, collision','med','imp','machine'],
+  ['mini','Number guessing game','Random number, hint (higher/lower), attempt counter','easy','nice','machine'],
+  ['mini','BMI / tip calculator','Formula, input validation, result with category label','easy','nice','machine'],
+  ['mini','Paint / drawing canvas','Canvas 2d, mouse/touch events, color picker, brush size','hard','nice','machine'],
+
+  ['hooks','useLocalStorage','JSON.parse/stringify, storage event, SSR window guard','easy','must','both'],
+  ['hooks','usePrevious','useRef stores last render value — classic 1-liner','easy','must','live'],
+  ['hooks','useToggle','useState bool + toggle callback, optional forced value param','easy','must','both'],
+  ['hooks','useClickOutside','mousedown on document, ref.contains() check','easy','must','both'],
+  ['hooks','useFetch','loading/error/refetch, AbortController on cleanup','med','must','both'],
+  ['hooks','useDebounce','clearTimeout + setTimeout in useEffect, useRef for timer','med','must','both'],
+  ['hooks','useThrottle','Date.now timestamp diff or inThrottle ref flag','med','must','live'],
+  ['hooks','useAsync / useMutation','idle → loading → success → error state machine','hard','must','live'],
+  ['hooks','useWindowSize','resize event listener, throttle, SSR guard','easy','imp','live'],
+  ['hooks','useScrollPosition','scroll event, throttle, track scroll direction (up/down)','easy','imp','both'],
+  ['hooks','useIntersectionObserver','ref callback, threshold/rootMargin options, cleanup','med','imp','both'],
+  ['hooks','useCountdown','target Date diff, setInterval tick, pause/resume','med','imp','machine'],
+  ['hooks','useInterval','useRef for callback pointer — avoids stale closure','med','imp','live'],
+  ['hooks','useEventListener','generic typed hook, ref + addEventListener + cleanup','med','imp','live'],
+  ['hooks','useMediaQuery','matchMedia API, addListener + cleanup on unmount','med','imp','live'],
+  ['hooks','useLongPress','touchstart + setTimeout, cancel on touchmove/end','med','nice','live'],
+  ['hooks','useWhyDidYouUpdate','useRef prev props, JSON compare, console.log diffs','hard','nice','live'],
+
+  ['ui','Toggle switch','Checkbox underneath, CSS pill track, animated sliding thumb','easy','must','machine'],
+  ['ui','Like / heart button','Toggle state, CSS scale animation, optimistic count update','easy','must','machine'],
+  ['ui','Copy-to-clipboard button','navigator.clipboard.writeText, transient "Copied!" feedback','easy','must','machine'],
+  ['ui','Back-to-top button','Show after scroll threshold, smooth scroll, keyboard a11y','easy','must','machine'],
+  ['ui','Read more / show less','Clamp text to N lines, toggle expanded, accessible label','easy','must','machine'],
+  ['ui','Accordion','Controlled vs uncontrolled, single vs multi-expand','easy','must','machine'],
+  ['ui','Pagination','Client-side slice OR server page+limit, ellipsis logic','easy','must','machine'],
+  ['ui','Star rating','Hover preview, half-stars, keyboard accessible','easy','must','machine'],
+  ['ui','Progress bar','aria-valuenow/min/max, animated fill, indeterminate state','easy','must','machine'],
+  ['ui','Sortable table','Click header to sort asc/desc, indicator arrow, stable sort','easy','must','machine'],
+  ['ui','Infinite scroll','IntersectionObserver on sentinel div, page cursor','med','must','machine'],
+  ['ui','Tabs component','Compound component, ARIA tablist/tab/tabpanel roles','med','must','machine'],
+  ['ui','OTP input','Auto-focus next, paste split across inputs, backspace nav','med','must','machine'],
+  ['ui','Multi-select dropdown','Search filter, chip tags, keyboard nav, ARIA listbox','med','must','machine'],
+  ['ui','Autocomplete / Typeahead','Debounced API, keyboard nav, ARIA combobox pattern','hard','must','machine'],
+  ['ui','Modal / Dialog','Portal, focus trap, Escape to close, aria-modal role','hard','must','machine'],
+  ['ui','Toast / notification system','Context + portal + queue + auto-dismiss timer','hard','must','machine'],
+  ['ui','Recursive comments / file tree','Recursive render, collapse state per node id','hard','must','machine'],
+  ['ui','Drag & drop list','HTML5 DnD or pointer events, swap index on drop','hard','must','machine'],
+  ['ui','Tooltip component','Position calc above/below/left/right, delay, portal','easy','imp','machine'],
+  ['ui','Breadcrumb nav','ARIA breadcrumb landmark, overflow ellipsis, current page','easy','imp','machine'],
+  ['ui','Badge / chip component','Dismissible X, color variants, icon slot, max count badge','easy','imp','machine'],
+  ['ui','Table with sort + filter','Controlled column sort, column filters, pagination combo','med','imp','machine'],
+  ['ui','Search with highlight','Mark matched substring in results, debounced input','med','imp','machine'],
+  ['ui','Stepper / wizard','Step state machine, per-step validation, back/next flow','med','imp','machine'],
+  ['ui','Carousel / slider','Touch swipe, auto-play, dots nav, ARIA live region','med','imp','machine'],
+  ['ui','Virtualized list (windowing)','Render visible rows only, offset + placeholder height','hard','imp','machine'],
+  ['ui','Date picker','Calendar grid, month navigation, range selection mode','hard','imp','machine'],
+  ['ui','Resizable panels','Pointer events, mousemove delta, clamp to min/max','hard','imp','machine'],
+  ['ui','Command palette (⌘K)','Global shortcut, fuzzy search, grouped keyboard nav','hard','imp','machine'],
+  ['ui','Form builder','Dynamic field config, validation schema, nested errors','hard','imp','machine'],
+  ['ui','Color picker','Hue/saturation sliders, hex/rgb sync, EyeDropper API','hard','nice','machine'],
+  ['ui','Canvas signature pad','pointerdown/move/up, getContext 2d, toDataURL export','hard','nice','machine'],
+
+  ['js','Flatten nested array','reduce + recursion or Array.flat(Infinity)','easy','must','live'],
+  ['js','Group array by key','reduce to object, Array.prototype.groupBy shim','easy','must','live'],
+  ['js','once(fn) utility','Called flag in closure, null out fn after first call','easy','must','live'],
+  ['js','chunk(array, size)','for loop, array.slice(i, i + size) per iteration','easy','must','live'],
+  ['js','Implement debounce','clearTimeout + setTimeout in closure, leading option','med','must','live'],
+  ['js','Implement throttle','Date.now diff or inThrottle flag, leading/trailing','med','must','live'],
+  ['js','Deep clone object','structuredClone vs recursive + typeof + Array.isArray','med','must','live'],
+  ['js','Event emitter / pub-sub','Map of listener arrays, on/off/emit/once','med','must','live'],
+  ['js','Memoize function','Map or WeakMap cache, JSON.stringify as cache key','med','must','live'],
+  ['js','Array.map/filter/reduce polyfill','Array.prototype extension, this=array, callback(el,i,arr)','med','must','live'],
+  ['js','Promise.all from scratch','Counter resolve, reject immediately on first failure','hard','must','live'],
+  ['js','Promise.race from scratch','First settled promise — resolve or reject — wins','hard','must','live'],
+  ['js','Function.prototype.bind polyfill','Closure + apply, handle `new` keyword edge case','hard','must','live'],
+  ['js','Implement curry','Check fn.length vs accumulated args length, recurse','hard','must','live'],
+  ['js','LRU cache class','Map preserves insertion order — delete then re-set trick','hard','must','live'],
+  ['js','Array intersection / difference','Set for O(1) lookup, filter + has()','easy','imp','live'],
+  ['js','Deep merge objects','Recursive Object.assign, handle arrays by strategy','med','imp','live'],
+  ['js','Event delegation pattern','Single listener on parent, event.target.closest(sel)','med','imp','live'],
+  ['js','retry(fn, n) with backoff','Recursive promise, catch → retry, delay * attempt','med','imp','live'],
+  ['js','Flatten nested object (dot keys)','Recursion, join keys with ".", base case = primitive','med','imp','live'],
+  ['js','Implement pipe / compose','reduce left-to-right (pipe) or right-to-left (compose)','med','imp','live'],
+  ['js','Promise.allSettled from scratch','Always resolves, wraps each in {status, value/reason}','hard','imp','live'],
+  ['js','Implement Promise.any','Reject only if ALL reject, throw AggregateError','med','nice','live'],
+  ['js','Virtual DOM diff (basic)','Key reconciliation, return patch descriptor object','hard','nice','live'],
+
+  ['css','CSS position deep dive','static/relative/absolute/fixed/sticky — interview classic','easy','must','live'],
+  ['css','Box model (content-box vs border-box)','Padding/border included in width with border-box','easy','must','live'],
+  ['css','Specificity + cascade rules','ID > class > tag, !important, layers, inline order','easy','must','live'],
+  ['css','Flexbox layout fundamentals','justify-content, align-items, flex-wrap, gap, order','easy','must','machine'],
+  ['css','Responsive CSS grid','auto-fit + minmax() — no media queries needed','easy','must','machine'],
+  ['css','CSS variables (custom props)','--var declaration, var() usage, :root scope, JS setProperty','easy','must','both'],
+  ['css','CSS loading spinner','Border + border-top-color trick + @keyframes rotate','easy','must','machine'],
+  ['css','Custom checkbox / radio','appearance:none, :checked selector, label click trick','easy','must','machine'],
+  ['css','CSS-only tooltip','::before content, position absolute, :hover opacity','easy','must','machine'],
+  ['css','Text truncation (1 + multi-line)','overflow:hidden + text-overflow; -webkit-line-clamp','easy','must','machine'],
+  ['css','Button hover effects','Transition on background, transform scale, box-shadow','easy','must','machine'],
+  ['css','Skeleton screen animation','Shimmer: linear-gradient + @keyframes background-position','med','must','machine'],
+  ['css','CSS dark mode strategy','prefers-color-scheme media query + CSS custom properties','med','must','machine'],
+  ['css','CSS scroll snap','scroll-snap-type on parent, scroll-snap-align on child','easy','imp','machine'],
+  ['css','CSS keyframe animation','@keyframes, animation shorthand, fill-mode, delay','easy','imp','machine'],
+  ['css','CSS aspect ratio box','aspect-ratio: 16/9 modern or padding-top % legacy','easy','imp','machine'],
+  ['css','Sticky + shrinking header','position:sticky + scroll listener toggles a class','med','imp','machine'],
+  ['css','Container queries','container-type:inline-size, @container (width > Npx)','med','imp','machine'],
+  ['css','Scroll-driven animation','animation-timeline: scroll() or view(), @keyframes','hard','nice','machine'],
+  ['css','CSS masonry layout','CSS columns trick or experimental grid: masonry value','hard','nice','machine'],
+
+  ['perf','Image lazy loading + optimization','loading="lazy", srcset, WebP, LCP + CLS impact','easy','must','live'],
+  ['perf','React.memo + useMemo + useCallback','Referential equality — know when NOT to use each','med','must','live'],
+  ['perf','Code splitting with React.lazy','dynamic import(), Suspense fallback, route-level split','med','must','live'],
+  ['perf','Core Web Vitals (LCP / CLS / INP)','Measure with DevTools, root causes, and fixes','med','must','live'],
+  ['perf','requestAnimationFrame loop','rAF id, cancelAnimationFrame on unmount, delta time','med','imp','both'],
+  ['perf','Bundle size optimization','Tree shaking, dynamic import, webpack-bundle-analyzer','med','imp','live'],
+  ['perf','React rendering optimization','React Profiler, key prop, transitions, Concurrent Mode','med','imp','live'],
+  ['perf','Web Worker for heavy computation','postMessage, Comlink wrapper, transferable objects','hard','imp','live'],
+  ['perf','Service Worker + caching strategies','Cache-first, stale-while-revalidate, Workbox','hard','imp','live'],
+
+  ['state','useReducer from scratch','Pure reducer fn, action type switch, return new state','med','must','live'],
+  ['state','Context API + Provider pattern','createContext, useContext, prevent unnecessary re-renders','med','must','live'],
+  ['state','HOC (Higher-Order Component)','Wraps component, injects props, set displayName','med','must','live'],
+  ['state','useState from scratch','Closure array + index counter, dispatcher queue','hard','must','live'],
+  ['state','Redux / Flux from scratch','Store, dispatch, subscribe, combineReducers','hard','must','live'],
+  ['state','Render props pattern','Function as child or render prop, inversion of control','med','imp','live'],
+  ['state','Optimistic UI update','Update state first, store rollback, revert on error','med','imp','live'],
+  ['state','Observer / pub-sub pattern','subject.subscribe(fn), notify all, unsubscribe cleanup','med','imp','live'],
+  ['state','Compound components pattern','Context inside parent, children share implicit state','hard','imp','live'],
+  ['state','Zustand-style store from scratch','Closure, getState, setState, subscribe + selector','hard','imp','live'],
+  ['state','Finite state machine (lite)','State map, transition fn, guards + side effects','hard','nice','live'],
+
+  ['sys','Component library architecture','Tokens, polymorphic `as` prop, peer deps, a11y','hard','must','live'],
+  ['sys','Real-time chat / activity feed','WebSocket vs SSE, cursor pagination, read receipts','hard','must','live'],
+  ['sys','Chunked file uploader','File.slice + FormData chunks, progress, retry, abort','hard','must','machine'],
+  ['sys','Frontend search system','Debounce, cache results, highlight, facets, sort','med','imp','live'],
+  ['sys','Analytics / tracking SDK','Batch events, flush queue, visibilitychange, beacon API','hard','imp','live'],
+  ['sys','Offline-first web app','IndexedDB queue, background sync, conflict resolution','hard','imp','live'],
+  ['sys','Collaborative editing (basic)','Operational transform or CRDT concept, merge conflicts','hard','nice','live'],
+
+  ['ds','Two sum / three sum','Hash map O(n) or sorted + two-pointer O(n log n)','easy','must','live'],
+  ['ds','Flatten nested object / array','DFS recursion or iterative stack approach','easy','must','live'],
+  ['ds','Group by + frequency map','reduce to Map, sort by count, top-K elements','easy','must','live'],
+  ['ds','BFS + DFS on tree and DOM','Queue for BFS, call stack for DFS, NodeList walk','med','must','live'],
+  ['ds','Trie for autocomplete','TrieNode class, insert O(L), prefix search + DFS collect','hard','imp','live'],
+  ['ds','Sliding window (max, sum)','Monotonic deque or expand/shrink two-pointer','hard','imp','live'],
+  ['ds','Serialize / deserialize binary tree','BFS with null markers, split string + queue restore','hard','imp','live'],
+  ['ds','Longest common subsequence','2D DP table dp[i][j], trace back diagonally','hard','nice','live'],
+];
+
+let fC='all',fI='all',fR='all';
+const done=new Set();
+function srt(a,b){const d=IR[b[4]]-IR[a[4]];return d!==0?d:DR[a[3]]-DR[b[3]];}
+
+function bld(){
+  const cnt={};CATS.forEach(c=>{cnt[c.id]=Q.filter(x=>x[0]===c.id).length;});
+  document.getElementById('fc').innerHTML=
+    `<button class="chip${fC==='all'?' on':''}" onclick="fC='all';bld();render()">All (${Q.length})</button>`+
+    CATS.map(c=>`<button class="chip${fC===c.id?' on':''}" onclick="fC='${c.id}';bld();render()">${c.ic} ${c.lbl} (${cnt[c.id]})</button>`).join('');
+  document.getElementById('fi').innerHTML=
+    [['all','All levels',''],['must','Must know','cm'],['imp','Important','ci'],['nice','Nice to have','']]
+    .map(([v,l,x])=>`<button class="chip ${x}${fI===v?' on':''}" onclick="fI='${v}';bld();render()">${l}</button>`).join('');
+  document.getElementById('fr').innerHTML=
+    [['all','All rounds',''],['live','Live interview','cl'],['machine','Machine round','cmc']]
+    .map(([v,l,x])=>`<button class="chip ${x}${fR===v?' on':''}" onclick="fR='${v}';bld();render()">${l}</button>`).join('');
+}
+
+function render(){
+  const q=(document.getElementById('srch').value||'').toLowerCase();
+  const vis=Q.filter(x=>{
+    if(fC!=='all'&&x[0]!==fC)return false;
+    if(fI!=='all'&&x[4]!==fI)return false;
+    if(fR==='live'&&x[5]==='machine')return false;
+    if(fR==='machine'&&x[5]==='live')return false;
+    return !q||x[1].toLowerCase().includes(q)||x[2].toLowerCase().includes(q);
+  });
+  document.getElementById('pn').textContent=done.size+'/'+Q.length;
+  document.getElementById('pf').style.width=Math.round(done.size/Q.length*100)+'%';
+  const grp={};CATS.forEach(c=>{grp[c.id]=[];});
+  vis.forEach(x=>{if(grp[x[0]])grp[x[0]].push(x);});
+  let html='';
+  CATS.forEach(cat=>{
+    const qs=[...grp[cat.id]].sort(srt);
+    if(!qs.length)return;
+    const dc=qs.filter(x=>done.has(x[1])).length;
+    html+=`<div class="sec"><div class="sh"><span style="font-size:15px">${cat.ic}</span><span class="slbl">${cat.lbl}</span><span class="scnt">${dc}/${qs.length} done</span></div><div class="grid">`;
+    qs.forEach(x=>{
+      const d=done.has(x[1]);
+      const rl=x[5]==='both'?'live + machine':x[5];
+      const esc=x[1].replace(/\\/g,'\\\\').replace(/'/g,"\\'");
+      html+=`<div class="card ${x[4]}${d?' done':''}" onclick="tog('${esc}')">
+<div class="ck">${d?'<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3.5"><polyline points="20 6 9 17 4 12"/></svg>':''}</div>
+<div class="bd"><div class="qn">${x[1]}</div><div class="qh">${x[2]}</div>
+<div class="tags"><span class="tag ${x[3]}">${x[3]}</span><span class="tag ${x[5]}">${rl}</span></div></div></div>`;
+    });
+    html+='</div></div>';
+  });
+  document.getElementById('lst').innerHTML=html||'<div class="empty"><div style="font-size:2rem;margin-bottom:.5rem">🔍</div><p>No questions match your filters</p></div>';
+}
+function tog(name){done.has(name)?done.delete(name):done.add(name);render();}
+bld();render();
+</script>
+</body>
+</html>
