@@ -7,10 +7,10 @@ This is a structured system for frontend interview prep — 115 questions, guide
 ## The Core Loop (do this every session)
 
 1. Run `/progress` — get your gap analysis and 3 recommended questions for today
-2. Open the question's `exercises/<category>/<slug>/problem.md` — read it fully before touching code
+2. Open the question's `questions/<category>/<slug>/README.md` — read it fully before touching code
 3. Think through your approach out loud (or in writing) before coding
-4. Code your solution in `exercises/<category>/<slug>/starter.ts`
-5. Run the tests: `npx ts-node exercises/<cat>/<slug>/tests.ts`
+4. Code your solution in `questions/<category>/<slug>/index.ts`
+5. Run the tests: `npx ts-node questions/<cat>/<slug>/tests.ts`
 6. Run `/review` to get a 5-dimension code review
 7. Check off the question in `PROGRESS.md`
 
@@ -51,7 +51,7 @@ Use this only after you've genuinely attempted the problem. The hint system has 
 Never skip levels. The value is in the struggle between levels, not in the hint itself. If you paste your attempt at any point, Claude will review *that* instead of advancing to the next level.
 
 ### `/review`
-Run this after you have a working (or partially working) solution in `starter.ts`. Claude reads your file and evaluates it across 5 dimensions — correctness, edge cases, TypeScript quality, performance, and interviewer impression — with a pass/borderline/fail verdict for each. Ends with one overall verdict and the single most important fix.
+Run this after you have a working (or partially working) solution in `index.ts`. Claude reads your file and evaluates it across 5 dimensions — correctness, edge cases, TypeScript quality, performance, and interviewer impression — with a pass/borderline/fail verdict for each. Ends with one overall verdict and the single most important fix.
 
 ### `/quiz`
 Use this for verbal practice without coding — it simulates the "explain your approach" part of an interview. Claude picks 3 random must-know questions from your unchecked items and asks you to explain your approach in words only. It waits for your answer, gives targeted feedback, then moves on. Run it during commute, before bed, or as a warm-up.
@@ -69,14 +69,18 @@ Use this when you're confused about a concept, not a question. Claude gives a fi
 
 ## How the File Structure Works
 
-```
-exercises/<category>/<slug>/
-  problem.md     ← Read this first. Contains the spec, API, and edge cases.
-  starter.ts     ← Write your solution here. Has types and TODO scaffolding.
-  tests.ts       ← Run this to verify your solution.
+Every question lives in one folder — nothing is split across directories:
 
-solutions/<category>/<slug>/
-  solution.ts    ← Empty stub. Don't look until you've reviewed your own attempt.
+```
+questions/<category>/<slug>/
+  README.md      ← Read this first. Contains the spec, API, and edge cases.
+  index.ts       ← Write your solution here. Has types and TODO scaffolding.
+  tests.ts       ← Run this to verify: npx ts-node questions/<cat>/<slug>/tests.ts
+  solution.ts    ← Reference answer. Don't open until you've done /review on your attempt.
+
+playground/
+  src/App.tsx    ← Paste your mini app or UI component here to see it live in the browser.
+                   Run: npm run dev (from repo root)
 
 guides/<category>.md     ← Deep-dive study guide. Read before starting a new category.
 cheatsheets/             ← Quick-reference during active problem-solving.
@@ -87,7 +91,7 @@ mock-interviews/         ← Full interview scenarios for /mock live and /mock m
 
 ## Effective Study Habits
 
-**Read `problem.md` fully before writing a single line.** The edge cases at the bottom are the checklist your solution needs to pass — they tell you what the problem is actually testing.
+**Read `README.md` fully before writing a single line.** The edge cases at the bottom are the checklist your solution needs to pass — they tell you what the problem is actually testing.
 
 **Attempt the problem before asking for any help.** Even a wrong attempt is worth more than jumping to hints. The coaching system is designed around you having tried first — Claude will ask "what have you tried?" if you skip this step.
 
@@ -97,7 +101,7 @@ mock-interviews/         ← Full interview scenarios for /mock live and /mock m
 
 **Track your progress in `PROGRESS.md`.** Checking a box after finishing a question makes the system work. `/progress` and `/quiz` both read this file to know what you've done and what to prioritize.
 
-**Don't peek at `solutions/` until after `/review`.** The solutions folder exists for reference, not shortcuts. Use `/review` first — your code with feedback is more valuable than someone else's clean solution.
+**Don't open `solution.ts` until after `/review`.** It lives in the same folder as your work for convenience, but use `/review` first — your code with feedback is more valuable than reading a clean answer.
 
 ---
 
@@ -105,14 +109,14 @@ mock-interviews/         ← Full interview scenarios for /mock live and /mock m
 
 **30-minute session**
 1. `/progress` to pick a question (2 min)
-2. Read `problem.md` (5 min)
-3. Code in `starter.ts` (20 min)
+2. Read `README.md` (5 min)
+3. Code in `index.ts` (20 min)
 4. Run tests (3 min)
 
 **60-minute session**
 1. `/progress` (2 min)
 2. Read guide for today's category if new (8 min)
-3. Read `problem.md` + code + run tests (40 min)
+3. Read `README.md` + code + run tests (40 min)
 4. `/review` + read the feedback + fix one thing (10 min)
 
 **Mock interview session (45–90 min)**

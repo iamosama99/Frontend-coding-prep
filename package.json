@@ -1,0 +1,14 @@
+{
+  "name": "frontend-interview-prep",
+  "private": true,
+  "scripts": {
+    "dev": "npm --prefix playground run dev",
+    "test": "ts-node"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "@types/react": "^18.2.0",
+    "ts-node": "^10.9.0",
+    "typescript": "^5.0.0"
+  }
+}

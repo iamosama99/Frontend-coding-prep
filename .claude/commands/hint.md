@@ -55,4 +55,4 @@ Show the key lines or pattern — the exact piece they're missing. Do not write 
 - Never volunteer the next level without being asked
 - Never write a complete, runnable solution
 - If the user pastes their own attempt at any point, switch to reviewing that attempt instead of advancing hint levels
-- Reference the edge cases in `exercises/<cat>/<slug>/problem.md` when relevant
+- Reference the edge cases in `questions/<cat>/<slug>/README.md` when relevant

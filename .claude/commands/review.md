@@ -8,20 +8,20 @@ Infer which question is being worked on from context (recent messages, open file
 
 ## Step 2 — Read the code
 
-Find and read the user's file at `exercises/<category>/<slug>/starter.ts` (or wherever they indicate they coded). Also read `exercises/<category>/<slug>/problem.md` to get the edge case list.
+Find and read the user's file at `questions/<category>/<slug>/index.ts` (or wherever they indicate they coded). Also read `questions/<category>/<slug>/README.md` to get the edge case list.
 
 ## Step 3 — Evaluate across 5 dimensions
 
 For each dimension, give a verdict: **pass** / **borderline** / **fail**, then cite specific lines.
 
 ### 1. Correctness
-Does the implementation satisfy the core requirement described in problem.md?
+Does the implementation satisfy the core requirement described in README.md?
 - Does the happy path work?
 - Is the return type correct?
 - Are there off-by-one errors, missing returns, or wrong logic?
 
 ### 2. Edge cases
-Cross-reference the edge cases listed in problem.md.
+Cross-reference the edge cases listed in README.md.
 - Which ones are handled?
 - Which ones are missing?
 - List each edge case explicitly with handled / missing verdict.

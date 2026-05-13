@@ -21,7 +21,7 @@ Create the following in the current directory:
 
 1. CLAUDE.md — Include: (a) project summary, (b) complete 159-question table with columns: category | name | hint | difficulty | importance | round, (c) coaching rules — always ask "what have you tried?" before helping; give hints progressively vague→specific→near-solution; never write a full solution unprompted, (d) one paragraph per slash command explaining behavior: /hint, /review, /mock, /explain, /progress, /quiz.
 
-2. README.md — Include: quick start guide, folder structure with one-line purpose per directory, day-to-day workflow (pick question → open problem.md → code in starter.ts → run tests.ts → use slash commands), slash command reference table.
+2. README.md — Include: quick start guide, folder structure with one-line purpose per directory, day-to-day workflow (pick question → open README.md → code in index.ts → run tests.ts → use slash commands), slash command reference table.
 
 3. PROGRESS.md — Checkbox table of ALL 159 questions grouped by category. Columns: [ ] | Name | Difficulty | Importance | Round.
 
@@ -40,10 +40,10 @@ Behavior for /hint <question-name>:
 .claude/commands/review.md
 Behavior for /review:
 - Infer which question is being worked on from context, or ask if unclear
-- Find and read the user's file (exercises/[cat]/[slug]/starter.ts or wherever they coded)
+- Find and read the user's file (questions/[cat]/[slug]/index.ts or wherever they coded)
 - Evaluate across 5 dimensions, each with a pass/borderline/fail verdict:
   1. Correctness — does the implementation handle the core requirement?
-  2. Edge cases — which edge cases from problem.md are handled vs missing?
+  2. Edge cases — which edge cases from README.md are handled vs missing?
   3. TypeScript — are types specific? any `any` types? return types inferred or explicit?
   4. Performance — any obvious inefficiencies? wrong time complexity?
   5. Interviewer impression — how would this score in a real interview?
@@ -66,7 +66,7 @@ Behavior for /explain <concept-or-question-name>:
   3. Minimal working example (5–15 lines of code, focused on the core idea only)
   4. Common misconceptions (what people get wrong about this)
   5. When NOT to use it (the constraint or trade-off that makes alternatives better)
-- If the concept maps to a question in exercises/, mention the exercise path
+- If the concept maps to a question in questions/, mention the exercise path
 - Keep total response under 400 words
 
 .claude/commands/progress.md
@@ -112,9 +112,9 @@ Topics: closures, prototype chain, event loop (call stack + microtask queue + ma
 **2. Cheatsheet — cheatsheets/js-patterns.md**
 Cover: closures (definition + example), prototype chain lookup, event loop (call stack + microtask queue + macrotask queue with execution order example), Promise chains vs async/await, iterators and generators, WeakMap/WeakRef use cases, structuredClone vs JSON.parse/stringify.
 
-**3. Exercises — exercises/js/ (24 questions)**
-One subfolder per question. Each subfolder gets 3 files: problem.md, starter.ts, tests.ts.
-starter.ts exports a typed function (not a React component).
+**3. Exercises — questions/js/ (24 questions)**
+One subfolder per question. Each subfolder gets 3 files: README.md, index.ts, tests.ts.
+index.ts exports a typed function (not a React component).
 
 Questions (name | hint | diff | imp | slug):
 1. Flatten nested array | reduce + recursion or Array.flat(Infinity) | easy | must | flatten-nested-array
@@ -143,22 +143,22 @@ Questions (name | hint | diff | imp | slug):
 24. Virtual DOM diff (basic) | key reconciliation, return patch descriptor object | hard | nice | virtual-dom-diff
 
 File specs:
-- problem.md: plain-English problem statement, TypeScript API signature, usage example with expected behavior, constraints, edge cases list (no hints in edge cases)
-- starter.ts: correct TypeScript signature + types, 3–5 TODO comments that guide thinking without giving away the solution, exports the function
-- tests.ts: plain console.log PASS/FAIL assertions (no test framework), happy path + 2 edge cases, imports from ./starter
+- README.md: plain-English problem statement, TypeScript API signature, usage example with expected behavior, constraints, edge cases list (no hints in edge cases)
+- index.ts: correct TypeScript signature + types, 3–5 TODO comments that guide thinking without giving away the solution, exports the function
+- tests.ts: plain console.log PASS/FAIL assertions (no test framework), happy path + 2 edge cases, imports from ./index
 
-**4. Solution stubs — solutions/js/ (24 files)**
-Mirror exercises/js/ — same 24 slugs. Each slug folder contains only one file: solution.ts.
-Each solution.ts: correct TypeScript signature (same as corresponding starter.ts) + single comment: // TODO: implement solution
+**4. Solution stubs — questions/js/ (24 files)**
+Mirror questions/js/ — same 24 slugs. Each solution.ts lives alongside index.ts and tests.ts in the same slug folder.
+Each solution.ts: correct TypeScript signature (same as corresponding index.ts) + single comment: // TODO: implement solution
 
 After creating, run:
-find exercises/js -type f | wc -l
-find solutions/js -name "solution.ts" | wc -l
+find questions/js -type f | wc -l
+find questions/js -name "solution.ts" | wc -l
 ```
 
-Expected: exercises/js = 72 files, solutions/js = 24 files
+Expected: questions/js = 72 files, questions/js = 24 files
 
-**Verify:** Open `lru-cache/` and `promise-all/` — check problem.md has edge cases, tests.ts has 3+ assertions.
+**Verify:** Open `lru-cache/` and `promise-all/` — check README.md has edge cases, tests.ts has 3+ assertions.
 
 ---
 
@@ -179,8 +179,8 @@ Topics: custom React hooks, the rules of hooks, useRef vs useState, cleanup in u
 All built-in React hooks with: TypeScript signature, when to use it, common pitfall.
 Cover: useState, useEffect, useRef, useMemo, useCallback, useContext, useReducer, useLayoutEffect, useId, useDeferredValue, useTransition, useSyncExternalStore.
 
-**3. Exercises — exercises/hooks/ (15 questions)**
-One subfolder per question. Each subfolder gets 3 files: problem.md, starter.ts, tests.ts.
+**3. Exercises — questions/hooks/ (15 questions)**
+One subfolder per question. Each subfolder gets 3 files: README.md, index.ts, tests.ts.
 
 Questions (name | hint | diff | imp | round | slug):
 1. useLocalStorage | JSON.parse/stringify, storage event, SSR window guard | easy | must | both | use-local-storage
@@ -202,22 +202,22 @@ Questions (name | hint | diff | imp | round | slug):
 17. useWhyDidYouUpdate | useRef prev props, JSON compare, console.log diffs | hard | nice | live | use-why-did-you-update
 
 File specs:
-- problem.md: plain-English problem statement, TypeScript API signature, usage example with expected behavior, constraints, edge cases list (no hints in edge cases)
-- starter.ts: correct TypeScript signature + types, 3–5 TODO comments that guide thinking without giving away the solution, exports the hook
-- tests.ts: plain console.log PASS/FAIL assertions (no test framework), happy path + 2 edge cases, imports from ./starter
+- README.md: plain-English problem statement, TypeScript API signature, usage example with expected behavior, constraints, edge cases list (no hints in edge cases)
+- index.ts: correct TypeScript signature + types, 3–5 TODO comments that guide thinking without giving away the solution, exports the hook
+- tests.ts: plain console.log PASS/FAIL assertions (no test framework), happy path + 2 edge cases, imports from ./index
 
-**4. Solution stubs — solutions/hooks/ (17 files)**
-Mirror exercises/hooks/ — same 17 slugs. Each slug folder contains only one file: solution.ts.
+**4. Solution stubs — questions/hooks/ (17 files)**
+Mirror questions/hooks/ — same 17 slugs. Each solution.ts lives alongside index.ts and tests.ts in the same slug folder.
 Each solution.ts: correct TypeScript signature + single comment: // TODO: implement solution
 
 After creating, run:
-find exercises/hooks -type f | wc -l
-find solutions/hooks -name "solution.ts" | wc -l
+find questions/hooks -type f | wc -l
+find questions/hooks -name "solution.ts" | wc -l
 ```
 
-Expected: exercises/hooks = 51 files, solutions/hooks = 17 files
+Expected: questions/hooks = 51 files, questions/hooks = 17 files
 
-**Verify:** Open `use-fetch/` and `use-async-mutation/` — check starter.ts has types and TODOs but no implementation.
+**Verify:** Open `use-fetch/` and `use-async-mutation/` — check index.ts has types and TODOs but no implementation.
 
 ---
 
@@ -242,9 +242,9 @@ For EVERY UI component in the question list, provide:
 - Required aria-* attributes
 Components to cover: Accordion, Tabs, Modal/Dialog, Combobox/Autocomplete, Listbox (Multi-select dropdown), Tooltip, Breadcrumb, Pagination, Carousel, Date picker, Command palette, Form, Drag & drop list, Progress bar, Star rating, OTP input, Stepper/wizard.
 
-**3. Exercises — exercises/ui/ (26 questions)**
-One subfolder per question. Each subfolder gets 3 files: problem.md, starter.ts, tests.ts.
-starter.ts exports a React functional component with typed props interface.
+**3. Exercises — questions/ui/ (26 questions)**
+One subfolder per question. Each subfolder gets 3 files: README.md, index.ts, tests.ts.
+index.ts exports a React functional component with typed props interface.
 
 Questions (name | hint | diff | imp | slug):
 1. Toggle switch | Checkbox underneath, CSS pill track, animated sliding thumb | easy | must | toggle-switch
@@ -282,22 +282,22 @@ Questions (name | hint | diff | imp | slug):
 33. Canvas signature pad | pointerdown/move/up, getContext 2d, toDataURL export | hard | nice | canvas-signature
 
 File specs:
-- problem.md: plain-English problem statement, TypeScript API signature, usage example with expected behavior, constraints, edge cases list (no hints in edge cases)
-- starter.ts: correct TypeScript signature + types, 3–5 TODO comments that guide thinking without giving away the solution, exports the component
-- tests.ts: plain console.log PASS/FAIL assertions (no test framework), happy path + 2 edge cases, imports from ./starter
+- README.md: plain-English problem statement, TypeScript API signature, usage example with expected behavior, constraints, edge cases list (no hints in edge cases)
+- index.ts: correct TypeScript signature + types, 3–5 TODO comments that guide thinking without giving away the solution, exports the component
+- tests.ts: plain console.log PASS/FAIL assertions (no test framework), happy path + 2 edge cases, imports from ./index
 
-**4. Solution stubs — solutions/ui/ (33 files)**
-Mirror exercises/ui/ — same 33 slugs. Each slug folder contains only one file: solution.ts.
+**4. Solution stubs — questions/ui/ (33 files)**
+Mirror questions/ui/ — same 33 slugs. Each solution.ts lives alongside index.ts and tests.ts in the same slug folder.
 Each solution.ts: correct TypeScript signature + single comment: // TODO: implement solution
 
 After creating, run:
-find exercises/ui -type f | wc -l
-find solutions/ui -name "solution.ts" | wc -l
+find questions/ui -type f | wc -l
+find questions/ui -name "solution.ts" | wc -l
 ```
 
-Expected: exercises/ui = 99 files, solutions/ui = 33 files
+Expected: questions/ui = 99 files, questions/ui = 33 files
 
-**Verify:** Open `modal/` and `autocomplete/` — check starter.ts has the Props interface and focus/ARIA-related TODOs.
+**Verify:** Open `modal/` and `autocomplete/` — check index.ts has the Props interface and focus/ARIA-related TODOs.
 
 ---
 
@@ -317,8 +317,8 @@ Topics: box model, stacking context, BFC, specificity calculation, Grid vs Flexb
 **2. Cheatsheet — cheatsheets/css-tricks.md**
 Cover: box model (content-box vs border-box), stacking context (what creates one), BFC (block formatting context and why it matters), CSS specificity calculation table, Grid vs Flexbox decision tree, CSS custom properties (var(), :root, fallbacks), logical properties (margin-inline, padding-block), @layer cascade order.
 
-**3. Exercises — exercises/css/ (15 questions)**
-One subfolder per question. Each subfolder gets 3 files: problem.md, starter.ts (or starter.css where appropriate), tests.ts.
+**3. Exercises — questions/css/ (15 questions)**
+One subfolder per question. Each subfolder gets 3 files: README.md, index.ts (or starter.css where appropriate), tests.ts.
 
 Questions (name | hint | diff | imp | slug):
 1. CSS position deep dive | static/relative/absolute/fixed/sticky — interview classic | easy | must | css-position
@@ -343,22 +343,22 @@ Questions (name | hint | diff | imp | slug):
 20. CSS masonry layout | CSS columns trick or experimental grid: masonry value | hard | nice | css-masonry
 
 File specs:
-- problem.md: plain-English problem statement, API/markup signature, usage example with expected visual behavior, constraints, edge cases list
-- starter.ts: scaffold with typed props or CSS class structure, 3–5 TODO comments guiding thinking
+- README.md: plain-English problem statement, API/markup signature, usage example with expected visual behavior, constraints, edge cases list
+- index.ts: scaffold with typed props or CSS class structure, 3–5 TODO comments guiding thinking
 - tests.ts: plain console.log PASS/FAIL assertions, happy path + 2 edge cases
 
-**4. Solution stubs — solutions/css/ (20 files)**
-Mirror exercises/css/ — same 20 slugs. Each slug folder contains only one file: solution.ts.
+**4. Solution stubs — questions/css/ (20 files)**
+Mirror questions/css/ — same 20 slugs. Each solution.ts lives alongside index.ts and tests.ts in the same slug folder.
 Each solution.ts: correct TypeScript signature + single comment: // TODO: implement solution
 
 After creating, run:
-find exercises/css -type f | wc -l
-find solutions/css -name "solution.ts" | wc -l
+find questions/css -type f | wc -l
+find questions/css -name "solution.ts" | wc -l
 ```
 
-Expected: exercises/css = 60 files, solutions/css = 20 files
+Expected: questions/css = 60 files, questions/css = 20 files
 
-**Verify:** Open `skeleton-screen/` and `dark-mode/` — check problem.md has edge cases.
+**Verify:** Open `skeleton-screen/` and `dark-mode/` — check README.md has edge cases.
 
 ---
 
@@ -379,8 +379,8 @@ Topics: Core Web Vitals (LCP/CLS/INP), React memoization pitfalls, code splittin
 Time/space complexity table for: Array (push/pop/shift/unshift/indexOf/splice), Object (get/set/delete/hasOwnProperty), Map, Set, sorting algorithms.
 Common interview patterns with their complexity: two-pointer O(n), sliding window O(n), hash map lookup O(1), BFS/DFS O(V+E), binary search O(log n), DP O(n²).
 
-**3. Exercises — exercises/perf/ (9 questions)**
-One subfolder per question. Each subfolder gets 3 files: problem.md, starter.ts, tests.ts.
+**3. Exercises — questions/perf/ (9 questions)**
+One subfolder per question. Each subfolder gets 3 files: README.md, index.ts, tests.ts.
 
 Questions (name | hint | diff | imp | slug):
 1. Image lazy loading + optimization | loading="lazy", srcset, WebP, LCP + CLS impact | easy | must | image-lazy-loading
@@ -394,22 +394,22 @@ Questions (name | hint | diff | imp | slug):
 9. Service Worker + caching strategies | cache-first, stale-while-revalidate, Workbox | hard | imp | service-worker
 
 File specs:
-- problem.md: plain-English problem statement, TypeScript API signature, usage example with expected behavior, constraints, edge cases list
-- starter.ts: correct TypeScript signature + types, 3–5 TODO comments guiding thinking
+- README.md: plain-English problem statement, TypeScript API signature, usage example with expected behavior, constraints, edge cases list
+- index.ts: correct TypeScript signature + types, 3–5 TODO comments guiding thinking
 - tests.ts: plain console.log PASS/FAIL assertions, happy path + 2 edge cases
 
-**4. Solution stubs — solutions/perf/ (9 files)**
-Mirror exercises/perf/ — same 9 slugs. Each slug folder contains only one file: solution.ts.
+**4. Solution stubs — questions/perf/ (9 files)**
+Mirror questions/perf/ — same 9 slugs. Each solution.ts lives alongside index.ts and tests.ts in the same slug folder.
 Each solution.ts: correct TypeScript signature + single comment: // TODO: implement solution
 
 After creating, run:
-find exercises/perf -type f | wc -l
-find solutions/perf -name "solution.ts" | wc -l
+find questions/perf -type f | wc -l
+find questions/perf -name "solution.ts" | wc -l
 ```
 
-Expected: exercises/perf = 27 files, solutions/perf = 9 files
+Expected: questions/perf = 27 files, questions/perf = 9 files
 
-**Verify:** Open `react-memoization/` — check problem.md covers both over-optimization and under-optimization edge cases.
+**Verify:** Open `react-memoization/` — check README.md covers both over-optimization and under-optimization edge cases.
 
 ---
 
@@ -426,8 +426,8 @@ Create everything needed for the State & Patterns topic:
 300+ words covering: (1) core mental model, (2) key APIs/patterns with inline code snippets, (3) common gotchas and interview mistakes, (4) 2–3 code snippets illustrating the most important patterns, (5) interview framing — how to talk through solutions out loud.
 Topics: HOC vs render props vs hooks, Redux architecture, context re-render pitfalls, state machines
 
-**2. Exercises — exercises/state/ (11 questions)**
-One subfolder per question. Each subfolder gets 3 files: problem.md, starter.ts, tests.ts.
+**2. Exercises — questions/state/ (11 questions)**
+One subfolder per question. Each subfolder gets 3 files: README.md, index.ts, tests.ts.
 
 Questions (name | hint | diff | imp | slug):
 1. useReducer from scratch | pure reducer fn, action type switch, return new state | med | must | use-reducer
@@ -443,22 +443,22 @@ Questions (name | hint | diff | imp | slug):
 11. Finite state machine (lite) | state map, transition fn, guards + side effects | hard | nice | finite-state-machine
 
 File specs:
-- problem.md: plain-English problem statement, TypeScript API signature, usage example with expected behavior, constraints, edge cases list
-- starter.ts: correct TypeScript signature + types, 3–5 TODO comments guiding thinking
+- README.md: plain-English problem statement, TypeScript API signature, usage example with expected behavior, constraints, edge cases list
+- index.ts: correct TypeScript signature + types, 3–5 TODO comments guiding thinking
 - tests.ts: plain console.log PASS/FAIL assertions, happy path + 2 edge cases
 
-**3. Solution stubs — solutions/state/ (11 files)**
-Mirror exercises/state/ — same 11 slugs. Each slug folder contains only one file: solution.ts.
+**3. Solution stubs — questions/state/ (11 files)**
+Mirror questions/state/ — same 11 slugs. Each solution.ts lives alongside index.ts and tests.ts in the same slug folder.
 Each solution.ts: correct TypeScript signature + single comment: // TODO: implement solution
 
 After creating, run:
-find exercises/state -type f | wc -l
-find solutions/state -name "solution.ts" | wc -l
+find questions/state -type f | wc -l
+find questions/state -name "solution.ts" | wc -l
 ```
 
-Expected: exercises/state = 33 files, solutions/state = 11 files
+Expected: questions/state = 33 files, questions/state = 11 files
 
-**Verify:** Open `redux-flux/` and `use-state-scratch/` — these are the hardest. Check starter.ts has meaningful TODOs.
+**Verify:** Open `redux-flux/` and `use-state-scratch/` — these are the hardest. Check index.ts has meaningful TODOs.
 
 ---
 
@@ -475,8 +475,8 @@ Create everything needed for the System Design topic:
 300+ words covering: (1) core mental model, (2) key APIs/patterns with inline code snippets, (3) common gotchas and interview mistakes, (4) 2–3 code snippets illustrating the most important patterns, (5) interview framing — how to talk through solutions out loud.
 Topics: component library tokens and polymorphic `as` prop, WebSocket vs SSE, chunked upload, offline-first with IndexedDB, analytics SDK batching
 
-**2. Exercises — exercises/sys/ (7 questions)**
-One subfolder per question. Each subfolder gets 3 files: problem.md, starter.ts, tests.ts.
+**2. Exercises — questions/sys/ (7 questions)**
+One subfolder per question. Each subfolder gets 3 files: README.md, index.ts, tests.ts.
 
 Questions (name | hint | diff | imp | slug):
 1. Component library architecture | tokens, polymorphic `as` prop, peer deps, a11y first | hard | must | component-library
@@ -488,22 +488,22 @@ Questions (name | hint | diff | imp | slug):
 7. Collaborative editing (basic) | operational transform or CRDT concept, merge conflicts | hard | nice | collaborative-editing
 
 File specs:
-- problem.md: plain-English problem statement, TypeScript API signature, usage example with expected behavior, constraints, edge cases list
-- starter.ts: correct TypeScript signature + types, 3–5 TODO comments guiding thinking
+- README.md: plain-English problem statement, TypeScript API signature, usage example with expected behavior, constraints, edge cases list
+- index.ts: correct TypeScript signature + types, 3–5 TODO comments guiding thinking
 - tests.ts: plain console.log PASS/FAIL assertions, happy path + 2 edge cases
 
-**3. Solution stubs — solutions/sys/ (7 files)**
-Mirror exercises/sys/ — same 7 slugs. Each slug folder contains only one file: solution.ts.
+**3. Solution stubs — questions/sys/ (7 files)**
+Mirror questions/sys/ — same 7 slugs. Each solution.ts lives alongside index.ts and tests.ts in the same slug folder.
 Each solution.ts: correct TypeScript signature + single comment: // TODO: implement solution
 
 After creating, run:
-find exercises/sys -type f | wc -l
-find solutions/sys -name "solution.ts" | wc -l
+find questions/sys -type f | wc -l
+find questions/sys -name "solution.ts" | wc -l
 ```
 
-Expected: exercises/sys = 21 files, solutions/sys = 7 files
+Expected: questions/sys = 21 files, questions/sys = 7 files
 
-**Verify:** Open `chunked-uploader/` — check that problem.md covers retry, abort, and progress reporting as edge cases.
+**Verify:** Open `chunked-uploader/` — check that README.md covers retry, abort, and progress reporting as edge cases.
 
 ---
 
@@ -520,8 +520,8 @@ Create everything needed for the Data Structures topic:
 300+ words covering: (1) core mental model, (2) key APIs/patterns with inline code snippets, (3) common gotchas and interview mistakes, (4) 2–3 code snippets illustrating the most important patterns, (5) interview framing — how to talk through solutions out loud.
 Topics: hash map patterns, BFS/DFS on trees and DOM, two-pointer and sliding window, trie insert/search, DP table setup
 
-**2. Exercises — exercises/ds/ (8 questions)**
-One subfolder per question. Each subfolder gets 3 files: problem.md, starter.ts, tests.ts.
+**2. Exercises — questions/ds/ (8 questions)**
+One subfolder per question. Each subfolder gets 3 files: README.md, index.ts, tests.ts.
 
 Questions (name | hint | diff | imp | slug):
 1. Two sum / three sum | hash map O(n) or sorted + two-pointer O(n log n) | easy | must | two-sum
@@ -534,22 +534,22 @@ Questions (name | hint | diff | imp | slug):
 8. Longest common subsequence | 2D DP table dp[i][j], trace back diagonally | hard | nice | lcs
 
 File specs:
-- problem.md: plain-English problem statement, TypeScript API signature, usage example with expected behavior, constraints, edge cases list
-- starter.ts: correct TypeScript signature + types, 3–5 TODO comments guiding thinking
+- README.md: plain-English problem statement, TypeScript API signature, usage example with expected behavior, constraints, edge cases list
+- index.ts: correct TypeScript signature + types, 3–5 TODO comments guiding thinking
 - tests.ts: plain console.log PASS/FAIL assertions, happy path + 2 edge cases
 
-**3. Solution stubs — solutions/ds/ (8 files)**
-Mirror exercises/ds/ — same 8 slugs. Each slug folder contains only one file: solution.ts.
+**3. Solution stubs — questions/ds/ (8 files)**
+Mirror questions/ds/ — same 8 slugs. Each solution.ts lives alongside index.ts and tests.ts in the same slug folder.
 Each solution.ts: correct TypeScript signature + single comment: // TODO: implement solution
 
 After creating, run:
-find exercises/ds -type f | wc -l
-find solutions/ds -name "solution.ts" | wc -l
+find questions/ds -type f | wc -l
+find questions/ds -name "solution.ts" | wc -l
 ```
 
-Expected: exercises/ds = 24 files, solutions/ds = 8 files
+Expected: questions/ds = 24 files, questions/ds = 8 files
 
-**Verify:** Open `trie-autocomplete/` — check starter.ts has a TrieNode class scaffold with TODOs.
+**Verify:** Open `trie-autocomplete/` — check index.ts has a TrieNode class scaffold with TODOs.
 
 ---
 
@@ -565,9 +565,9 @@ Create everything needed for the Mini Apps topic:
 **1. Guide — guides/mini.md**
 300+ words covering: (1) how machine rounds differ from live coding, (2) how to structure a mini app build (state first, then UI, then edge cases), (3) common patterns across all mini apps (controlled inputs, localStorage persist, loading/error states), (4) what reviewers check in submitted code (correctness, edge case handling, code organisation), (5) time management — what to cut vs what to keep.
 
-**2. Exercises — exercises/mini/ (30 questions)**
-One subfolder per question. Each subfolder gets 2 files: problem.md and starter.html (or starter.ts for React).
-No tests.ts — mini apps are evaluated by running them in a browser.
+**2. Exercises — questions/mini/ (30 questions)**
+One subfolder per question. Each subfolder gets 2 files: README.md and index.tsx.
+No tests.ts — mini apps are evaluated by running them in a browser (paste into playground/src/App.tsx and run `npm run dev`).
 
 Questions (name | hint | diff | imp | slug):
 1. Todo list app | Add/delete/complete, filter (all/active/done), localStorage persist | easy | must | todo-list
@@ -602,21 +602,21 @@ Questions (name | hint | diff | imp | slug):
 30. Paint / drawing canvas | Canvas 2d, mouse/touch events, color picker, brush size | hard | nice | paint-canvas
 
 File specs:
-- problem.md: plain-English problem statement, full requirements list, stretch goals, what the reviewer checks, edge cases list
-- starter.html (or starter.ts for React questions): minimal HTML boilerplate or React component scaffold with TODO comments for each major feature
+- README.md: plain-English problem statement, full requirements list, stretch goals, what the reviewer checks, edge cases list
+- index.tsx: React component scaffold with TODO comments for each major feature; paste into playground/src/App.tsx to view live in the browser
 
-**3. Solution stubs — solutions/mini/ (30 files)**
-Mirror exercises/mini/ — same 30 slugs. Each slug folder contains only one file: solution.md.
+**3. Solution stubs — questions/mini/ (30 files)**
+Mirror questions/mini/ — same 30 slugs. Each slug folder contains only one file: solution.md.
 Each solution.md: one-paragraph approach outline — no code — so the user plans before building.
 
 After creating, run:
-find exercises/mini -type f | wc -l
-find solutions/mini -name "solution.md" | wc -l
+find questions/mini -type f | wc -l
+find questions/mini -name "solution.md" | wc -l
 ```
 
-Expected: exercises/mini = 60 files (2 per question), solutions/mini = 30 files
+Expected: questions/mini = 60 files (2 per question), questions/mini = 30 files
 
-**Verify:** Open `todo-list/` and `pomodoro-timer/` — check problem.md covers localStorage, edge cases, and evaluation criteria.
+**Verify:** Open `todo-list/` and `pomodoro-timer/` — check README.md covers localStorage, edge cases, and evaluation criteria.
 
 ---
 
@@ -688,10 +688,10 @@ Expected: mock-interviews = 11 files, cheatsheets = 6 total (js-patterns, react-
 Run after all phases are complete:
 
 ```
-find . -not -path './.git/*' -not -name 'EXECUTION-PLAN.md' | sort | head -80
+find . -not -path './.git/*' -not -path './node_modules/*' -not -path './playground/node_modules/*' -not -name 'EXECUTION-PLAN.md' | sort | head -80
 echo "---"
-echo "exercises files:"; find exercises -type f | wc -l
-echo "solutions files:"; find solutions -name "solution.ts" | wc -l
+echo "questions files:"; find questions -type f | wc -l
+echo "solution stubs:"; find questions -name "solution.ts" -o -name "solution.md" | wc -l
 echo "guides files:"; find guides -name "*.md" | wc -l
 echo "cheatsheets files:"; find cheatsheets -name "*.md" | wc -l
 echo "mock-interview files:"; find mock-interviews -name "*.md" | wc -l
@@ -699,8 +699,8 @@ echo "command files:"; find .claude/commands -name "*.md" | wc -l
 ```
 
 Expected counts:
-- exercises: 387 (129 × 3 for non-mini) + 60 (mini × 2) = 447 total exercise files
-- solutions: 159 (129 solution.ts + 30 solution.md)
+- questions: (129 questions × 4 files each) + (30 mini × 3 files each) = 516 + 90 = 606 total question files
+- solution stubs: 159 (129 solution.ts + 30 solution.md)
 - guides: 9
 - cheatsheets: 6
 - mock-interviews: 11

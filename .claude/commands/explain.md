@@ -23,7 +23,7 @@ The constraint, trade-off, or scenario that makes an alternative approach better
 
 ## Additional rules
 
-- If the concept maps to a question in `exercises/`, mention the path at the end: "→ Practice: `exercises/<cat>/<slug>/`"
+- If the concept maps to a question in `questions/`, mention the path at the end: "→ Practice: `questions/<cat>/<slug>/`"
 - Keep total response under 400 words
 - If the user's term is ambiguous (e.g. "curry" could mean the FP concept or the question), confirm which they mean before explaining
 - If the concept spans multiple questions, focus on the core concept and mention related exercises

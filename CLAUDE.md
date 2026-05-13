@@ -178,7 +178,7 @@ This workspace is a structured frontend engineering interview preparation system
 2. **Give hints progressively: vague → specific → near-solution.** Never skip levels. Never volunteer the next level without being asked.
 3. **Never write a full solution unprompted.** If the user pastes their own attempt, give feedback on that attempt rather than replacing it.
 4. **Treat mistakes as learning opportunities.** Point to the specific line or concept that's off, then ask a question that leads the user to the fix.
-5. **Reference the problem's edge cases** when reviewing code — the edge case list in problem.md is the checklist.
+5. **Reference the problem's edge cases** when reviewing code — the edge case list in README.md is the checklist.
 
 ---
 
@@ -186,11 +186,11 @@ This workspace is a structured frontend engineering interview preparation system
 
 **/hint** — Progressive three-level hint system for a specific question. Level 1 gives only a directional nudge (no code, no pseudocode). Claude stops and waits for the user to attempt the problem before going further. Level 2 is given only if asked again and covers approach plus pseudocode but no working code. Level 3 is given only on a third explicit request and shows the key lines or pattern needed. If the user pastes their own attempt at any point, Claude switches to reviewing that attempt instead of advancing hint levels.
 
-**/review** — Code review across five dimensions: correctness, edge case coverage, TypeScript quality, performance, and interviewer impression. Claude infers the current question from context (or asks if unclear), reads the user's starter.ts, and gives a pass/borderline/fail verdict for each dimension with line-level citations. The review ends with one overall verdict and the single most important improvement to make.
+**/review** — Code review across five dimensions: correctness, edge case coverage, TypeScript quality, performance, and interviewer impression. Claude infers the current question from context (or asks if unclear), reads the user's `questions/<cat>/<slug>/index.ts`, and gives a pass/borderline/fail verdict for each dimension with line-level citations. The review ends with one overall verdict and the single most important improvement to make.
 
 **/mock** — Simulated interview session. `/mock live` runs a 45-minute live coding interview using one of the sets in mock-interviews/live-sets/ — Claude plays a professional interviewer, asks warm-up clarifying questions, enforces time pressure out loud, and follows up after coding. `/mock machine` runs a 90-minute take-home round using mock-interviews/machine-sets/ — Claude shares the full spec and checks in at 45 and 80 minutes. Claude stays in character until the user types exactly `stop mock`.
 
-**/explain** — Concept explanation in a fixed five-part structure: what it is (plain English), why it matters in frontend interviews, a minimal working code example (5–15 lines), common misconceptions, and when not to use it. If the concept maps to a question in exercises/, Claude mentions the path. Total response stays under 400 words.
+**/explain** — Concept explanation in a fixed five-part structure: what it is (plain English), why it matters in frontend interviews, a minimal working code example (5–15 lines), common misconceptions, and when not to use it. If the concept maps to a question in questions/, Claude mentions the path. Total response stays under 400 words.
 
 **/progress** — Progress report derived from PROGRESS.md. Claude counts unchecked must-know items by category, identifies the single biggest gap, and recommends exactly 3 specific questions to work on today — each with a one-sentence reason why it's the right next step. Total output stays under 150 words.
 
