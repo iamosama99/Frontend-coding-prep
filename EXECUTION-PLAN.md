@@ -96,7 +96,7 @@ find .claude/commands -name "*.md" | sort
 
 ---
 
-## [ ] Phase 1 — JavaScript Fundamentals (24 questions)
+## [x] Phase 1 — JavaScript Fundamentals (24 questions)
 
 The foundation for hooks, state, and everything else. Closures and the event loop are the mental model behind every hook and async pattern.
 
