@@ -162,7 +162,7 @@ Expected: questions/js = 72 files, questions/js = 24 files
 
 ---
 
-## [ ] Phase 2 — React Hooks (17 questions)
+## [x] Phase 2 — React Hooks (17 questions)
 
 Builds directly on Phase 1. Stale closures, cleanup patterns, and ref tricks are all JS fundamentals applied to React's model.
 
@@ -221,7 +221,7 @@ Expected: questions/hooks = 51 files, questions/hooks = 17 files
 
 ---
 
-## [ ] Phase 3 — UI Components (33 questions)
+## [x] Phase 3 — UI Components (33 questions)
 
 The largest and most interview-common category. Accessibility and keyboard management are non-negotiable here.
 
