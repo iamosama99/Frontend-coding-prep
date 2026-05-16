@@ -12,13 +12,13 @@ npm install
 cd playground && npm install && cd ..
 
 # 2. Pick a question and read its spec
-open questions/hooks/01-use-local-storage/README.md
+open questions/02-hooks 01-use-local-storage/README.md
 
 # 3. Write your solution
-code questions/hooks/01-use-local-storage/index.ts
+code questions/02-hooks 01-use-local-storage/index.ts
 
 # 4. Run the tests
-npx ts-node questions/hooks/01-use-local-storage/tests.ts
+npx ts-node questions/02-hooks 01-use-local-storage/tests.ts
 
 # 5. For browser-based exercises (mini apps, UI, CSS) — start the dev server
 npm run dev

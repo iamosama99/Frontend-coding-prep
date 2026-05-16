@@ -118,7 +118,7 @@ Topics: closures, prototype chain, event loop (call stack + microtask queue + ma
 **2. Cheatsheet — cheatsheets/js-patterns.md**
 Cover: closures (definition + example), prototype chain lookup, event loop (call stack + microtask queue + macrotask queue with execution order example), Promise chains vs async/await, iterators and generators, WeakMap/WeakRef use cases, structuredClone vs JSON.parse/stringify.
 
-**3. Exercises — questions/js/ (24 questions)**
+**3. Exercises — questions/01-js/ (24 questions)**
 One subfolder per question. Each subfolder gets 3 files: README.md, index.ts, tests.ts.
 index.ts exports a typed function (not a React component).
 
@@ -153,22 +153,22 @@ File specs:
 - index.ts: correct TypeScript signature + types, 3–5 TODO comments that guide thinking without giving away the solution, exports the function
 - tests.ts: plain console.log PASS/FAIL assertions (no test framework), happy path + 2 edge cases, imports from ./index
 
-**4. Solution stubs — questions/js/ (24 files)**
-Mirror questions/js/ — same 24 slugs. Each solution.ts lives alongside index.ts and tests.ts in the same slug folder.
+**4. Solution stubs — questions/01-js/ (24 files)**
+Mirror questions/01-js/ — same 24 slugs. Each solution.ts lives alongside index.ts and tests.ts in the same slug folder.
 Each solution.ts: correct TypeScript signature (same as corresponding index.ts) + single comment: // TODO: implement solution
 
 After creating, run:
-find questions/js -type f | wc -l
-find questions/js -name "solution.ts" | wc -l
+find questions/01-js -type f | wc -l
+find questions/01-js -name "solution.ts" | wc -l
 ```
 
-Expected: questions/js = 72 files, questions/js = 24 files
+Expected: questions/01-js = 72 files, questions/01-js = 24 files
 
 **Verify:** Open `lru-cache/` and `promise-all/` — check README.md has edge cases, tests.ts has 3+ assertions.
 
 **Commit:**
 ```
-git add questions/js/ guides/js.md cheatsheets/js-patterns.md
+git add questions/01-js/ guides/js.md cheatsheets/js-patterns.md
 git commit -m "feat: phase 1 — JavaScript fundamentals (24 questions)"
 ```
 
@@ -191,7 +191,7 @@ Topics: custom React hooks, the rules of hooks, useRef vs useState, cleanup in u
 All built-in React hooks with: TypeScript signature, when to use it, common pitfall.
 Cover: useState, useEffect, useRef, useMemo, useCallback, useContext, useReducer, useLayoutEffect, useId, useDeferredValue, useTransition, useSyncExternalStore.
 
-**3. Exercises — questions/hooks/ (15 questions)**
+**3. Exercises — questions/02-hooks/ (15 questions)**
 One subfolder per question. Each subfolder gets 3 files: README.md, index.ts, tests.ts.
 
 Questions (name | hint | diff | imp | round | slug):
@@ -218,22 +218,22 @@ File specs:
 - index.ts: correct TypeScript signature + types, 3–5 TODO comments that guide thinking without giving away the solution, exports the hook
 - tests.ts: plain console.log PASS/FAIL assertions (no test framework), happy path + 2 edge cases, imports from ./index
 
-**4. Solution stubs — questions/hooks/ (17 files)**
-Mirror questions/hooks/ — same 17 slugs. Each solution.ts lives alongside index.ts and tests.ts in the same slug folder.
+**4. Solution stubs — questions/02-hooks/ (17 files)**
+Mirror questions/02-hooks/ — same 17 slugs. Each solution.ts lives alongside index.ts and tests.ts in the same slug folder.
 Each solution.ts: correct TypeScript signature + single comment: // TODO: implement solution
 
 After creating, run:
-find questions/hooks -type f | wc -l
-find questions/hooks -name "solution.ts" | wc -l
+find questions/02-hooks -type f | wc -l
+find questions/02-hooks -name "solution.ts" | wc -l
 ```
 
-Expected: questions/hooks = 51 files, questions/hooks = 17 files
+Expected: questions/02-hooks = 51 files, questions/02-hooks = 17 files
 
 **Verify:** Open `use-fetch/` and `use-async-mutation/` — check index.ts has types and TODOs but no implementation.
 
 **Commit:**
 ```
-git add questions/hooks/ guides/hooks.md cheatsheets/react-hooks-api.md
+git add questions/02-hooks/ guides/hooks.md cheatsheets/react-hooks-api.md
 git commit -m "feat: phase 2 — React hooks (17 questions)"
 ```
 
@@ -260,7 +260,7 @@ For EVERY UI component in the question list, provide:
 - Required aria-* attributes
 Components to cover: Accordion, Tabs, Modal/Dialog, Combobox/Autocomplete, Listbox (Multi-select dropdown), Tooltip, Breadcrumb, Pagination, Carousel, Date picker, Command palette, Form, Drag & drop list, Progress bar, Star rating, OTP input, Stepper/wizard.
 
-**3. Exercises — questions/ui/ (26 questions)**
+**3. Exercises — questions/03-ui/ (26 questions)**
 One subfolder per question. Each subfolder gets 3 files: README.md, index.ts, tests.ts.
 index.ts exports a React functional component with typed props interface.
 
@@ -304,22 +304,22 @@ File specs:
 - index.ts: correct TypeScript signature + types, 3–5 TODO comments that guide thinking without giving away the solution, exports the component
 - tests.ts: plain console.log PASS/FAIL assertions (no test framework), happy path + 2 edge cases, imports from ./index
 
-**4. Solution stubs — questions/ui/ (33 files)**
-Mirror questions/ui/ — same 33 slugs. Each solution.ts lives alongside index.ts and tests.ts in the same slug folder.
+**4. Solution stubs — questions/03-ui/ (33 files)**
+Mirror questions/03-ui/ — same 33 slugs. Each solution.ts lives alongside index.ts and tests.ts in the same slug folder.
 Each solution.ts: correct TypeScript signature + single comment: // TODO: implement solution
 
 After creating, run:
-find questions/ui -type f | wc -l
-find questions/ui -name "solution.ts" | wc -l
+find questions/03-ui -type f | wc -l
+find questions/03-ui -name "solution.ts" | wc -l
 ```
 
-Expected: questions/ui = 99 files, questions/ui = 33 files
+Expected: questions/03-ui = 99 files, questions/03-ui = 33 files
 
 **Verify:** Open `modal/` and `autocomplete/` — check index.ts has the Props interface and focus/ARIA-related TODOs.
 
 **Commit:**
 ```
-git add questions/ui/ guides/ui.md cheatsheets/a11y-aria.md
+git add questions/03-ui/ guides/ui.md cheatsheets/a11y-aria.md
 git commit -m "feat: phase 3 — UI components (33 questions)"
 ```
 
@@ -341,7 +341,7 @@ Topics: box model, stacking context, BFC, specificity calculation, Grid vs Flexb
 **2. Cheatsheet — cheatsheets/css-tricks.md**
 Cover: box model (content-box vs border-box), stacking context (what creates one), BFC (block formatting context and why it matters), CSS specificity calculation table, Grid vs Flexbox decision tree, CSS custom properties (var(), :root, fallbacks), logical properties (margin-inline, padding-block), @layer cascade order.
 
-**3. Exercises — questions/css/ (15 questions)**
+**3. Exercises — questions/04-css/ (15 questions)**
 One subfolder per question. Each subfolder gets 3 files: README.md, index.ts (or starter.css where appropriate), tests.ts.
 
 Questions (name | hint | diff | imp | slug):
@@ -371,22 +371,22 @@ File specs:
 - index.ts: scaffold with typed props or CSS class structure, 3–5 TODO comments guiding thinking
 - tests.ts: plain console.log PASS/FAIL assertions, happy path + 2 edge cases
 
-**4. Solution stubs — questions/css/ (20 files)**
-Mirror questions/css/ — same 20 slugs. Each solution.ts lives alongside index.ts and tests.ts in the same slug folder.
+**4. Solution stubs — questions/04-css/ (20 files)**
+Mirror questions/04-css/ — same 20 slugs. Each solution.ts lives alongside index.ts and tests.ts in the same slug folder.
 Each solution.ts: correct TypeScript signature + single comment: // TODO: implement solution
 
 After creating, run:
-find questions/css -type f | wc -l
-find questions/css -name "solution.ts" | wc -l
+find questions/04-css -type f | wc -l
+find questions/04-css -name "solution.ts" | wc -l
 ```
 
-Expected: questions/css = 60 files, questions/css = 20 files
+Expected: questions/04-css = 60 files, questions/04-css = 20 files
 
 **Verify:** Open `skeleton-screen/` and `dark-mode/` — check README.md has edge cases.
 
 **Commit:**
 ```
-git add questions/css/ guides/css.md cheatsheets/css-tricks.md
+git add questions/04-css/ guides/css.md cheatsheets/css-tricks.md
 git commit -m "feat: phase 4 — CSS challenges (20 questions)"
 ```
 
@@ -405,7 +405,7 @@ Create everything needed for the State & Patterns topic:
 300+ words covering: (1) core mental model, (2) key APIs/patterns with inline code snippets, (3) common gotchas and interview mistakes, (4) 2–3 code snippets illustrating the most important patterns, (5) interview framing — how to talk through solutions out loud.
 Topics: HOC vs render props vs hooks, Redux architecture, context re-render pitfalls, state machines
 
-**2. Exercises — questions/state/ (11 questions)**
+**2. Exercises — questions/05-state/ (11 questions)**
 One subfolder per question. Each subfolder gets 3 files: README.md, index.ts, tests.ts.
 
 Questions (name | hint | diff | imp | slug):
@@ -426,22 +426,22 @@ File specs:
 - index.ts: correct TypeScript signature + types, 3–5 TODO comments guiding thinking
 - tests.ts: plain console.log PASS/FAIL assertions, happy path + 2 edge cases
 
-**3. Solution stubs — questions/state/ (11 files)**
-Mirror questions/state/ — same 11 slugs. Each solution.ts lives alongside index.ts and tests.ts in the same slug folder.
+**3. Solution stubs — questions/05-state/ (11 files)**
+Mirror questions/05-state/ — same 11 slugs. Each solution.ts lives alongside index.ts and tests.ts in the same slug folder.
 Each solution.ts: correct TypeScript signature + single comment: // TODO: implement solution
 
 After creating, run:
-find questions/state -type f | wc -l
-find questions/state -name "solution.ts" | wc -l
+find questions/05-state -type f | wc -l
+find questions/05-state -name "solution.ts" | wc -l
 ```
 
-Expected: questions/state = 33 files, questions/state = 11 files
+Expected: questions/05-state = 33 files, questions/05-state = 11 files
 
 **Verify:** Open `redux-flux/` and `use-state-scratch/` — these are the hardest. Check index.ts has meaningful TODOs.
 
 **Commit:**
 ```
-git add questions/state/ guides/state.md
+git add questions/05-state/ guides/state.md
 git commit -m "feat: phase 5 — state and patterns (11 questions)"
 ```
 
@@ -464,7 +464,7 @@ Topics: Core Web Vitals (LCP/CLS/INP), React memoization pitfalls, code splittin
 Time/space complexity table for: Array (push/pop/shift/unshift/indexOf/splice), Object (get/set/delete/hasOwnProperty), Map, Set, sorting algorithms.
 Common interview patterns with their complexity: two-pointer O(n), sliding window O(n), hash map lookup O(1), BFS/DFS O(V+E), binary search O(log n), DP O(n²).
 
-**3. Exercises — questions/perf/ (9 questions)**
+**3. Exercises — questions/06-perf/ (9 questions)**
 One subfolder per question. Each subfolder gets 3 files: README.md, index.ts, tests.ts.
 
 Questions (name | hint | diff | imp | slug):
@@ -483,22 +483,22 @@ File specs:
 - index.ts: correct TypeScript signature + types, 3–5 TODO comments guiding thinking
 - tests.ts: plain console.log PASS/FAIL assertions, happy path + 2 edge cases
 
-**4. Solution stubs — questions/perf/ (9 files)**
-Mirror questions/perf/ — same 9 slugs. Each solution.ts lives alongside index.ts and tests.ts in the same slug folder.
+**4. Solution stubs — questions/06-perf/ (9 files)**
+Mirror questions/06-perf/ — same 9 slugs. Each solution.ts lives alongside index.ts and tests.ts in the same slug folder.
 Each solution.ts: correct TypeScript signature + single comment: // TODO: implement solution
 
 After creating, run:
-find questions/perf -type f | wc -l
-find questions/perf -name "solution.ts" | wc -l
+find questions/06-perf -type f | wc -l
+find questions/06-perf -name "solution.ts" | wc -l
 ```
 
-Expected: questions/perf = 27 files, questions/perf = 9 files
+Expected: questions/06-perf = 27 files, questions/06-perf = 9 files
 
 **Verify:** Open `react-memoization/` — check README.md covers both over-optimization and under-optimization edge cases.
 
 **Commit:**
 ```
-git add questions/perf/ guides/perf.md cheatsheets/big-o.md
+git add questions/06-perf/ guides/perf.md cheatsheets/big-o.md
 git commit -m "feat: phase 6 — performance (9 questions)"
 ```
 
@@ -517,7 +517,7 @@ Create everything needed for the Data Structures topic:
 300+ words covering: (1) core mental model, (2) key APIs/patterns with inline code snippets, (3) common gotchas and interview mistakes, (4) 2–3 code snippets illustrating the most important patterns, (5) interview framing — how to talk through solutions out loud.
 Topics: hash map patterns, BFS/DFS on trees and DOM, two-pointer and sliding window, trie insert/search, DP table setup
 
-**2. Exercises — questions/ds/ (8 questions)**
+**2. Exercises — questions/07-ds/ (8 questions)**
 One subfolder per question. Each subfolder gets 3 files: README.md, index.ts, tests.ts.
 
 Questions (name | hint | diff | imp | slug):
@@ -535,22 +535,22 @@ File specs:
 - index.ts: correct TypeScript signature + types, 3–5 TODO comments guiding thinking
 - tests.ts: plain console.log PASS/FAIL assertions, happy path + 2 edge cases
 
-**3. Solution stubs — questions/ds/ (8 files)**
-Mirror questions/ds/ — same 8 slugs. Each solution.ts lives alongside index.ts and tests.ts in the same slug folder.
+**3. Solution stubs — questions/07-ds/ (8 files)**
+Mirror questions/07-ds/ — same 8 slugs. Each solution.ts lives alongside index.ts and tests.ts in the same slug folder.
 Each solution.ts: correct TypeScript signature + single comment: // TODO: implement solution
 
 After creating, run:
-find questions/ds -type f | wc -l
-find questions/ds -name "solution.ts" | wc -l
+find questions/07-ds -type f | wc -l
+find questions/07-ds -name "solution.ts" | wc -l
 ```
 
-Expected: questions/ds = 24 files, questions/ds = 8 files
+Expected: questions/07-ds = 24 files, questions/07-ds = 8 files
 
 **Verify:** Open `trie-autocomplete/` — check index.ts has a TrieNode class scaffold with TODOs.
 
 **Commit:**
 ```
-git add questions/ds/ guides/ds.md
+git add questions/07-ds/ guides/ds.md
 git commit -m "feat: phase 7 — data structures (8 questions)"
 ```
 
@@ -569,7 +569,7 @@ Create everything needed for the System Design topic:
 300+ words covering: (1) core mental model, (2) key APIs/patterns with inline code snippets, (3) common gotchas and interview mistakes, (4) 2–3 code snippets illustrating the most important patterns, (5) interview framing — how to talk through solutions out loud.
 Topics: component library tokens and polymorphic `as` prop, WebSocket vs SSE, chunked upload, offline-first with IndexedDB, analytics SDK batching
 
-**2. Exercises — questions/sys/ (7 questions)**
+**2. Exercises — questions/08-sys/ (7 questions)**
 One subfolder per question. Each subfolder gets 3 files: README.md, index.ts, tests.ts.
 
 Questions (name | hint | diff | imp | slug):
@@ -586,22 +586,22 @@ File specs:
 - index.ts: correct TypeScript signature + types, 3–5 TODO comments guiding thinking
 - tests.ts: plain console.log PASS/FAIL assertions, happy path + 2 edge cases
 
-**3. Solution stubs — questions/sys/ (7 files)**
-Mirror questions/sys/ — same 7 slugs. Each solution.ts lives alongside index.ts and tests.ts in the same slug folder.
+**3. Solution stubs — questions/08-sys/ (7 files)**
+Mirror questions/08-sys/ — same 7 slugs. Each solution.ts lives alongside index.ts and tests.ts in the same slug folder.
 Each solution.ts: correct TypeScript signature + single comment: // TODO: implement solution
 
 After creating, run:
-find questions/sys -type f | wc -l
-find questions/sys -name "solution.ts" | wc -l
+find questions/08-sys -type f | wc -l
+find questions/08-sys -name "solution.ts" | wc -l
 ```
 
-Expected: questions/sys = 21 files, questions/sys = 7 files
+Expected: questions/08-sys = 21 files, questions/08-sys = 7 files
 
 **Verify:** Open `chunked-uploader/` — check that README.md covers retry, abort, and progress reporting as edge cases.
 
 **Commit:**
 ```
-git add questions/sys/ guides/sys.md
+git add questions/08-sys/ guides/sys.md
 git commit -m "feat: phase 8 — system design (7 questions)"
 ```
 
@@ -619,7 +619,7 @@ Create everything needed for the Mini Apps topic:
 **1. Guide — guides/mini.md**
 300+ words covering: (1) how machine rounds differ from live coding, (2) how to structure a mini app build (state first, then UI, then edge cases), (3) common patterns across all mini apps (controlled inputs, localStorage persist, loading/error states), (4) what reviewers check in submitted code (correctness, edge case handling, code organisation), (5) time management — what to cut vs what to keep.
 
-**2. Exercises — questions/mini/ (30 questions)**
+**2. Exercises — questions/09-mini/ (30 questions)**
 One subfolder per question. Each subfolder gets 2 files: README.md and index.tsx.
 No tests.ts — mini apps are evaluated by running them in a browser (paste into playground/src/App.tsx and run `npm run dev`).
 
@@ -659,22 +659,22 @@ File specs:
 - README.md: plain-English problem statement, full requirements list, stretch goals, what the reviewer checks, edge cases list
 - index.tsx: React component scaffold with TODO comments for each major feature; paste into playground/src/App.tsx to view live in the browser
 
-**3. Solution stubs — questions/mini/ (30 files)**
-Mirror questions/mini/ — same 30 slugs. Each slug folder contains only one file: solution.md.
+**3. Solution stubs — questions/09-mini/ (30 files)**
+Mirror questions/09-mini/ — same 30 slugs. Each slug folder contains only one file: solution.md.
 Each solution.md: one-paragraph approach outline — no code — so the user plans before building.
 
 After creating, run:
-find questions/mini -type f | wc -l
-find questions/mini -name "solution.md" | wc -l
+find questions/09-mini -type f | wc -l
+find questions/09-mini -name "solution.md" | wc -l
 ```
 
-Expected: questions/mini = 60 files (2 per question), questions/mini = 30 files
+Expected: questions/09-mini = 60 files (2 per question), questions/09-mini = 30 files
 
 **Verify:** Open `todo-list/` and `pomodoro-timer/` — check README.md covers localStorage, edge cases, and evaluation criteria.
 
 **Commit:**
 ```
-git add questions/mini/ guides/mini.md
+git add questions/09-mini/ guides/mini.md
 git commit -m "feat: phase 9 — mini apps (30 questions)"
 ```
 
