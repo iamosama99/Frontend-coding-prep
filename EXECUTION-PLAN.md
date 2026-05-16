@@ -94,6 +94,12 @@ find .claude/commands -name "*.md" | sort
 
 **Verify:** PROGRESS.md has 159 rows. CLAUDE.md has the full question table. 6 command files exist.
 
+**Commit:**
+```
+git add CLAUDE.md README.md PROGRESS.md .claude/commands/
+git commit -m "feat: phase 0 — foundation files and slash commands"
+```
+
 ---
 
 ## [x] Phase 1 — JavaScript Fundamentals (24 questions)
@@ -160,6 +166,12 @@ Expected: questions/js = 72 files, questions/js = 24 files
 
 **Verify:** Open `lru-cache/` and `promise-all/` — check README.md has edge cases, tests.ts has 3+ assertions.
 
+**Commit:**
+```
+git add questions/js/ guides/js.md cheatsheets/js-patterns.md
+git commit -m "feat: phase 1 — JavaScript fundamentals (24 questions)"
+```
+
 ---
 
 ## [x] Phase 2 — React Hooks (17 questions)
@@ -218,6 +230,12 @@ find questions/hooks -name "solution.ts" | wc -l
 Expected: questions/hooks = 51 files, questions/hooks = 17 files
 
 **Verify:** Open `use-fetch/` and `use-async-mutation/` — check index.ts has types and TODOs but no implementation.
+
+**Commit:**
+```
+git add questions/hooks/ guides/hooks.md cheatsheets/react-hooks-api.md
+git commit -m "feat: phase 2 — React hooks (17 questions)"
+```
 
 ---
 
@@ -299,6 +317,12 @@ Expected: questions/ui = 99 files, questions/ui = 33 files
 
 **Verify:** Open `modal/` and `autocomplete/` — check index.ts has the Props interface and focus/ARIA-related TODOs.
 
+**Commit:**
+```
+git add questions/ui/ guides/ui.md cheatsheets/a11y-aria.md
+git commit -m "feat: phase 3 — UI components (33 questions)"
+```
+
 ---
 
 ## [x] Phase 4 — CSS (20 questions)
@@ -360,9 +384,70 @@ Expected: questions/css = 60 files, questions/css = 20 files
 
 **Verify:** Open `skeleton-screen/` and `dark-mode/` — check README.md has edge cases.
 
+**Commit:**
+```
+git add questions/css/ guides/css.md cheatsheets/css-tricks.md
+git commit -m "feat: phase 4 — CSS challenges (20 questions)"
+```
+
 ---
 
-## [ ] Phase 5 — Performance (9 questions)
+## [x] Phase 5 — State & Patterns (11 questions)
+
+HOCs, render props, Context pitfalls, and building Redux from scratch — the "how React works" tier.
+
+Paste this into Claude Code:
+
+```
+Create everything needed for the State & Patterns topic:
+
+**1. Guide — guides/state.md**
+300+ words covering: (1) core mental model, (2) key APIs/patterns with inline code snippets, (3) common gotchas and interview mistakes, (4) 2–3 code snippets illustrating the most important patterns, (5) interview framing — how to talk through solutions out loud.
+Topics: HOC vs render props vs hooks, Redux architecture, context re-render pitfalls, state machines
+
+**2. Exercises — questions/state/ (11 questions)**
+One subfolder per question. Each subfolder gets 3 files: README.md, index.ts, tests.ts.
+
+Questions (name | hint | diff | imp | slug):
+1. useReducer from scratch | pure reducer fn, action type switch, return new state | med | must | use-reducer
+2. Context API + Provider pattern | createContext, useContext, prevent unnecessary re-renders | med | must | context-provider
+3. HOC (Higher-Order Component) | wraps component, injects props, set displayName prop | med | must | hoc
+4. useState from scratch | closure array + index counter, dispatcher queue | hard | must | use-state-scratch
+5. Redux / Flux from scratch | store, dispatch, subscribe, combineReducers | hard | must | redux-flux
+6. Render props pattern | function as child or render prop, inversion of control | med | imp | render-props
+7. Optimistic UI update | update state first, store rollback, revert on error | med | imp | optimistic-ui
+8. Observer / pub-sub pattern | subject.subscribe(fn), notify all, unsubscribe cleanup | med | imp | observer-pattern
+9. Compound components pattern | Context inside parent, children share implicit state | hard | imp | compound-components
+10. Zustand-style store from scratch | closure, getState, setState, subscribe + selector | hard | imp | zustand-store
+11. Finite state machine (lite) | state map, transition fn, guards + side effects | hard | nice | finite-state-machine
+
+File specs:
+- README.md: plain-English problem statement, TypeScript API signature, usage example with expected behavior, constraints, edge cases list
+- index.ts: correct TypeScript signature + types, 3–5 TODO comments guiding thinking
+- tests.ts: plain console.log PASS/FAIL assertions, happy path + 2 edge cases
+
+**3. Solution stubs — questions/state/ (11 files)**
+Mirror questions/state/ — same 11 slugs. Each solution.ts lives alongside index.ts and tests.ts in the same slug folder.
+Each solution.ts: correct TypeScript signature + single comment: // TODO: implement solution
+
+After creating, run:
+find questions/state -type f | wc -l
+find questions/state -name "solution.ts" | wc -l
+```
+
+Expected: questions/state = 33 files, questions/state = 11 files
+
+**Verify:** Open `redux-flux/` and `use-state-scratch/` — these are the hardest. Check index.ts has meaningful TODOs.
+
+**Commit:**
+```
+git add questions/state/ guides/state.md
+git commit -m "feat: phase 5 — state and patterns (11 questions)"
+```
+
+---
+
+## [x] Phase 6 — Performance (9 questions)
 
 Core Web Vitals, memoization pitfalls, and optimization strategies interviewers probe directly.
 
@@ -411,103 +496,15 @@ Expected: questions/perf = 27 files, questions/perf = 9 files
 
 **Verify:** Open `react-memoization/` — check README.md covers both over-optimization and under-optimization edge cases.
 
----
-
-## [ ] Phase 6 — State & Patterns (11 questions)
-
-HOCs, render props, Context pitfalls, and building Redux from scratch — the "how React works" tier.
-
-Paste this into Claude Code:
-
+**Commit:**
 ```
-Create everything needed for the State & Patterns topic:
-
-**1. Guide — guides/state.md**
-300+ words covering: (1) core mental model, (2) key APIs/patterns with inline code snippets, (3) common gotchas and interview mistakes, (4) 2–3 code snippets illustrating the most important patterns, (5) interview framing — how to talk through solutions out loud.
-Topics: HOC vs render props vs hooks, Redux architecture, context re-render pitfalls, state machines
-
-**2. Exercises — questions/state/ (11 questions)**
-One subfolder per question. Each subfolder gets 3 files: README.md, index.ts, tests.ts.
-
-Questions (name | hint | diff | imp | slug):
-1. useReducer from scratch | pure reducer fn, action type switch, return new state | med | must | use-reducer
-2. Context API + Provider pattern | createContext, useContext, prevent unnecessary re-renders | med | must | context-provider
-3. HOC (Higher-Order Component) | wraps component, injects props, set displayName prop | med | must | hoc
-4. useState from scratch | closure array + index counter, dispatcher queue | hard | must | use-state-scratch
-5. Redux / Flux from scratch | store, dispatch, subscribe, combineReducers | hard | must | redux-flux
-6. Render props pattern | function as child or render prop, inversion of control | med | imp | render-props
-7. Optimistic UI update | update state first, store rollback, revert on error | med | imp | optimistic-ui
-8. Observer / pub-sub pattern | subject.subscribe(fn), notify all, unsubscribe cleanup | med | imp | observer-pattern
-9. Compound components pattern | Context inside parent, children share implicit state | hard | imp | compound-components
-10. Zustand-style store from scratch | closure, getState, setState, subscribe + selector | hard | imp | zustand-store
-11. Finite state machine (lite) | state map, transition fn, guards + side effects | hard | nice | finite-state-machine
-
-File specs:
-- README.md: plain-English problem statement, TypeScript API signature, usage example with expected behavior, constraints, edge cases list
-- index.ts: correct TypeScript signature + types, 3–5 TODO comments guiding thinking
-- tests.ts: plain console.log PASS/FAIL assertions, happy path + 2 edge cases
-
-**3. Solution stubs — questions/state/ (11 files)**
-Mirror questions/state/ — same 11 slugs. Each solution.ts lives alongside index.ts and tests.ts in the same slug folder.
-Each solution.ts: correct TypeScript signature + single comment: // TODO: implement solution
-
-After creating, run:
-find questions/state -type f | wc -l
-find questions/state -name "solution.ts" | wc -l
+git add questions/perf/ guides/perf.md cheatsheets/big-o.md
+git commit -m "feat: phase 6 — performance (9 questions)"
 ```
-
-Expected: questions/state = 33 files, questions/state = 11 files
-
-**Verify:** Open `redux-flux/` and `use-state-scratch/` — these are the hardest. Check index.ts has meaningful TODOs.
 
 ---
 
-## [ ] Phase 7 — System Design (7 questions)
-
-Architecture-level thinking: component libraries, real-time systems, offline-first. Usually the "senior" tier of an interview.
-
-Paste this into Claude Code:
-
-```
-Create everything needed for the System Design topic:
-
-**1. Guide — guides/sys.md**
-300+ words covering: (1) core mental model, (2) key APIs/patterns with inline code snippets, (3) common gotchas and interview mistakes, (4) 2–3 code snippets illustrating the most important patterns, (5) interview framing — how to talk through solutions out loud.
-Topics: component library tokens and polymorphic `as` prop, WebSocket vs SSE, chunked upload, offline-first with IndexedDB, analytics SDK batching
-
-**2. Exercises — questions/sys/ (7 questions)**
-One subfolder per question. Each subfolder gets 3 files: README.md, index.ts, tests.ts.
-
-Questions (name | hint | diff | imp | slug):
-1. Component library architecture | tokens, polymorphic `as` prop, peer deps, a11y first | hard | must | component-library
-2. Real-time chat / activity feed | WebSocket vs SSE, cursor pagination, read receipts | hard | must | realtime-chat
-3. Chunked file uploader | File.slice + FormData chunks, progress, retry, abort | hard | must | chunked-uploader
-4. Frontend search system | debounce, cache results, highlight, facets, sort | med | imp | frontend-search
-5. Analytics / tracking SDK | batch events, flush queue, visibilitychange, beacon API | hard | imp | analytics-sdk
-6. Offline-first web app | IndexedDB queue, background sync, conflict resolution | hard | imp | offline-first
-7. Collaborative editing (basic) | operational transform or CRDT concept, merge conflicts | hard | nice | collaborative-editing
-
-File specs:
-- README.md: plain-English problem statement, TypeScript API signature, usage example with expected behavior, constraints, edge cases list
-- index.ts: correct TypeScript signature + types, 3–5 TODO comments guiding thinking
-- tests.ts: plain console.log PASS/FAIL assertions, happy path + 2 edge cases
-
-**3. Solution stubs — questions/sys/ (7 files)**
-Mirror questions/sys/ — same 7 slugs. Each solution.ts lives alongside index.ts and tests.ts in the same slug folder.
-Each solution.ts: correct TypeScript signature + single comment: // TODO: implement solution
-
-After creating, run:
-find questions/sys -type f | wc -l
-find questions/sys -name "solution.ts" | wc -l
-```
-
-Expected: questions/sys = 21 files, questions/sys = 7 files
-
-**Verify:** Open `chunked-uploader/` — check that README.md covers retry, abort, and progress reporting as edge cases.
-
----
-
-## [ ] Phase 8 — Data Structures (8 questions)
+## [ ] Phase 7 — Data Structures (8 questions)
 
 Algorithmic thinking for frontend: DOM traversal, trie for autocomplete, DP for string problems.
 
@@ -550,6 +547,63 @@ find questions/ds -name "solution.ts" | wc -l
 Expected: questions/ds = 24 files, questions/ds = 8 files
 
 **Verify:** Open `trie-autocomplete/` — check index.ts has a TrieNode class scaffold with TODOs.
+
+**Commit:**
+```
+git add questions/ds/ guides/ds.md
+git commit -m "feat: phase 7 — data structures (8 questions)"
+```
+
+---
+
+## [ ] Phase 8 — System Design (7 questions)
+
+Architecture-level thinking: component libraries, real-time systems, offline-first. Usually the "senior" tier of an interview.
+
+Paste this into Claude Code:
+
+```
+Create everything needed for the System Design topic:
+
+**1. Guide — guides/sys.md**
+300+ words covering: (1) core mental model, (2) key APIs/patterns with inline code snippets, (3) common gotchas and interview mistakes, (4) 2–3 code snippets illustrating the most important patterns, (5) interview framing — how to talk through solutions out loud.
+Topics: component library tokens and polymorphic `as` prop, WebSocket vs SSE, chunked upload, offline-first with IndexedDB, analytics SDK batching
+
+**2. Exercises — questions/sys/ (7 questions)**
+One subfolder per question. Each subfolder gets 3 files: README.md, index.ts, tests.ts.
+
+Questions (name | hint | diff | imp | slug):
+1. Component library architecture | tokens, polymorphic `as` prop, peer deps, a11y first | hard | must | component-library
+2. Real-time chat / activity feed | WebSocket vs SSE, cursor pagination, read receipts | hard | must | realtime-chat
+3. Chunked file uploader | File.slice + FormData chunks, progress, retry, abort | hard | must | chunked-uploader
+4. Frontend search system | debounce, cache results, highlight, facets, sort | med | imp | frontend-search
+5. Analytics / tracking SDK | batch events, flush queue, visibilitychange, beacon API | hard | imp | analytics-sdk
+6. Offline-first web app | IndexedDB queue, background sync, conflict resolution | hard | imp | offline-first
+7. Collaborative editing (basic) | operational transform or CRDT concept, merge conflicts | hard | nice | collaborative-editing
+
+File specs:
+- README.md: plain-English problem statement, TypeScript API signature, usage example with expected behavior, constraints, edge cases list
+- index.ts: correct TypeScript signature + types, 3–5 TODO comments guiding thinking
+- tests.ts: plain console.log PASS/FAIL assertions, happy path + 2 edge cases
+
+**3. Solution stubs — questions/sys/ (7 files)**
+Mirror questions/sys/ — same 7 slugs. Each solution.ts lives alongside index.ts and tests.ts in the same slug folder.
+Each solution.ts: correct TypeScript signature + single comment: // TODO: implement solution
+
+After creating, run:
+find questions/sys -type f | wc -l
+find questions/sys -name "solution.ts" | wc -l
+```
+
+Expected: questions/sys = 21 files, questions/sys = 7 files
+
+**Verify:** Open `chunked-uploader/` — check that README.md covers retry, abort, and progress reporting as edge cases.
+
+**Commit:**
+```
+git add questions/sys/ guides/sys.md
+git commit -m "feat: phase 8 — system design (7 questions)"
+```
 
 ---
 
@@ -618,6 +672,12 @@ Expected: questions/mini = 60 files (2 per question), questions/mini = 30 files
 
 **Verify:** Open `todo-list/` and `pomodoro-timer/` — check README.md covers localStorage, edge cases, and evaluation criteria.
 
+**Commit:**
+```
+git add questions/mini/ guides/mini.md
+git commit -m "feat: phase 9 — mini apps (30 questions)"
+```
+
 ---
 
 ## [ ] Phase 10 — Mock Interviews & Interview Communication
@@ -681,6 +741,12 @@ Expected: mock-interviews = 11 files, cheatsheets = 6 total (js-patterns, react-
 
 **Verify:** Check set-1 and set-5 of each type — confirm difficulty progression is real.
 
+**Commit:**
+```
+git add mock-interviews/ cheatsheets/interview-communication.md
+git commit -m "feat: phase 10 — mock interviews and scoring rubric"
+```
+
 ---
 
 ## [ ] Final Verification
@@ -717,10 +783,10 @@ Expected counts:
 | 2 | React Hooks | 17 | Full hooks practice |
 | 3 | UI Components | 33 | Full UI practice + a11y cheatsheet |
 | 4 | CSS | 20 | Full CSS practice |
-| 5 | Performance | 9 | Full perf practice + big-O cheatsheet |
-| 6 | State & Patterns | 11 | Full state practice |
-| 7 | System Design | 7 | Full sys design practice |
-| 8 | Data Structures | 8 | Full DS practice |
+| 5 | State & Patterns | 11 | Full state practice |
+| 6 | Performance | 9 | Full perf practice + big-O cheatsheet |
+| 7 | Data Structures | 8 | Full DS practice |
+| 8 | System Design | 7 | Full sys design practice |
 | 9 | Mini Apps | 30 | Full machine round practice |
 | 10 | Mock Interviews | — | /mock live and /mock machine |
 
