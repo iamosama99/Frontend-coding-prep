@@ -301,7 +301,7 @@ Expected: questions/ui = 99 files, questions/ui = 33 files
 
 ---
 
-## [ ] Phase 4 — CSS (20 questions)
+## [x] Phase 4 — CSS (20 questions)
 
 Visual layout fundamentals. Everything from box model and specificity to modern scroll-driven animations.
 
