@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Shopping Cart</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body { font-family: system-ui, sans-serif; background: #f8fafc; color: #1e293b; }
+
+    header {
+      background: #0f172a;
+      color: #fff;
+      padding: 16px 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    header h1 { font-size: 1.2rem; }
+
+    .cart-icon { font-size: 1.4rem; cursor: pointer; position: relative; }
+    .cart-badge {
+      position: absolute;
+      top: -8px; right: -8px;
+      background: #ef4444;
+      color: #fff;
+      border-radius: 50%;
+      font-size: 0.7rem;
+      width: 18px; height: 18px;
+      display: flex; align-items: center; justify-content: center;
+      display: none;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: 1fr 360px;
+      gap: 24px;
+      padding: 24px;
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+
+    @media (max-width: 768px) {
+      .layout { grid-template-columns: 1fr; }
+    }
+
+    /* Product grid */
+    .products-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+      gap: 16px;
+    }
+
+    .product-card {
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .product-img {
+      width: 100%;
+      aspect-ratio: 1;
+      background: #e2e8f0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 3rem;
+    }
+
+    .product-info { padding: 12px; flex: 1; display: flex; flex-direction: column; gap: 6px; }
+    .product-name { font-size: 0.9rem; font-weight: 600; }
+    .product-price { font-size: 0.85rem; color: #64748b; }
+    .add-btn {
+      margin-top: auto;
+      background: #4f46e5;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      padding: 8px;
+      font-size: 0.85rem;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+    .add-btn:hover { background: #4338ca; }
+
+    /* Cart panel */
+    .cart-panel {
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+      display: flex;
+      flex-direction: column;
+      max-height: 80vh;
+      position: sticky;
+      top: 24px;
+    }
+
+    .cart-panel h2 { padding: 16px 20px; border-bottom: 1px solid #e2e8f0; font-size: 1rem; }
+
+    .cart-items { flex: 1; overflow-y: auto; }
+
+    .empty-cart {
+      padding: 40px;
+      text-align: center;
+      color: #94a3b8;
+      font-size: 0.95rem;
+    }
+
+    .cart-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 20px;
+      border-bottom: 1px solid #f1f5f9;
+    }
+
+    .cart-item-info { flex: 1; }
+    .cart-item-name { font-size: 0.85rem; font-weight: 600; }
+    .cart-item-line { font-size: 0.8rem; color: #64748b; }
+
+    .qty-controls { display: flex; align-items: center; gap: 6px; }
+
+    .qty-btn {
+      width: 26px; height: 26px;
+      border: 1px solid #d1d5db;
+      border-radius: 6px;
+      background: #f9fafb;
+      cursor: pointer;
+      font-size: 0.9rem;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .qty-btn:hover { background: #e5e7eb; }
+
+    .qty-val { font-size: 0.9rem; font-weight: 600; min-width: 20px; text-align: center; }
+
+    .remove-btn {
+      background: none;
+      border: none;
+      color: #94a3b8;
+      cursor: pointer;
+      font-size: 1rem;
+      padding: 4px;
+    }
+    .remove-btn:hover { color: #ef4444; }
+
+    .cart-footer {
+      border-top: 1px solid #e2e8f0;
+      padding: 16px 20px;
+    }
+
+    .totals { display: flex; flex-direction: column; gap: 6px; font-size: 0.9rem; }
+    .total-row { display: flex; justify-content: space-between; color: #64748b; }
+    .grand-total { font-weight: 700; color: #1e293b; font-size: 1rem; border-top: 1px solid #e2e8f0; padding-top: 6px; margin-top: 4px; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Shop</h1>
+    <div class="cart-icon" title="Cart">
+      🛒
+      <div class="cart-badge" id="cart-badge">0</div>
+    </div>
+  </header>
+
+  <div class="layout">
+    <div>
+      <div class="products-grid" id="products-grid"></div>
+    </div>
+
+    <div class="cart-panel">
+      <h2>Cart</h2>
+      <div class="cart-items" id="cart-items"></div>
+      <div class="cart-footer">
+        <div class="totals">
+          <div class="total-row"><span>Subtotal</span><span id="subtotal">$0.00</span></div>
+          <div class="total-row"><span>Tax (8%)</span><span id="tax">$0.00</span></div>
+          <div class="total-row grand-total"><span>Total</span><span id="grand-total">$0.00</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // --- Data ---
+    const PRODUCTS = [
+      { id: 1, name: 'Wireless Headphones', price: 79.99, emoji: '🎧' },
+      { id: 2, name: 'Mechanical Keyboard', price: 129.99, emoji: '⌨️' },
+      { id: 3, name: 'USB-C Hub',           price: 49.99,  emoji: '🔌' },
+      { id: 4, name: 'Webcam HD',           price: 89.99,  emoji: '📷' },
+      { id: 5, name: 'Desk Lamp',           price: 34.99,  emoji: '💡' },
+      { id: 6, name: 'Mouse Pad XL',        price: 24.99,  emoji: '🖱️' },
+      { id: 7, name: 'Monitor Stand',       price: 59.99,  emoji: '🖥️' },
+      { id: 8, name: 'Laptop Sleeve',       price: 19.99,  emoji: '💼' },
+    ];
+
+    const TAX_RATE = 0.08;
+
+    // --- State ---
+    // TODO: Load cart from localStorage key 'cart'.
+    //       Cart is an array of { id, qty } objects.
+    //       Default to [].
+    let cart = [];
+
+    // --- DOM references ---
+    const productsGrid = document.getElementById('products-grid');
+    const cartItemsEl  = document.getElementById('cart-items');
+    const subtotalEl   = document.getElementById('subtotal');
+    const taxEl        = document.getElementById('tax');
+    const grandTotalEl = document.getElementById('grand-total');
+    const cartBadge    = document.getElementById('cart-badge');
+
+    // --- Persistence ---
+    function saveCart() {
+      // TODO: Save cart array to localStorage key 'cart' as JSON.
+      throw new Error('saveCart() not implemented');
+    }
+
+    // --- Cart helpers ---
+    function getCartItem(id) {
+      // TODO: Return the cart item with matching id, or undefined.
+      throw new Error('getCartItem() not implemented');
+    }
+
+    function addToCart(id) {
+      // TODO: If item already in cart, increment its qty.
+      //       Otherwise push { id, qty: 1 }.
+      //       Save and render cart.
+      throw new Error('addToCart() not implemented');
+    }
+
+    function updateQty(id, delta) {
+      // TODO: Find the item and add delta to its qty.
+      //       If qty would drop below 1, do nothing (remove button handles deletion).
+      //       Save and render cart.
+      throw new Error('updateQty() not implemented');
+    }
+
+    function removeFromCart(id) {
+      // TODO: Filter out the item with matching id. Save and render cart.
+      throw new Error('removeFromCart() not implemented');
+    }
+
+    // --- Render products ---
+    function renderProducts() {
+      // TODO: For each product in PRODUCTS, create a .product-card:
+      //   - .product-img with the emoji centered
+      //   - .product-info with name, price (formatted $X.XX), and an "Add to Cart" button
+      //   - Clicking the button calls addToCart(product.id)
+      throw new Error('renderProducts() not implemented');
+    }
+
+    // --- Render cart ---
+    function renderCart() {
+      // TODO: If cart is empty, show <div class="empty-cart">Your cart is empty</div>.
+      //
+      // Otherwise for each cart item:
+      //   - Look up the product by id from PRODUCTS.
+      //   - Render a .cart-item with:
+      //       - product name and line total ($price × qty)
+      //       - qty controls (− button, qty number, + button)
+      //       - remove button (×)
+      //   - − button calls updateQty(id, -1); disable when qty === 1
+      //   - + button calls updateQty(id, 1)
+      //   - × button calls removeFromCart(id)
+      //
+      // TODO: Update subtotal, tax, grand total in the footer.
+      //   subtotal = sum of (product.price * item.qty)
+      //   tax      = subtotal * TAX_RATE
+      //   grand    = subtotal + tax
+      //   Format all as $X.XX using toFixed(2).
+      //
+      // TODO: Update cart badge with total item count (sum of all qty).
+      //   Show badge if count > 0, hide if 0.
+      throw new Error('renderCart() not implemented');
+    }
+
+    // --- Init ---
+    renderProducts();
+    renderCart();
+  </script>
+</body>
+</html>

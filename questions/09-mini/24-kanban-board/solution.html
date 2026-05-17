@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Kanban Board — Solution</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: system-ui, sans-serif;
+      background: #0f172a;
+      color: #f1f5f9;
+      min-height: 100vh;
+      padding: 2rem 1rem;
+    }
+
+    h1 { text-align: center; font-size: 1.8rem; margin-bottom: 0.4rem; }
+    .subtitle { text-align: center; color: #94a3b8; margin-bottom: 2rem; }
+
+    .add-form {
+      background: #1e293b;
+      border-radius: 14px;
+      padding: 1.25rem 1.5rem;
+      max-width: 500px;
+      margin: 0 auto 2rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+    .add-form h3 { font-size: 0.9rem; color: #94a3b8; font-weight: 600; }
+
+    input[type="text"], textarea, select {
+      background: #0f172a;
+      border: 1.5px solid #334155;
+      border-radius: 8px;
+      color: #f1f5f9;
+      padding: 0.6rem 0.9rem;
+      font-size: 0.9rem;
+      font-family: inherit;
+      outline: none;
+      width: 100%;
+      transition: border-color 0.15s;
+    }
+    input[type="text"]:focus, textarea:focus, select:focus { border-color: #6366f1; }
+    input.error { border-color: #f87171; }
+    textarea { resize: vertical; min-height: 60px; }
+
+    .form-row { display: flex; gap: 0.75rem; }
+    .form-row select { flex: 1; }
+
+    .error-msg { color: #f87171; font-size: 0.8rem; min-height: 1em; }
+
+    .btn-add {
+      background: #6366f1;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      padding: 0.6rem 1.2rem;
+      font-size: 0.9rem;
+      cursor: pointer;
+      transition: background 0.15s;
+      white-space: nowrap;
+    }
+    .btn-add:hover { background: #4f46e5; }
+
+    .board {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.25rem;
+      max-width: 1000px;
+      margin: 0 auto;
+    }
+
+    .column {
+      background: #1e293b;
+      border-radius: 14px;
+      padding: 1rem;
+      min-height: 400px;
+      display: flex;
+      flex-direction: column;
+      transition: outline 0.1s;
+    }
+    .column.drag-over { outline: 2px dashed #6366f1; background: #1a2744; }
+
+    .column-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 1rem;
+    }
+    .column-title { font-weight: 700; font-size: 0.95rem; }
+    .col-todo .column-title       { color: #94a3b8; }
+    .col-inprogress .column-title { color: #fbbf24; }
+    .col-done .column-title       { color: #34d399; }
+
+    .badge {
+      background: #334155;
+      color: #94a3b8;
+      border-radius: 999px;
+      padding: 0.15rem 0.55rem;
+      font-size: 0.78rem;
+      font-weight: 700;
+    }
+
+    .cards-container {
+      display: flex;
+      flex-direction: column;
+      gap: 0.6rem;
+      flex: 1;
+    }
+
+    .placeholder {
+      border: 2px dashed #334155;
+      border-radius: 10px;
+      padding: 1rem;
+      text-align: center;
+      color: #475569;
+      font-size: 0.82rem;
+      flex: 1;
+    }
+
+    .card {
+      background: #0f172a;
+      border: 1.5px solid #334155;
+      border-radius: 10px;
+      padding: 0.75rem 0.9rem;
+      cursor: grab;
+      position: relative;
+      transition: box-shadow 0.15s;
+    }
+    .card:hover { box-shadow: 0 0 0 2px #6366f1; }
+    .card.dragging { opacity: 0.4; }
+
+    .card-title { font-size: 0.9rem; font-weight: 600; margin-bottom: 0.25rem; padding-right: 1.5rem; }
+    .card-desc  { font-size: 0.78rem; color: #64748b; line-height: 1.4; }
+
+    .btn-delete {
+      position: absolute;
+      top: 0.4rem;
+      right: 0.4rem;
+      background: transparent;
+      border: none;
+      color: #475569;
+      cursor: pointer;
+      font-size: 1rem;
+      line-height: 1;
+      opacity: 0;
+      transition: opacity 0.15s, color 0.15s;
+      padding: 0.1rem 0.3rem;
+    }
+    .card:hover .btn-delete { opacity: 1; }
+    .btn-delete:hover { color: #f87171; }
+  </style>
+</head>
+<body>
+  <h1>Kanban Board 📋</h1>
+  <p class="subtitle">Drag tasks between columns to track progress</p>
+
+  <form class="add-form" id="add-form">
+    <h3>Add a Task</h3>
+    <input type="text" id="task-title" placeholder="Task title (required)" />
+    <div class="error-msg" id="form-error"></div>
+    <textarea id="task-desc" placeholder="Description (optional)"></textarea>
+    <div class="form-row">
+      <select id="task-column">
+        <option value="todo">To Do</option>
+        <option value="inprogress">In Progress</option>
+        <option value="done">Done</option>
+      </select>
+      <button type="submit" class="btn-add">Add Task</button>
+    </div>
+  </form>
+
+  <div class="board">
+    <div class="column col-todo" id="col-todo" data-col="todo">
+      <div class="column-header">
+        <span class="column-title">To Do</span>
+        <span class="badge" id="badge-todo">0</span>
+      </div>
+      <div class="cards-container" id="cards-todo"></div>
+    </div>
+    <div class="column col-inprogress" id="col-inprogress" data-col="inprogress">
+      <div class="column-header">
+        <span class="column-title">In Progress</span>
+        <span class="badge" id="badge-inprogress">0</span>
+      </div>
+      <div class="cards-container" id="cards-inprogress"></div>
+    </div>
+    <div class="column col-done" id="col-done" data-col="done">
+      <div class="column-header">
+        <span class="column-title">Done</span>
+        <span class="badge" id="badge-done">0</span>
+      </div>
+      <div class="cards-container" id="cards-done"></div>
+    </div>
+  </div>
+
+  <script>
+    const STORAGE_KEY = 'kanban-board';
+    const COLUMNS     = ['todo', 'inprogress', 'done'];
+
+    let board = { todo: [], inprogress: [], done: [] };
+    let draggingId  = null;
+    let draggingCol = null;
+
+    function loadBoard() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (raw) {
+          const parsed = JSON.parse(raw);
+          if (parsed && typeof parsed === 'object') {
+            COLUMNS.forEach(c => { board[c] = Array.isArray(parsed[c]) ? parsed[c] : []; });
+          }
+        }
+      } catch { /* ignore */ }
+    }
+
+    function saveBoard() {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(board));
+    }
+
+    function renderColumn(col) {
+      const container = document.getElementById(`cards-${col}`);
+      const badge     = document.getElementById(`badge-${col}`);
+      container.innerHTML = '';
+      badge.textContent = board[col].length;
+
+      if (board[col].length === 0) {
+        const ph = document.createElement('div');
+        ph.className = 'placeholder';
+        ph.textContent = 'Drop cards here';
+        container.appendChild(ph);
+        return;
+      }
+
+      board[col].forEach(card => {
+        const el = document.createElement('div');
+        el.className    = 'card';
+        el.draggable    = true;
+        el.dataset.id   = card.id;
+        el.dataset.col  = col;
+        el.innerHTML = `
+          <button class="btn-delete" data-id="${card.id}" title="Delete">×</button>
+          <div class="card-title">${escapeHtml(card.title)}</div>
+          ${card.desc ? `<div class="card-desc">${escapeHtml(card.desc)}</div>` : ''}
+        `;
+
+        el.addEventListener('dragstart', e => {
+          draggingId  = card.id;
+          draggingCol = col;
+          e.dataTransfer.effectAllowed = 'move';
+          setTimeout(() => el.classList.add('dragging'), 0);
+        });
+        el.addEventListener('dragend', () => {
+          el.classList.remove('dragging');
+          document.querySelectorAll('.column').forEach(c => c.classList.remove('drag-over'));
+        });
+
+        el.querySelector('.btn-delete').addEventListener('click', () => deleteCard(card.id, col));
+
+        container.appendChild(el);
+      });
+    }
+
+    function renderAll() {
+      COLUMNS.forEach(renderColumn);
+    }
+
+    function escapeHtml(str) {
+      return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    }
+
+    function addCard(title, desc, col) {
+      board[col].unshift({ id: Date.now(), title, desc });
+      saveBoard();
+      renderColumn(col);
+    }
+
+    function deleteCard(id, col) {
+      board[col] = board[col].filter(c => c.id !== id);
+      saveBoard();
+      renderColumn(col);
+    }
+
+    function moveCard(id, targetCol) {
+      if (draggingCol === targetCol) return;
+      const card = board[draggingCol].find(c => c.id === id);
+      if (!card) return;
+      board[draggingCol] = board[draggingCol].filter(c => c.id !== id);
+      board[targetCol].unshift(card);
+      draggingId  = null;
+      draggingCol = null;
+      saveBoard();
+      renderAll();
+    }
+
+    function setupColumnDrop(colEl) {
+      const col = colEl.dataset.col;
+
+      colEl.addEventListener('dragover', e => {
+        e.preventDefault();
+        e.dataTransfer.dropEffect = 'move';
+        colEl.classList.add('drag-over');
+      });
+
+      colEl.addEventListener('dragleave', e => {
+        // Only remove class if we're leaving the column element itself
+        if (!colEl.contains(e.relatedTarget)) {
+          colEl.classList.remove('drag-over');
+        }
+      });
+
+      colEl.addEventListener('drop', e => {
+        e.preventDefault();
+        colEl.classList.remove('drag-over');
+        if (draggingId !== null) moveCard(draggingId, col);
+      });
+    }
+
+    document.getElementById('add-form').addEventListener('submit', e => {
+      e.preventDefault();
+      const titleInput = document.getElementById('task-title');
+      const title      = titleInput.value.trim();
+      const desc       = document.getElementById('task-desc').value.trim();
+      const col        = document.getElementById('task-column').value;
+      const formError  = document.getElementById('form-error');
+
+      if (!title) {
+        formError.textContent = 'Title is required.';
+        titleInput.classList.add('error');
+        return;
+      }
+      formError.textContent = '';
+      titleInput.classList.remove('error');
+
+      addCard(title, desc, col);
+      e.target.reset();
+    });
+
+    loadBoard();
+    COLUMNS.forEach(col => setupColumnDrop(document.getElementById(`col-${col}`)));
+    renderAll();
+  </script>
+</body>
+</html>

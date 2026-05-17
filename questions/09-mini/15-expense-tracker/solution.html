@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Expense Tracker — Solution</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: system-ui, sans-serif;
+      background: #f8fafc;
+      min-height: 100vh;
+      padding: 2rem;
+      color: #1e293b;
+    }
+
+    .container { max-width: 680px; margin: 0 auto; }
+
+    h1 { font-size: 1.75rem; margin-bottom: 1.5rem; }
+
+    .total-card {
+      background: #6366f1;
+      color: #fff;
+      border-radius: 12px;
+      padding: 1.25rem 1.5rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .total-label  { font-size: .85rem; opacity: .8; }
+    .total-amount { font-size: 2.25rem; font-weight: 700; }
+
+    .add-form {
+      background: #fff;
+      border-radius: 12px;
+      padding: 1.25rem 1.5rem;
+      box-shadow: 0 2px 10px rgba(0,0,0,.06);
+      margin-bottom: 1.5rem;
+    }
+
+    .add-form h2 { font-size: 1rem; margin-bottom: 1rem; color: #475569; }
+
+    .form-row { display: flex; gap: .75rem; flex-wrap: wrap; }
+
+    .form-row input, .form-row select {
+      flex: 1;
+      min-width: 130px;
+      padding: .6rem .9rem;
+      border: 2px solid #e2e8f0;
+      border-radius: 8px;
+      font-size: .95rem;
+      outline: none;
+    }
+
+    .form-row input:focus, .form-row select:focus { border-color: #6366f1; }
+
+    .add-form button {
+      padding: .6rem 1.4rem;
+      background: #6366f1;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      font-weight: 600;
+      font-size: .95rem;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+
+    .add-form button:hover { background: #4f46e5; }
+
+    .form-error { font-size: .8rem; color: #ef4444; margin-top: .5rem; }
+
+    .section-title { font-size: 1rem; font-weight: 700; color: #475569; margin-bottom: .75rem; }
+
+    #expenseList { display: flex; flex-direction: column; gap: .6rem; margin-bottom: 1.75rem; }
+
+    .expense-item {
+      background: #fff;
+      border-radius: 10px;
+      padding: .8rem 1rem;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      box-shadow: 0 1px 4px rgba(0,0,0,.05);
+    }
+
+    .exp-desc { flex: 1; font-weight: 500; }
+    .exp-cat  { font-size: .78rem; background: #ede9fe; color: #6d28d9; border-radius: 99px; padding: .15rem .6rem; }
+    .exp-amt  { font-weight: 700; }
+    .del-btn  { background: #fee2e2; color: #b91c1c; border: none; border-radius: 6px; padding: .25rem .6rem; cursor: pointer; font-size: .8rem; font-weight: 600; }
+
+    .empty-state { color: #94a3b8; text-align: center; padding: 1.5rem; }
+
+    #chart { background: #fff; border-radius: 12px; padding: 1.25rem 1.5rem; box-shadow: 0 2px 10px rgba(0,0,0,.06); }
+
+    .bar-row { margin-bottom: .9rem; }
+    .bar-label { display: flex; justify-content: space-between; font-size: .85rem; margin-bottom: .3rem; }
+    .bar-track { height: 16px; background: #f1f5f9; border-radius: 99px; overflow: hidden; }
+    .bar-fill  { height: 100%; background: #6366f1; border-radius: 99px; transition: width .4s; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Expense Tracker</h1>
+
+    <div class="total-card">
+      <div class="total-label">Total Expenses</div>
+      <div class="total-amount" id="totalAmount">$0.00</div>
+    </div>
+
+    <div class="add-form">
+      <h2>Add Expense</h2>
+      <div class="form-row">
+        <input type="text"   id="descInput"   placeholder="Description" />
+        <input type="number" id="amountInput" placeholder="Amount" min="0.01" step="0.01" />
+        <select id="categorySelect">
+          <option value="Food">Food</option>
+          <option value="Transport">Transport</option>
+          <option value="Entertainment">Entertainment</option>
+          <option value="Other">Other</option>
+        </select>
+        <button id="addBtn">Add</button>
+      </div>
+      <p class="form-error" id="formError"></p>
+    </div>
+
+    <p class="section-title">Transactions</p>
+    <div id="expenseList"></div>
+
+    <p class="section-title">Spending by Category</p>
+    <div id="chart"></div>
+  </div>
+
+  <script>
+    const CATEGORIES = ['Food', 'Transport', 'Entertainment', 'Other'];
+
+    function loadExpenses() {
+      try { return JSON.parse(localStorage.getItem('expenses')) || []; }
+      catch { return []; }
+    }
+
+    function saveExpenses(expenses) {
+      localStorage.setItem('expenses', JSON.stringify(expenses));
+    }
+
+    let expenses = loadExpenses();
+
+    const totalAmountEl   = document.getElementById('totalAmount');
+    const expenseListEl   = document.getElementById('expenseList');
+    const chartEl         = document.getElementById('chart');
+    const descInput       = document.getElementById('descInput');
+    const amountInput     = document.getElementById('amountInput');
+    const categorySelect  = document.getElementById('categorySelect');
+    const formError       = document.getElementById('formError');
+
+    function fmt(n) { return '$' + n.toFixed(2); }
+
+    function render() {
+      // Total
+      const total = expenses.reduce((s, e) => s + e.amount, 0);
+      totalAmountEl.textContent = fmt(total);
+
+      // Expense list (newest first)
+      if (expenses.length === 0) {
+        expenseListEl.innerHTML = '<p class="empty-state">No expenses yet.</p>';
+      } else {
+        const sorted = [...expenses].reverse();
+        expenseListEl.innerHTML = sorted.map(e => `
+          <div class="expense-item">
+            <span class="exp-desc">${escHtml(e.description)}</span>
+            <span class="exp-cat">${e.category}</span>
+            <span class="exp-amt">${fmt(e.amount)}</span>
+            <button class="del-btn" data-id="${e.id}">Delete</button>
+          </div>
+        `).join('');
+      }
+
+      // Chart
+      const totals = {};
+      CATEGORIES.forEach(c => { totals[c] = 0; });
+      expenses.forEach(e => { totals[e.category] = (totals[e.category] || 0) + e.amount; });
+      const maxVal = Math.max(...Object.values(totals), 0.01);
+
+      chartEl.innerHTML = CATEGORIES.map(cat => {
+        const val = totals[cat] || 0;
+        const pct = (val / maxVal) * 100;
+        return `
+          <div class="bar-row">
+            <div class="bar-label">
+              <span>${cat}</span>
+              <span>${fmt(val)}</span>
+            </div>
+            <div class="bar-track">
+              <div class="bar-fill" style="width:${pct}%"></div>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function escHtml(str) {
+      return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+    }
+
+    function addExpense() {
+      const description = descInput.value.trim();
+      const amount      = parseFloat(amountInput.value);
+      const category    = categorySelect.value;
+
+      if (!description) { formError.textContent = 'Description is required.'; return; }
+      if (isNaN(amount) || amount <= 0) { formError.textContent = 'Enter a positive amount.'; return; }
+
+      formError.textContent = '';
+      expenses.push({ id: Date.now(), description, amount, category, date: new Date().toISOString() });
+      saveExpenses(expenses);
+      descInput.value  = '';
+      amountInput.value = '';
+      render();
+    }
+
+    function deleteExpense(id) {
+      expenses = expenses.filter(e => e.id !== id);
+      saveExpenses(expenses);
+      render();
+    }
+
+    document.getElementById('addBtn').addEventListener('click', addExpense);
+
+    expenseListEl.addEventListener('click', (e) => {
+      const btn = e.target.closest('.del-btn');
+      if (btn) deleteExpense(Number(btn.dataset.id));
+    });
+
+    render();
+  </script>
+</body>
+</html>

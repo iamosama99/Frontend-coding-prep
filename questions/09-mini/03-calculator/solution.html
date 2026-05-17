@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Calculator — Solution</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: system-ui, sans-serif;
+      background: #1a1a2e;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .calculator {
+      background: #16213e;
+      border-radius: 20px;
+      box-shadow: 0 8px 40px rgba(0,0,0,0.5);
+      width: 320px;
+      overflow: hidden;
+    }
+
+    .display {
+      padding: 20px 24px 16px;
+      text-align: right;
+      background: #0f3460;
+    }
+
+    .expression {
+      font-size: 0.9rem;
+      color: #94a3b8;
+      min-height: 20px;
+      margin-bottom: 4px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .current {
+      font-size: 2.4rem;
+      font-weight: 300;
+      color: #fff;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .current.error { color: #f87171; font-size: 1.8rem; }
+
+    .buttons {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1px;
+      background: #0d1b2a;
+    }
+
+    .btn {
+      padding: 20px 0;
+      border: none;
+      font-size: 1.1rem;
+      cursor: pointer;
+      transition: filter 0.1s;
+      color: #e2e8f0;
+      background: #1e3a5f;
+    }
+
+    .btn:hover  { filter: brightness(1.3); }
+    .btn:active { filter: brightness(0.8); }
+    .btn.operator { background: #2d4a7a; color: #93c5fd; }
+    .btn.equals   { background: #4f46e5; color: #fff; }
+    .btn.action   { background: #1e293b; color: #94a3b8; }
+    .btn.span2    { grid-column: span 2; }
+  </style>
+</head>
+<body>
+  <div class="calculator">
+    <div class="display">
+      <div class="expression" id="expression"></div>
+      <div class="current" id="current">0</div>
+    </div>
+
+    <div class="buttons">
+      <button class="btn action" data-action="clear">AC</button>
+      <button class="btn action" data-action="backspace">⌫</button>
+      <button class="btn operator" data-op="÷">÷</button>
+      <button class="btn operator" data-op="×">×</button>
+
+      <button class="btn" data-digit="7">7</button>
+      <button class="btn" data-digit="8">8</button>
+      <button class="btn" data-digit="9">9</button>
+      <button class="btn operator" data-op="−">−</button>
+
+      <button class="btn" data-digit="4">4</button>
+      <button class="btn" data-digit="5">5</button>
+      <button class="btn" data-digit="6">6</button>
+      <button class="btn operator" data-op="+">+</button>
+
+      <button class="btn" data-digit="1">1</button>
+      <button class="btn" data-digit="2">2</button>
+      <button class="btn" data-digit="3">3</button>
+      <button class="btn equals" data-action="equals" style="grid-row: span 2;">═</button>
+
+      <button class="btn span2" data-digit="0">0</button>
+      <button class="btn" data-digit=".">.</button>
+    </div>
+  </div>
+
+  <script>
+    let currentInput  = '0';
+    let firstOperand  = null;
+    let operator      = null;
+    let justComputed  = false;
+
+    const expressionEl = document.getElementById('expression');
+    const currentEl    = document.getElementById('current');
+
+    function render() {
+      currentEl.textContent = currentInput;
+      currentEl.classList.toggle('error', currentInput === 'Error');
+      expressionEl.textContent = (firstOperand !== null && operator)
+        ? `${firstOperand} ${operator}`
+        : '';
+    }
+
+    function inputDigit(digit) {
+      if (currentInput === 'Error') { pressClear(); }
+
+      if (justComputed) {
+        currentInput = (digit === '.') ? '0.' : digit;
+        justComputed = false;
+        render();
+        return;
+      }
+
+      if (digit === '.') {
+        if (currentInput.includes('.')) return;
+        currentInput = currentInput === '' ? '0.' : currentInput + '.';
+      } else {
+        if (currentInput === '0') {
+          currentInput = digit;
+        } else {
+          currentInput += digit;
+        }
+      }
+      render();
+    }
+
+    function inputOperator(op) {
+      if (currentInput === 'Error') return;
+      justComputed = false;
+
+      if (firstOperand === null) {
+        // No previous operand — store what we have (or 0 if empty)
+        firstOperand = parseFloat(currentInput || '0');
+        operator = op;
+        currentInput = '';
+      } else if (currentInput === '') {
+        // No second operand yet — just change operator
+        operator = op;
+      } else {
+        // Chain: compute current, then set new operator
+        const result = compute(firstOperand, operator, parseFloat(currentInput));
+        if (result === null) {
+          currentInput = 'Error';
+          firstOperand = null;
+          operator = null;
+          render();
+          return;
+        }
+        firstOperand = parseFloat(formatResult(result));
+        operator = op;
+        currentInput = '';
+      }
+      render();
+    }
+
+    function compute(a, op, b) {
+      switch (op) {
+        case '+': return a + b;
+        case '−': return a - b;
+        case '×': return a * b;
+        case '÷': return b === 0 ? null : a / b;
+        default:  return b;
+      }
+    }
+
+    function formatResult(n) {
+      // Use toPrecision to avoid floating-point noise, then strip trailing zeros
+      const str = parseFloat(n.toPrecision(12)).toString();
+      return str;
+    }
+
+    function pressEquals() {
+      if (firstOperand === null || operator === null || currentInput === '') return;
+      const b = parseFloat(currentInput);
+      const result = compute(firstOperand, operator, b);
+      if (result === null) {
+        currentInput = 'Error';
+      } else {
+        currentInput = formatResult(result);
+      }
+      firstOperand = null;
+      operator = null;
+      justComputed = true;
+      render();
+    }
+
+    function pressClear() {
+      currentInput  = '0';
+      firstOperand  = null;
+      operator      = null;
+      justComputed  = false;
+      render();
+    }
+
+    function pressBackspace() {
+      if (justComputed || currentInput === 'Error') {
+        pressClear();
+        return;
+      }
+      currentInput = currentInput.slice(0, -1);
+      if (currentInput === '' || currentInput === '-') currentInput = '0';
+      render();
+    }
+
+    document.querySelector('.buttons').addEventListener('click', (e) => {
+      const btn = e.target.closest('.btn');
+      if (!btn) return;
+
+      if (btn.dataset.digit !== undefined) {
+        inputDigit(btn.dataset.digit);
+      } else if (btn.dataset.op) {
+        inputOperator(btn.dataset.op);
+      } else if (btn.dataset.action === 'clear') {
+        pressClear();
+      } else if (btn.dataset.action === 'backspace') {
+        pressBackspace();
+      } else if (btn.dataset.action === 'equals') {
+        pressEquals();
+      }
+    });
+
+    render();
+  </script>
+</body>
+</html>

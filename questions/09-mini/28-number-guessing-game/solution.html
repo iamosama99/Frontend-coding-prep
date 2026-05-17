@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Number Guessing Game — Solution</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: system-ui, sans-serif;
+      background: #0f172a;
+      color: #f1f5f9;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 3rem 1rem;
+    }
+
+    h1 { font-size: 2rem; margin-bottom: 0.4rem; }
+    .subtitle { color: #94a3b8; margin-bottom: 2rem; }
+
+    .card {
+      background: #1e293b;
+      border-radius: 16px;
+      padding: 1.75rem;
+      width: 100%;
+      max-width: 420px;
+      margin-bottom: 1.5rem;
+    }
+
+    .range-hint { text-align: center; color: #818cf8; font-weight: 600; font-size: 1.05rem; margin-bottom: 1.25rem; }
+
+    .input-row { display: flex; gap: 0.75rem; margin-bottom: 0.4rem; }
+
+    input[type="number"] {
+      flex: 1;
+      background: #0f172a;
+      border: 1.5px solid #334155;
+      border-radius: 8px;
+      color: #f1f5f9;
+      padding: 0.7rem 1rem;
+      font-size: 1.1rem;
+      outline: none;
+      transition: border-color 0.15s;
+      -moz-appearance: textfield;
+    }
+    input[type="number"]::-webkit-inner-spin-button,
+    input[type="number"]::-webkit-outer-spin-button { -webkit-appearance: none; }
+    input[type="number"]:focus   { border-color: #6366f1; }
+    input[type="number"].error   { border-color: #f87171; }
+    input[type="number"]:disabled { opacity: 0.5; }
+
+    .error-msg { color: #f87171; font-size: 0.82rem; min-height: 1.1em; margin-bottom: 0.75rem; }
+
+    .btn {
+      background: #6366f1;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      padding: 0.7rem 1.3rem;
+      font-size: 1rem;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: background 0.15s;
+    }
+    .btn:hover { background: #4f46e5; }
+    .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    .feedback { text-align: center; font-size: 1.4rem; font-weight: 700; padding: 0.5rem 0; min-height: 2rem; }
+    .feedback.high    { color: #f87171; }
+    .feedback.low     { color: #60a5fa; }
+    .feedback.correct { color: #34d399; }
+
+    .attempts { text-align: center; color: #94a3b8; font-size: 0.88rem; margin-top: 0.25rem; }
+
+    .victory { text-align: center; margin-top: 1rem; padding: 1rem; background: #14532d; border-radius: 10px; display: none; }
+    .victory.visible { display: block; }
+    .victory h3 { color: #34d399; font-size: 1.2rem; margin-bottom: 0.25rem; }
+    .victory p  { color: #86efac; font-size: 0.9rem; }
+
+    .btn-new-game {
+      background: #334155;
+      color: #f1f5f9;
+      border: none;
+      border-radius: 8px;
+      padding: 0.6rem 1.4rem;
+      font-size: 0.9rem;
+      cursor: pointer;
+      margin-top: 1rem;
+      transition: background 0.15s;
+      display: none;
+    }
+    .btn-new-game.visible { display: inline-block; }
+    .btn-new-game:hover { background: #475569; }
+
+    .history-section { width: 100%; max-width: 420px; }
+    .history-section h3 { font-size: 0.82rem; color: #64748b; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.5rem; }
+    #history-list { list-style: none; display: flex; flex-direction: column; gap: 0.35rem; }
+    #history-list li {
+      background: #1e293b;
+      border-radius: 8px;
+      padding: 0.45rem 0.85rem;
+      font-size: 0.88rem;
+      display: flex;
+      justify-content: space-between;
+    }
+    #history-list li .indicator { font-weight: 700; }
+    #history-list li .indicator.high    { color: #f87171; }
+    #history-list li .indicator.low     { color: #60a5fa; }
+    #history-list li .indicator.correct { color: #34d399; }
+  </style>
+</head>
+<body>
+  <h1>🎯 Guess the Number</h1>
+  <p class="subtitle">I'm thinking of a number between 1 and 100</p>
+
+  <div class="card">
+    <div class="range-hint" id="range-hint">Guess between 1 and 100</div>
+    <div class="input-row">
+      <input type="number" id="guess-input" placeholder="Your guess" min="1" max="100" />
+      <button class="btn" id="btn-guess">Guess</button>
+    </div>
+    <div class="error-msg" id="error-msg"></div>
+    <div class="feedback" id="feedback"></div>
+    <div class="attempts" id="attempts"></div>
+    <div class="victory" id="victory">
+      <h3>🎉 Correct!</h3>
+      <p id="victory-msg"></p>
+    </div>
+    <button class="btn-new-game" id="btn-new-game">New Game</button>
+  </div>
+
+  <div class="history-section">
+    <h3>Guess History</h3>
+    <ul id="history-list"></ul>
+  </div>
+
+  <script>
+    let secret   = 0;
+    let attempts = 0;
+    let won      = false;
+    let low      = 1;
+    let high     = 100;
+    let guesses  = [];
+
+    const guessInput  = document.getElementById('guess-input');
+    const btnGuess    = document.getElementById('btn-guess');
+    const errorMsg    = document.getElementById('error-msg');
+    const feedbackEl  = document.getElementById('feedback');
+    const attemptsEl  = document.getElementById('attempts');
+    const rangeHint   = document.getElementById('range-hint');
+    const victory     = document.getElementById('victory');
+    const victoryMsg  = document.getElementById('victory-msg');
+    const btnNewGame  = document.getElementById('btn-new-game');
+    const historyList = document.getElementById('history-list');
+
+    function pickSecret() {
+      return Math.floor(Math.random() * 100) + 1;
+    }
+
+    function newGame() {
+      secret   = pickSecret();
+      attempts = 0;
+      won      = false;
+      low      = 1;
+      high     = 100;
+      guesses  = [];
+
+      feedbackEl.textContent  = '';
+      feedbackEl.className    = 'feedback';
+      attemptsEl.textContent  = '';
+      errorMsg.textContent    = '';
+      guessInput.value        = '';
+      guessInput.disabled     = false;
+      guessInput.classList.remove('error');
+      btnGuess.disabled       = false;
+      victory.classList.remove('visible');
+      btnNewGame.classList.remove('visible');
+      rangeHint.textContent   = 'Guess between 1 and 100';
+      renderHistory();
+    }
+
+    function validateInput(raw) {
+      if (raw === '' || raw === null) return 'Please enter a number.';
+      const n = Number(raw);
+      if (isNaN(n)) return 'Please enter a valid number.';
+      if (!Number.isInteger(n)) return 'Please enter a whole number.';
+      if (n < 1 || n > 100) return 'Number must be between 1 and 100.';
+      return null;
+    }
+
+    function updateRangeHint(guess, result) {
+      if (result === 'high') high = guess - 1;
+      if (result === 'low')  low  = guess + 1;
+      rangeHint.textContent = `Guess between ${low} and ${high}`;
+    }
+
+    function renderHistory() {
+      historyList.innerHTML = '';
+      const ICON = { high: '▲', low: '▼', correct: '✓' };
+      [...guesses].reverse().forEach((g, i) => {
+        const attemptNum = guesses.length - i;
+        const li = document.createElement('li');
+        li.innerHTML = `
+          <span>Attempt ${attemptNum} — ${g.value}</span>
+          <span class="indicator ${g.result}">${ICON[g.result]}</span>
+        `;
+        historyList.appendChild(li);
+      });
+    }
+
+    function submitGuess() {
+      if (won) return;
+
+      errorMsg.textContent = '';
+      guessInput.classList.remove('error');
+
+      const raw   = guessInput.value;
+      const error = validateInput(raw);
+      if (error) {
+        errorMsg.textContent = error;
+        guessInput.classList.add('error');
+        return;
+      }
+
+      const guess = parseInt(raw, 10);
+      guessInput.value = '';
+      attempts++;
+
+      let result;
+      if (guess > secret)      result = 'high';
+      else if (guess < secret) result = 'low';
+      else                     result = 'correct';
+
+      guesses.push({ value: guess, result });
+
+      // Feedback
+      const feedbackText = { high: '📈 Too high!', low: '📉 Too low!', correct: '🎉 Correct!' };
+      feedbackEl.textContent = feedbackText[result];
+      feedbackEl.className   = `feedback ${result}`;
+
+      attemptsEl.textContent = `Attempt ${attempts}`;
+
+      if (result !== 'correct') {
+        updateRangeHint(guess, result);
+      }
+
+      renderHistory();
+
+      if (result === 'correct') {
+        won = true;
+        victoryMsg.textContent = `You guessed it in ${attempts} attempt${attempts !== 1 ? 's' : ''}!`;
+        victory.classList.add('visible');
+        btnNewGame.classList.add('visible');
+        guessInput.disabled = true;
+        btnGuess.disabled   = true;
+      }
+    }
+
+    btnGuess.addEventListener('click', submitGuess);
+    guessInput.addEventListener('keydown', e => { if (e.key === 'Enter') submitGuess(); });
+    btnNewGame.addEventListener('click', newGame);
+
+    newGame();
+  </script>
+</body>
+</html>

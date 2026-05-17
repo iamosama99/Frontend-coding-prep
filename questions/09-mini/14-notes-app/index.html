@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Notes App</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: system-ui, sans-serif;
+      background: #f1f5f9;
+      min-height: 100vh;
+      padding: 2rem;
+    }
+
+    .container { max-width: 700px; margin: 0 auto; }
+
+    h1 { font-size: 1.75rem; color: #0f172a; margin-bottom: 1.25rem; }
+
+    /* Search + new note bar */
+    .top-bar { display: flex; gap: .75rem; margin-bottom: 1.5rem; }
+
+    #searchInput {
+      flex: 1;
+      padding: .65rem 1rem;
+      border: 2px solid #e2e8f0;
+      border-radius: 8px;
+      font-size: 1rem;
+      outline: none;
+      transition: border-color .2s;
+    }
+
+    #searchInput:focus { border-color: #6366f1; }
+
+    #newNoteBtn {
+      padding: .65rem 1.2rem;
+      background: #6366f1;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      font-size: .95rem;
+      font-weight: 600;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+
+    #newNoteBtn:hover { background: #4f46e5; }
+
+    /* Note form */
+    #noteForm {
+      display: none;
+      background: #fff;
+      border-radius: 12px;
+      padding: 1.5rem;
+      box-shadow: 0 2px 12px rgba(0,0,0,.07);
+      margin-bottom: 1.5rem;
+    }
+
+    #noteForm input, #noteForm textarea {
+      width: 100%;
+      border: 2px solid #e2e8f0;
+      border-radius: 8px;
+      padding: .6rem .9rem;
+      font-size: 1rem;
+      font-family: inherit;
+      outline: none;
+      transition: border-color .2s;
+    }
+
+    #noteForm input:focus, #noteForm textarea:focus { border-color: #6366f1; }
+
+    #noteForm input { margin-bottom: .75rem; font-weight: 600; }
+    #noteForm textarea { min-height: 120px; resize: vertical; }
+
+    .form-error { font-size: .8rem; color: #ef4444; margin-top: .3rem; }
+
+    .form-actions { display: flex; gap: .75rem; margin-top: 1rem; justify-content: flex-end; }
+
+    .form-actions button {
+      padding: .5rem 1.2rem;
+      border: none;
+      border-radius: 8px;
+      font-size: .9rem;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    #saveBtn   { background: #6366f1; color: #fff; }
+    #cancelBtn { background: #e2e8f0; color: #374151; }
+
+    /* Notes list */
+    #notesList { display: flex; flex-direction: column; gap: .9rem; }
+
+    .note-card {
+      background: #fff;
+      border-radius: 12px;
+      padding: 1.1rem 1.25rem;
+      box-shadow: 0 2px 8px rgba(0,0,0,.05);
+      cursor: pointer;
+      transition: box-shadow .2s;
+    }
+
+    .note-card:hover { box-shadow: 0 4px 16px rgba(0,0,0,.1); }
+
+    .note-header { display: flex; justify-content: space-between; align-items: flex-start; }
+
+    .note-title { font-weight: 700; color: #0f172a; font-size: 1rem; }
+    .note-time  { font-size: .75rem; color: #94a3b8; white-space: nowrap; margin-left: 1rem; }
+    .note-preview { font-size: .88rem; color: #64748b; margin-top: .35rem; }
+
+    .note-footer { display: flex; justify-content: flex-end; gap: .5rem; margin-top: .75rem; }
+
+    .note-footer button {
+      padding: .3rem .75rem;
+      border: none;
+      border-radius: 6px;
+      font-size: .8rem;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .edit-btn   { background: #ede9fe; color: #6d28d9; }
+    .delete-btn { background: #fee2e2; color: #b91c1c; }
+
+    .empty-state {
+      text-align: center;
+      color: #94a3b8;
+      padding: 3rem 0;
+      font-size: 1rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>My Notes</h1>
+
+    <div class="top-bar">
+      <input type="text" id="searchInput" placeholder="Search notes…" />
+      <button id="newNoteBtn">+ New Note</button>
+    </div>
+
+    <div id="noteForm">
+      <input type="text" id="noteTitle" placeholder="Title" />
+      <p class="form-error" id="titleError"></p>
+      <textarea id="noteBody" placeholder="Write your note…"></textarea>
+      <div class="form-actions">
+        <button id="cancelBtn">Cancel</button>
+        <button id="saveBtn">Save</button>
+      </div>
+    </div>
+
+    <div id="notesList"></div>
+  </div>
+
+  <script>
+    // ─── Storage helpers ─────────────────────────────────────────────────────────
+    // TODO: implement loadNotes() — read from localStorage key 'notes', parse JSON, return array
+    function loadNotes() {
+      throw new Error('TODO: implement loadNotes');
+    }
+
+    // TODO: implement saveNotes(notes) — stringify and store in localStorage
+    function saveNotes(notes) {
+      throw new Error('TODO: implement saveNotes');
+    }
+
+    // ─── Timestamp ───────────────────────────────────────────────────────────────
+    // TODO: implement relativeTime(isoString)
+    //   Return "Just now" / "X mins ago" / "X hours ago" / "Yesterday" / full date
+    function relativeTime(isoString) {
+      throw new Error('TODO: implement relativeTime');
+    }
+
+    // ─── State ───────────────────────────────────────────────────────────────────
+    // TODO: declare: let notes = loadNotes(); let editingId = null;
+
+    // ─── renderNotes ─────────────────────────────────────────────────────────────
+    // TODO: implement renderNotes()
+    //   - Filter notes by searchInput value (case-insensitive, title + body)
+    //   - Sort by updatedAt descending
+    //   - Build note card HTML for each note
+    //   - Show empty-state message if no notes match
+    function renderNotes() {
+      throw new Error('TODO: implement renderNotes');
+    }
+
+    // ─── openForm ────────────────────────────────────────────────────────────────
+    // TODO: implement openForm(note = null)
+    //   - Show #noteForm
+    //   - If note provided: fill in title + body, set editingId = note.id
+    //   - Else: clear fields, set editingId = null
+    function openForm(note = null) {
+      throw new Error('TODO: implement openForm');
+    }
+
+    // TODO: closeForm() — hide form, clear editingId
+    function closeForm() {
+      throw new Error('TODO: implement closeForm');
+    }
+
+    // ─── saveNote ────────────────────────────────────────────────────────────────
+    // TODO: implement saveNote()
+    //   - Read title from #noteTitle (trim); show error and return if empty
+    //   - If editingId: find note in array, update title/body/updatedAt
+    //   - Else: push new note { id: Date.now(), title, body, createdAt, updatedAt }
+    //   - Call saveNotes(notes), closeForm(), renderNotes()
+    function saveNote() {
+      throw new Error('TODO: implement saveNote');
+    }
+
+    // ─── deleteNote ──────────────────────────────────────────────────────────────
+    // TODO: implement deleteNote(id)
+    //   - confirm() prompt; if confirmed: remove from notes, save, render
+    function deleteNote(id) {
+      throw new Error('TODO: implement deleteNote');
+    }
+
+    // ─── Wire events ─────────────────────────────────────────────────────────────
+    // TODO: #newNoteBtn → openForm()
+    // TODO: #cancelBtn → closeForm()
+    // TODO: #saveBtn → saveNote()
+    // TODO: #searchInput 'input' event → renderNotes()
+    // TODO: #notesList click delegation for .edit-btn and .delete-btn
+    //         Use closest('[data-id]') to get the note id
+
+    // TODO: renderNotes() to initialise
+  </script>
+</body>
+</html>

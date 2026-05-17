@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Currency Converter</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: system-ui, sans-serif;
+      background: #f1f5f9;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem;
+      color: #1e293b;
+    }
+
+    .card {
+      background: #fff;
+      border-radius: 16px;
+      box-shadow: 0 4px 24px rgba(0,0,0,.08);
+      padding: 2rem 2.5rem;
+      width: 100%;
+      max-width: 440px;
+    }
+
+    h1 { font-size: 1.5rem; margin-bottom: 1.5rem; color: #0f172a; }
+
+    /* Currency row */
+    .currency-row {
+      display: flex;
+      gap: .75rem;
+      align-items: center;
+      margin-bottom: 1rem;
+    }
+
+    .currency-row select {
+      flex: 0 0 100px;
+      padding: .65rem .5rem;
+      border: 2px solid #e2e8f0;
+      border-radius: 8px;
+      font-size: .95rem;
+      font-weight: 600;
+      color: #1e293b;
+      outline: none;
+      background: #f8fafc;
+      cursor: pointer;
+    }
+
+    .currency-row select:focus { border-color: #6366f1; }
+
+    .currency-row input {
+      flex: 1;
+      padding: .65rem .9rem;
+      border: 2px solid #e2e8f0;
+      border-radius: 8px;
+      font-size: 1.1rem;
+      outline: none;
+      color: #0f172a;
+    }
+
+    .currency-row input:focus { border-color: #6366f1; }
+    .currency-row input:disabled { background: #f8fafc; color: #94a3b8; }
+
+    /* Swap */
+    .swap-row { text-align: center; margin-bottom: 1rem; }
+
+    #swapBtn {
+      padding: .5rem 1.5rem;
+      background: #6366f1;
+      color: #fff;
+      border: none;
+      border-radius: 99px;
+      font-size: .9rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background .2s;
+    }
+
+    #swapBtn:disabled { opacity: .4; cursor: not-allowed; }
+    #swapBtn:not(:disabled):hover { background: #4f46e5; }
+
+    /* Meta */
+    #metaInfo {
+      font-size: .78rem;
+      color: #94a3b8;
+      margin-top: 1.25rem;
+      text-align: center;
+    }
+
+    #errorMsg {
+      display: none;
+      color: #ef4444;
+      font-size: .88rem;
+      margin-top: 1rem;
+      text-align: center;
+    }
+
+    #rateDisplay {
+      text-align: center;
+      font-size: .9rem;
+      color: #6366f1;
+      font-weight: 600;
+      margin-top: .5rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>Currency Converter</h1>
+
+    <div class="currency-row">
+      <select id="fromCurrency" disabled></select>
+      <input type="number" id="fromAmount" placeholder="0" disabled />
+    </div>
+
+    <div class="swap-row">
+      <button id="swapBtn" disabled>⇅ Swap</button>
+    </div>
+
+    <div class="currency-row">
+      <select id="toCurrency" disabled></select>
+      <input type="number" id="toAmount" placeholder="0" disabled readonly />
+    </div>
+
+    <p id="rateDisplay"></p>
+    <p id="errorMsg"></p>
+    <p id="metaInfo">Loading rates…</p>
+  </div>
+
+  <script>
+    // ─── State ───────────────────────────────────────────────────────────────────
+    // TODO: declare:
+    //   - rates: {} (object mapping currency code → rate relative to base)
+    //   - baseCurrency: 'USD' (the base the API returned rates for)
+    //   - lastUpdated: ''
+
+    // ─── fetchRates ──────────────────────────────────────────────────────────────
+    // TODO: implement async fetchRates(base = 'USD')
+    //   - Fetch https://open.er-api.com/v6/latest/{base}
+    //   - On success: store result.rates, baseCurrency = base, lastUpdated
+    //     (result.time_last_update_utc)
+    //   - Populate dropdowns (populateDropdowns)
+    //   - Enable inputs and swap button
+    //   - Re-calculate amounts (convert with current fromAmount)
+    //   - On error: show #errorMsg
+    async function fetchRates(base) {
+      throw new Error('TODO: implement fetchRates');
+    }
+
+    // ─── populateDropdowns ───────────────────────────────────────────────────────
+    // TODO: implement populateDropdowns()
+    //   - Get sorted keys from rates object
+    //   - Build <option> elements for both #fromCurrency and #toCurrency
+    //   - Preserve existing selection if still valid, else default fromCurrency='USD', toCurrency='EUR'
+    function populateDropdowns() {
+      throw new Error('TODO: implement populateDropdowns');
+    }
+
+    // ─── convert ─────────────────────────────────────────────────────────────────
+    // TODO: implement convert(amount, from, to)
+    //   - All rates are relative to baseCurrency
+    //   - Formula: result = amount * (rates[to] / rates[from])
+    //   - Return result rounded to 4 decimal places
+    function convert(amount, from, to) {
+      throw new Error('TODO: implement convert');
+    }
+
+    // ─── updateToAmount ──────────────────────────────────────────────────────────
+    // TODO: implement updateToAmount()
+    //   - Read fromAmount value (treat empty/NaN as 0)
+    //   - Call convert(), set #toAmount.value
+    //   - Update #rateDisplay: "1 USD = 0.9234 EUR"
+    function updateToAmount() {
+      throw new Error('TODO: implement updateToAmount');
+    }
+
+    // ─── Events ──────────────────────────────────────────────────────────────────
+    // TODO: #fromAmount 'input' → updateToAmount
+    // TODO: #fromCurrency 'change' → updateToAmount (no re-fetch needed — rates relative to base)
+    // TODO: #toCurrency 'change' → updateToAmount
+    // TODO: #swapBtn click:
+    //   - Swap the selected currency values in the dropdowns
+    //   - Re-fetch rates with the new fromCurrency as base
+    //   - (This is the simplest correct approach that avoids cross-rate drift)
+
+    // TODO: fetchRates('USD') to initialise
+  </script>
+</body>
+</html>

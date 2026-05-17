@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Snake Game — Solution</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: system-ui, sans-serif;
+      background: #0f172a;
+      color: #f1f5f9;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem 1rem;
+    }
+
+    h1 { font-size: 1.8rem; margin-bottom: 0.5rem; }
+
+    .score-bar { display: flex; gap: 2rem; margin-bottom: 1rem; }
+    .score-item { text-align: center; }
+    .score-item .label { font-size: 0.72rem; color: #64748b; text-transform: uppercase; letter-spacing: 0.05em; }
+    .score-item .value { font-size: 1.5rem; font-weight: 700; color: #34d399; }
+
+    .canvas-wrapper { position: relative; border: 3px solid #334155; border-radius: 4px; }
+    canvas { display: block; background: #1e293b; }
+
+    .overlay {
+      position: absolute;
+      inset: 0;
+      background: rgba(0,0,0,0.8);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 1rem;
+      border-radius: 2px;
+    }
+    .overlay.hidden { display: none; }
+    .overlay h2 { font-size: 1.6rem; }
+    .overlay p  { color: #94a3b8; }
+
+    .btn {
+      background: #6366f1;
+      color: #fff;
+      border: none;
+      border-radius: 10px;
+      padding: 0.75rem 2rem;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: background 0.15s;
+      margin-top: 0.5rem;
+    }
+    .btn:hover { background: #4f46e5; }
+
+    .controls-hint { margin-top: 1rem; color: #475569; font-size: 0.82rem; text-align: center; }
+  </style>
+</head>
+<body>
+  <h1>Snake 🐍</h1>
+
+  <div class="score-bar">
+    <div class="score-item"><div class="label">Score</div><div class="value" id="score">0</div></div>
+    <div class="score-item"><div class="label">Best</div><div class="value" id="best">0</div></div>
+  </div>
+
+  <div class="canvas-wrapper">
+    <canvas id="canvas" width="400" height="400"></canvas>
+    <div class="overlay" id="overlay">
+      <h2 id="overlay-title">🐍 Snake</h2>
+      <p id="overlay-msg">Use arrow keys to move</p>
+      <button class="btn" id="btn-start">Start Game</button>
+    </div>
+  </div>
+
+  <div class="controls-hint">Arrow keys to move &nbsp;·&nbsp; Tab to pause</div>
+
+  <script>
+    const COLS    = 20;
+    const ROWS    = 20;
+    const CELL    = 20;
+    const TICK_MS = 150;
+
+    const canvas  = document.getElementById('canvas');
+    const ctx     = canvas.getContext('2d');
+
+    const COLOR = {
+      bg:        '#1e293b',
+      snake:     '#34d399',
+      snakeHead: '#059669',
+      food:      '#f87171',
+    };
+
+    let snake     = [];
+    let direction = { x: 1, y: 0 };
+    let nextDir   = null;
+    let food      = { x: 0, y: 0 };
+    let score     = 0;
+    let best      = 0;
+    let gameOver  = false;
+    let running   = false;
+    let rafId     = null;
+    let lastTick  = 0;
+
+    const scoreEl  = document.getElementById('score');
+    const bestEl   = document.getElementById('best');
+    const overlay  = document.getElementById('overlay');
+    const titleEl  = document.getElementById('overlay-title');
+    const msgEl    = document.getElementById('overlay-msg');
+    const btnStart = document.getElementById('btn-start');
+
+    function randomCell() {
+      return {
+        x: Math.floor(Math.random() * COLS),
+        y: Math.floor(Math.random() * ROWS),
+      };
+    }
+
+    function onSnake(cell) {
+      return snake.some(s => s.x === cell.x && s.y === cell.y);
+    }
+
+    function placeFood() {
+      let cell;
+      do { cell = randomCell(); } while (onSnake(cell));
+      food = cell;
+    }
+
+    function initGame() {
+      snake = [
+        { x: 10, y: 10 },
+        { x:  9, y: 10 },
+        { x:  8, y: 10 },
+      ];
+      direction = { x: 1, y: 0 };
+      nextDir   = null;
+      score     = 0;
+      scoreEl.textContent = 0;
+      gameOver  = false;
+      placeFood();
+    }
+
+    function drawCell(x, y, color) {
+      ctx.fillStyle = color;
+      ctx.fillRect(x * CELL + 1, y * CELL + 1, CELL - 2, CELL - 2);
+    }
+
+    function draw() {
+      // Background
+      ctx.fillStyle = COLOR.bg;
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      // Food
+      drawCell(food.x, food.y, COLOR.food);
+
+      // Snake
+      snake.forEach((seg, i) => {
+        drawCell(seg.x, seg.y, i === 0 ? COLOR.snakeHead : COLOR.snake);
+      });
+    }
+
+    function step() {
+      if (nextDir) { direction = nextDir; nextDir = null; }
+
+      const head    = snake[0];
+      const newHead = { x: head.x + direction.x, y: head.y + direction.y };
+
+      // Wall collision
+      if (newHead.x < 0 || newHead.x >= COLS || newHead.y < 0 || newHead.y >= ROWS) {
+        endGame(); return;
+      }
+      // Self collision
+      if (onSnake(newHead)) { endGame(); return; }
+
+      snake.unshift(newHead);
+
+      if (newHead.x === food.x && newHead.y === food.y) {
+        score++;
+        scoreEl.textContent = score;
+        placeFood();
+      } else {
+        snake.pop();
+      }
+
+      draw();
+    }
+
+    function gameLoop(timestamp) {
+      if (!running) return;
+      if (timestamp - lastTick >= TICK_MS) {
+        step();
+        lastTick = timestamp;
+      }
+      rafId = requestAnimationFrame(gameLoop);
+    }
+
+    function startGame() {
+      initGame();
+      overlay.classList.add('hidden');
+      running  = true;
+      lastTick = 0;
+      if (rafId) cancelAnimationFrame(rafId);
+      rafId = requestAnimationFrame(gameLoop);
+    }
+
+    function endGame() {
+      running  = false;
+      gameOver = true;
+      if (score > best) {
+        best = score;
+        bestEl.textContent = best;
+      }
+      titleEl.textContent  = '💀 Game Over';
+      msgEl.textContent    = `Final score: ${score}`;
+      btnStart.textContent = 'Play Again';
+      overlay.classList.remove('hidden');
+    }
+
+    const DIR_MAP = {
+      ArrowUp:    { x:  0, y: -1 },
+      ArrowDown:  { x:  0, y:  1 },
+      ArrowLeft:  { x: -1, y:  0 },
+      ArrowRight: { x:  1, y:  0 },
+    };
+
+    document.addEventListener('keydown', e => {
+      const d = DIR_MAP[e.key];
+      if (!d) return;
+      e.preventDefault();
+      // No 180° reversal
+      const cur = nextDir || direction;
+      if (d.x === -cur.x && d.y === -cur.y) return;
+      nextDir = d;
+    });
+
+    document.addEventListener('visibilitychange', () => {
+      if (document.hidden) {
+        running = false;
+      } else if (!gameOver) {
+        running = true;
+        rafId   = requestAnimationFrame(gameLoop);
+      }
+    });
+
+    btnStart.addEventListener('click', startGame);
+
+    // Draw initial blank board
+    ctx.fillStyle = COLOR.bg;
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+  </script>
+</body>
+</html>

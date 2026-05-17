@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Pomodoro Timer — Solution</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: system-ui, sans-serif;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background .6s, color .6s;
+    }
+
+    body.work  { background: #450a0a; color: #fef2f2; }
+    body.break { background: #052e16; color: #f0fdf4; }
+
+    .card {
+      text-align: center;
+      padding: 3rem 4rem;
+      border-radius: 20px;
+      background: rgba(255,255,255,.07);
+      box-shadow: 0 8px 32px rgba(0,0,0,.3);
+      min-width: 360px;
+    }
+
+    #sessionLabel {
+      font-size: .9rem;
+      text-transform: uppercase;
+      letter-spacing: .12em;
+      opacity: .7;
+      margin-bottom: .5rem;
+    }
+
+    #timer {
+      font-size: 5rem;
+      font-weight: 700;
+      letter-spacing: .04em;
+      line-height: 1;
+      margin-bottom: 1.5rem;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .controls { display: flex; gap: .75rem; justify-content: center; margin-bottom: 1.5rem; }
+
+    button {
+      padding: .65rem 1.5rem;
+      border: 2px solid rgba(255,255,255,.3);
+      border-radius: 99px;
+      background: transparent;
+      color: inherit;
+      font-size: .95rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background .2s;
+    }
+
+    button:hover { background: rgba(255,255,255,.15); }
+
+    #startBtn { background: rgba(255,255,255,.2); }
+
+    #pomodoroCount { font-size: .9rem; opacity: .7; }
+
+    .reset-all {
+      margin-top: 1rem;
+      font-size: .8rem;
+      opacity: .5;
+      cursor: pointer;
+      border: none;
+      background: transparent;
+      color: inherit;
+      text-decoration: underline;
+      padding: 0;
+    }
+
+    .reset-all:hover { opacity: .8; }
+  </style>
+</head>
+<body class="work">
+  <div class="card">
+    <p id="sessionLabel">Work Session</p>
+    <div id="timer">25:00</div>
+    <div class="controls">
+      <button id="startBtn">Start</button>
+      <button id="resetBtn">Reset</button>
+    </div>
+    <p id="pomodoroCount">Pomodoros completed: 0</p>
+    <button class="reset-all" id="resetAllBtn">Reset All</button>
+  </div>
+
+  <script>
+    const WORK_MINS            = 25;
+    const SHORT_BREAK          = 5;
+    const LONG_BREAK           = 15;
+    const SESSIONS_BEFORE_LONG = 4;
+
+    let mode         = 'work';
+    let secondsLeft  = WORK_MINS * 60;
+    let sessionsDone = 0;
+    let isRunning    = false;
+    let intervalId   = null;
+
+    const timerEl    = document.getElementById('timer');
+    const labelEl    = document.getElementById('sessionLabel');
+    const countEl    = document.getElementById('pomodoroCount');
+    const startBtn   = document.getElementById('startBtn');
+
+    function formatTime(s) {
+      const m = Math.floor(s / 60);
+      const sec = s % 60;
+      return `${String(m).padStart(2,'0')}:${String(sec).padStart(2,'0')}`;
+    }
+
+    function getDurationFor(m) {
+      if (m === 'work')  return WORK_MINS * 60;
+      if (m === 'short') return SHORT_BREAK * 60;
+      return LONG_BREAK * 60;
+    }
+
+    function getModeLabel(m) {
+      if (m === 'work')  return 'Work Session';
+      if (m === 'short') return 'Short Break';
+      return 'Long Break';
+    }
+
+    function render() {
+      timerEl.textContent   = formatTime(secondsLeft);
+      labelEl.textContent   = getModeLabel(mode);
+      countEl.textContent   = `Pomodoros completed: ${sessionsDone}`;
+      startBtn.textContent  = isRunning ? 'Pause' : 'Start';
+      document.body.classList.toggle('work',  mode === 'work');
+      document.body.classList.toggle('break', mode !== 'work');
+    }
+
+    function notify(title, body) {
+      if (Notification.permission === 'granted') {
+        new Notification(title, { body, icon: '' });
+      }
+    }
+
+    function onSessionEnd() {
+      clearInterval(intervalId);
+      intervalId = null;
+
+      let nextMode;
+      let notifTitle;
+      let notifBody;
+
+      if (mode === 'work') {
+        sessionsDone++;
+        const isLong = sessionsDone % SESSIONS_BEFORE_LONG === 0;
+        nextMode   = isLong ? 'long' : 'short';
+        notifTitle = 'Pomodoro complete!';
+        notifBody  = `Starting ${isLong ? 'long' : 'short'} break.`;
+      } else {
+        nextMode   = 'work';
+        notifTitle = 'Break over!';
+        notifBody  = 'Time to focus. Starting work session.';
+      }
+
+      notify(notifTitle, notifBody);
+      mode        = nextMode;
+      secondsLeft = getDurationFor(mode);
+      isRunning   = false;
+      render();
+    }
+
+    function tick() {
+      secondsLeft--;
+      if (secondsLeft <= 0) {
+        onSessionEnd();
+      } else {
+        render();
+      }
+    }
+
+    function startPause() {
+      if (!isRunning) {
+        // Request notification permission on first start
+        if (Notification.permission === 'default') {
+          Notification.requestPermission();
+        }
+        intervalId = setInterval(tick, 1000);
+        isRunning  = true;
+      } else {
+        clearInterval(intervalId);
+        intervalId = null;
+        isRunning  = false;
+      }
+      render();
+    }
+
+    function reset() {
+      clearInterval(intervalId);
+      intervalId  = null;
+      isRunning   = false;
+      secondsLeft = getDurationFor(mode);
+      render();
+    }
+
+    function resetAll() {
+      clearInterval(intervalId);
+      intervalId   = null;
+      isRunning    = false;
+      mode         = 'work';
+      secondsLeft  = WORK_MINS * 60;
+      sessionsDone = 0;
+      render();
+    }
+
+    document.getElementById('startBtn').addEventListener('click', startPause);
+    document.getElementById('resetBtn').addEventListener('click', reset);
+    document.getElementById('resetAllBtn').addEventListener('click', resetAll);
+
+    render();
+  </script>
+</body>
+</html>

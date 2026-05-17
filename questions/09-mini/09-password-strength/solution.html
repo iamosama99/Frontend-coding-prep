@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Password Strength — Solution</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: system-ui, sans-serif;
+      background: #f0f2f5;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .card {
+      background: #fff;
+      border-radius: 16px;
+      box-shadow: 0 4px 24px rgba(0,0,0,0.10);
+      padding: 40px;
+      width: 380px;
+    }
+
+    h1 { font-size: 1.3rem; color: #1e293b; margin-bottom: 8px; }
+    .subtitle { font-size: 0.85rem; color: #64748b; margin-bottom: 28px; }
+
+    .input-group {
+      position: relative;
+      margin-bottom: 16px;
+    }
+
+    .input-group input {
+      width: 100%;
+      padding: 12px 44px 12px 14px;
+      font-size: 1rem;
+      border: 2px solid #e2e8f0;
+      border-radius: 10px;
+      outline: none;
+      font-family: monospace;
+      letter-spacing: 0.05em;
+      transition: border-color 0.2s;
+    }
+
+    .input-group input:focus { border-color: #4f46e5; }
+
+    .toggle-visibility {
+      position: absolute;
+      right: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-size: 1.1rem;
+      color: #94a3b8;
+      padding: 4px;
+    }
+
+    .strength-bar {
+      display: flex;
+      gap: 4px;
+      margin-bottom: 8px;
+    }
+
+    .segment {
+      flex: 1;
+      height: 6px;
+      border-radius: 3px;
+      background: #e2e8f0;
+      transition: background 0.3s;
+    }
+
+    .segment.weak   { background: #ef4444; }
+    .segment.fair   { background: #f97316; }
+    .segment.good   { background: #eab308; }
+    .segment.strong { background: #22c55e; }
+
+    .strength-label {
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: #94a3b8;
+      min-height: 18px;
+      margin-bottom: 20px;
+    }
+
+    .checklist { display: flex; flex-direction: column; gap: 8px; }
+
+    .check-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.85rem;
+      color: #64748b;
+    }
+
+    .check-icon { font-size: 0.9rem; width: 20px; text-align: center; }
+    .check-item.pass { color: #16a34a; }
+    .check-item.fail { color: #94a3b8; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>Create Password</h1>
+    <p class="subtitle">Password must meet all four requirements</p>
+
+    <div class="input-group">
+      <input type="password" id="password-input" placeholder="Enter password..." autocomplete="new-password" />
+      <button class="toggle-visibility" id="toggle-visibility" aria-label="Toggle visibility">👁️</button>
+    </div>
+
+    <div class="strength-bar" id="strength-bar">
+      <div class="segment" id="seg-1"></div>
+      <div class="segment" id="seg-2"></div>
+      <div class="segment" id="seg-3"></div>
+      <div class="segment" id="seg-4"></div>
+    </div>
+    <div class="strength-label" id="strength-label"></div>
+
+    <div class="checklist">
+      <div class="check-item" id="rule-length">
+        <span class="check-icon">✗</span>
+        <span>At least 8 characters</span>
+      </div>
+      <div class="check-item" id="rule-upper">
+        <span class="check-icon">✗</span>
+        <span>At least one uppercase letter</span>
+      </div>
+      <div class="check-item" id="rule-digit">
+        <span class="check-icon">✗</span>
+        <span>At least one digit</span>
+      </div>
+      <div class="check-item" id="rule-special">
+        <span class="check-icon">✗</span>
+        <span>At least one special character (!@#$%^&amp;*)</span>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const passwordInput = document.getElementById('password-input');
+    const toggleBtn     = document.getElementById('toggle-visibility');
+    const strengthLabel = document.getElementById('strength-label');
+    const segments      = [
+      document.getElementById('seg-1'),
+      document.getElementById('seg-2'),
+      document.getElementById('seg-3'),
+      document.getElementById('seg-4'),
+    ];
+    const ruleEls = {
+      length:  document.getElementById('rule-length'),
+      upper:   document.getElementById('rule-upper'),
+      digit:   document.getElementById('rule-digit'),
+      special: document.getElementById('rule-special'),
+    };
+
+    const RULES = {
+      length:  pwd => pwd.length >= 8,
+      upper:   pwd => /[A-Z]/.test(pwd),
+      digit:   pwd => /[0-9]/.test(pwd),
+      special: pwd => /[!@#$%^&*]/.test(pwd),
+    };
+
+    const STRENGTH_LEVELS = {
+      1: { label: 'Weak',   colorClass: 'weak'   },
+      2: { label: 'Fair',   colorClass: 'fair'   },
+      3: { label: 'Good',   colorClass: 'good'   },
+      4: { label: 'Strong', colorClass: 'strong' },
+    };
+
+    function evaluate(password) {
+      // Clear all segments and reset rules when empty
+      if (password === '') {
+        segments.forEach(seg => { seg.className = 'segment'; });
+        strengthLabel.textContent = '';
+        Object.keys(ruleEls).forEach(key => {
+          ruleEls[key].className = 'check-item fail';
+          ruleEls[key].querySelector('.check-icon').textContent = '✗';
+        });
+        return;
+      }
+
+      // Check each rule
+      const results = {};
+      let score = 0;
+      Object.keys(RULES).forEach(key => {
+        results[key] = RULES[key](password);
+        if (results[key]) score++;
+      });
+
+      // Update rule checklist
+      Object.keys(ruleEls).forEach(key => {
+        const pass = results[key];
+        ruleEls[key].className = `check-item ${pass ? 'pass' : 'fail'}`;
+        ruleEls[key].querySelector('.check-icon').textContent = pass ? '✓' : '✗';
+      });
+
+      // Update strength bar
+      const level = STRENGTH_LEVELS[score];
+      segments.forEach((seg, i) => {
+        seg.className = 'segment' + (i < score && level ? ' ' + level.colorClass : '');
+      });
+
+      // Update label
+      strengthLabel.textContent = level ? level.label : '';
+
+      // Label color
+      const colorMap = { weak: '#ef4444', fair: '#f97316', good: '#eab308', strong: '#22c55e' };
+      strengthLabel.style.color = level ? colorMap[level.colorClass] : '#94a3b8';
+    }
+
+    toggleBtn.addEventListener('click', () => {
+      const isPassword = passwordInput.type === 'password';
+      passwordInput.type = isPassword ? 'text' : 'password';
+      toggleBtn.textContent = isPassword ? '🙈' : '👁️';
+    });
+
+    passwordInput.addEventListener('input', () => {
+      evaluate(passwordInput.value);
+    });
+
+    evaluate('');
+  </script>
+</body>
+</html>

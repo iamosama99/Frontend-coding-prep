@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Weather App — Solution</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: system-ui, sans-serif;
+      background: linear-gradient(135deg, #1e3a5f 0%, #3b82f6 100%);
+      min-height: 100vh;
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+      padding: 3rem 1.5rem;
+      color: #fff;
+    }
+
+    .container { width: 100%; max-width: 440px; }
+
+    h1 { font-size: 1.75rem; margin-bottom: 1.5rem; text-align: center; }
+
+    .search-row { display: flex; gap: .6rem; margin-bottom: 1.5rem; }
+
+    #cityInput {
+      flex: 1;
+      padding: .7rem 1rem;
+      border: none;
+      border-radius: 10px;
+      font-size: 1rem;
+      outline: none;
+      background: rgba(255,255,255,.2);
+      color: #fff;
+    }
+
+    #cityInput::placeholder { color: rgba(255,255,255,.6); }
+    #cityInput:focus { background: rgba(255,255,255,.3); }
+
+    #searchBtn {
+      padding: .7rem 1.2rem;
+      background: #fff;
+      color: #1e3a5f;
+      border: none;
+      border-radius: 10px;
+      font-weight: 700;
+      font-size: .95rem;
+      cursor: pointer;
+    }
+
+    #searchBtn:hover { background: #e0e7ff; }
+
+    #status { text-align: center; opacity: .8; font-size: .95rem; min-height: 1.5rem; }
+
+    #weatherCard {
+      display: none;
+      background: rgba(255,255,255,.15);
+      backdrop-filter: blur(8px);
+      border-radius: 20px;
+      padding: 2rem;
+      text-align: center;
+      margin-top: 1.5rem;
+    }
+
+    #weatherIcon  { font-size: 4rem; margin-bottom: .5rem; }
+    #cityName     { font-size: 1.4rem; font-weight: 700; }
+    #weatherDesc  { font-size: 1rem; opacity: .8; margin-bottom: 1rem; }
+    #tempDisplay  { font-size: 3.5rem; font-weight: 700; margin-bottom: .25rem; }
+    #windDisplay  { font-size: .95rem; opacity: .75; margin-bottom: 1.25rem; }
+
+    #toggleUnit {
+      padding: .4rem 1.1rem;
+      border: 2px solid rgba(255,255,255,.5);
+      border-radius: 99px;
+      background: transparent;
+      color: #fff;
+      font-size: .85rem;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    #toggleUnit:hover { background: rgba(255,255,255,.15); }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Weather</h1>
+
+    <div class="search-row">
+      <input type="text" id="cityInput" placeholder="Enter city name…" />
+      <button id="searchBtn">Search</button>
+    </div>
+
+    <p id="status"></p>
+
+    <div id="weatherCard">
+      <div id="weatherIcon"></div>
+      <div id="cityName"></div>
+      <div id="weatherDesc"></div>
+      <div id="tempDisplay"></div>
+      <div id="windDisplay"></div>
+      <button id="toggleUnit">Switch to °F</button>
+    </div>
+  </div>
+
+  <script>
+    function getWeatherInfo(code) {
+      if (code === 0)                       return { emoji: '☀️',  description: 'Clear sky' };
+      if (code <= 3)                        return { emoji: '⛅',  description: 'Partly cloudy' };
+      if (code >= 45 && code <= 48)         return { emoji: '🌫️', description: 'Fog' };
+      if (code >= 51 && code <= 67)         return { emoji: '🌧️', description: 'Rain' };
+      if (code >= 71 && code <= 77)         return { emoji: '❄️',  description: 'Snow' };
+      if (code >= 80 && code <= 82)         return { emoji: '🌦️', description: 'Showers' };
+      if (code >= 95 && code <= 99)         return { emoji: '⛈️', description: 'Thunderstorm' };
+      return { emoji: '🌡️', description: 'Unknown' };
+    }
+
+    // State
+    let tempC          = null;
+    let unit           = 'C';
+    let currentWeather = null;
+
+    // DOM refs
+    const cityInputEl  = document.getElementById('cityInput');
+    const statusEl     = document.getElementById('status');
+    const weatherCard  = document.getElementById('weatherCard');
+    const weatherIcon  = document.getElementById('weatherIcon');
+    const cityNameEl   = document.getElementById('cityName');
+    const weatherDesc  = document.getElementById('weatherDesc');
+    const tempDisplay  = document.getElementById('tempDisplay');
+    const windDisplay  = document.getElementById('windDisplay');
+    const toggleUnit   = document.getElementById('toggleUnit');
+
+    function setStatus(msg) {
+      statusEl.textContent     = msg;
+      weatherCard.style.display = 'none';
+    }
+
+    function renderWeather() {
+      if (!currentWeather) return;
+      const { city, country, windspeed, code } = currentWeather;
+      const { emoji, description } = getWeatherInfo(code);
+
+      const displayTemp = unit === 'C'
+        ? tempC.toFixed(1)
+        : (tempC * 9 / 5 + 32).toFixed(1);
+
+      weatherIcon.textContent  = emoji;
+      cityNameEl.textContent   = `${city}, ${country}`;
+      weatherDesc.textContent  = description;
+      tempDisplay.textContent  = `${displayTemp}°${unit}`;
+      windDisplay.textContent  = `Wind: ${windspeed} km/h`;
+      toggleUnit.textContent   = unit === 'C' ? 'Switch to °F' : 'Switch to °C';
+
+      statusEl.textContent      = '';
+      weatherCard.style.display = 'block';
+    }
+
+    async function fetchWeather() {
+      const city = cityInputEl.value.trim();
+      if (!city) { setStatus('Please enter a city name.'); return; }
+
+      setStatus('Loading…');
+
+      try {
+        const geoRes = await fetch(
+          `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(city)}&count=1`
+        );
+        const geoData = await geoRes.json();
+
+        if (!geoData.results || geoData.results.length === 0) {
+          setStatus('City not found. Try another name.');
+          return;
+        }
+
+        const { latitude, longitude, name, country_code } = geoData.results[0];
+
+        const wRes = await fetch(
+          `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current_weather=true`
+        );
+        const wData = await wRes.json();
+        const cw    = wData.current_weather;
+
+        tempC          = cw.temperature;
+        currentWeather = { city: name, country: country_code, windspeed: cw.windspeed, code: cw.weathercode };
+        renderWeather();
+      } catch {
+        setStatus('Network error. Please try again.');
+      }
+    }
+
+    document.getElementById('searchBtn').addEventListener('click', fetchWeather);
+
+    cityInputEl.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') fetchWeather();
+    });
+
+    toggleUnit.addEventListener('click', () => {
+      unit = unit === 'C' ? 'F' : 'C';
+      renderWeather();
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Snake Game</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: system-ui, sans-serif;
+      background: #0f172a;
+      color: #f1f5f9;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem 1rem;
+    }
+
+    h1 { font-size: 1.8rem; margin-bottom: 0.5rem; }
+
+    .score-bar {
+      display: flex;
+      gap: 2rem;
+      margin-bottom: 1rem;
+    }
+    .score-item { text-align: center; }
+    .score-item .label { font-size: 0.72rem; color: #64748b; text-transform: uppercase; letter-spacing: 0.05em; }
+    .score-item .value { font-size: 1.5rem; font-weight: 700; color: #34d399; }
+
+    /* Canvas wrapper for overlay positioning */
+    .canvas-wrapper {
+      position: relative;
+      border: 3px solid #334155;
+      border-radius: 4px;
+    }
+
+    canvas {
+      display: block;
+      background: #1e293b;
+    }
+
+    /* Game over / start overlay */
+    .overlay {
+      position: absolute;
+      inset: 0;
+      background: rgba(0,0,0,0.8);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 1rem;
+      border-radius: 2px;
+    }
+    .overlay.hidden { display: none; }
+
+    .overlay h2 { font-size: 1.6rem; }
+    .overlay p  { color: #94a3b8; }
+
+    .btn {
+      background: #6366f1;
+      color: #fff;
+      border: none;
+      border-radius: 10px;
+      padding: 0.75rem 2rem;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: background 0.15s;
+      margin-top: 0.5rem;
+    }
+    .btn:hover { background: #4f46e5; }
+
+    .controls-hint {
+      margin-top: 1rem;
+      color: #475569;
+      font-size: 0.82rem;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <h1>Snake 🐍</h1>
+
+  <div class="score-bar">
+    <div class="score-item">
+      <div class="label">Score</div>
+      <div class="value" id="score">0</div>
+    </div>
+    <div class="score-item">
+      <div class="label">Best</div>
+      <div class="value" id="best">0</div>
+    </div>
+  </div>
+
+  <div class="canvas-wrapper">
+    <canvas id="canvas" width="400" height="400"></canvas>
+
+    <div class="overlay" id="overlay">
+      <h2 id="overlay-title">🐍 Snake</h2>
+      <p id="overlay-msg">Use arrow keys to move</p>
+      <button class="btn" id="btn-start">Start Game</button>
+    </div>
+  </div>
+
+  <div class="controls-hint">Arrow keys to move &nbsp;·&nbsp; Tab to pause</div>
+
+  <script>
+    // ─── Constants ────────────────────────────────────────────
+    const COLS       = 20;
+    const ROWS       = 20;
+    const CELL       = 20;  // pixels per cell
+    const TICK_MS    = 150; // milliseconds per game step
+
+    // ─── Canvas setup ─────────────────────────────────────────
+    const canvas  = document.getElementById('canvas');
+    const ctx     = canvas.getContext('2d');
+
+    // ─── Colors ───────────────────────────────────────────────
+    const COLOR = {
+      bg:         '#1e293b',
+      snake:      '#34d399',
+      snakeHead:  '#059669',
+      food:       '#f87171',
+      grid:       '#263448',
+    };
+
+    // ─── State ───────────────────────────────────────────────
+    let snake      = [];          // array of {x, y}, head = snake[0]
+    let direction  = { x: 1, y: 0 };
+    let nextDir    = null;        // queued direction change
+    let food       = { x: 0, y: 0 };
+    let score      = 0;
+    let best       = 0;
+    let gameOver   = false;
+    let running    = false;
+    let rafId      = null;
+    let lastTick   = 0;           // timestamp of last game step
+
+    // ─── DOM refs ─────────────────────────────────────────────
+    const scoreEl  = document.getElementById('score');
+    const bestEl   = document.getElementById('best');
+    const overlay  = document.getElementById('overlay');
+    const titleEl  = document.getElementById('overlay-title');
+    const msgEl    = document.getElementById('overlay-msg');
+    const btnStart = document.getElementById('btn-start');
+
+    // ─── Helpers ──────────────────────────────────────────────
+    function randomCell() {
+      // TODO: Return { x: random 0..COLS-1, y: random 0..ROWS-1 }
+    }
+
+    function placeFood() {
+      // TODO: Pick a random cell that is NOT occupied by any snake segment
+      // Keep re-picking until a free cell is found
+    }
+
+    function initGame() {
+      // TODO:
+      // 1. Set snake to 3-segment horizontal snake near centre:
+      //    head at (10,10), then (9,10), (8,10)
+      // 2. Set direction = { x: 1, y: 0 }
+      // 3. nextDir = null
+      // 4. score = 0; update scoreEl
+      // 5. gameOver = false
+      // 6. placeFood()
+    }
+
+    // ─── Draw helpers ─────────────────────────────────────────
+    function drawCell(x, y, color) {
+      // TODO: Fill a rectangle at (x*CELL, y*CELL) of size CELL×CELL
+      // Inset by 1px for a grid gap look
+      // i.e. fillRect(x*CELL+1, y*CELL+1, CELL-2, CELL-2)
+    }
+
+    function draw() {
+      // TODO:
+      // 1. Clear canvas (fill with bg color)
+      // 2. Draw food cell (COLOR.food)
+      // 3. Draw each snake segment:
+      //    - segment 0 (head) → COLOR.snakeHead
+      //    - rest → COLOR.snake
+    }
+
+    // ─── Game step ────────────────────────────────────────────
+    function step() {
+      // TODO:
+      // 1. If nextDir is set, apply it: direction = nextDir; nextDir = null
+      // 2. Calculate new head: { x: snake[0].x + direction.x, y: snake[0].y + direction.y }
+      // 3. Check wall collision: if newHead.x < 0 || >= COLS || newHead.y < 0 || >= ROWS → endGame()
+      // 4. Check self collision: if any segment has same x,y as newHead → endGame()
+      // 5. Unshift newHead into snake
+      // 6. If newHead matches food: increment score, placeFood()
+      //    Else: pop tail (snake.pop()) — snake stays same length
+      // 7. draw()
+    }
+
+    // ─── Game loop ────────────────────────────────────────────
+    function gameLoop(timestamp) {
+      // TODO:
+      // If not running, stop
+      // If timestamp - lastTick >= TICK_MS: step(); lastTick = timestamp
+      // rafId = requestAnimationFrame(gameLoop)
+    }
+
+    // ─── Start / End ──────────────────────────────────────────
+    function startGame() {
+      // TODO:
+      // 1. initGame()
+      // 2. Hide overlay
+      // 3. running = true; lastTick = 0
+      // 4. Cancel any previous rafId
+      // 5. rafId = requestAnimationFrame(gameLoop)
+    }
+
+    function endGame() {
+      // TODO:
+      // 1. running = false; gameOver = true
+      // 2. Update best if score > best
+      // 3. Show overlay with "Game Over" title and score message
+      // 4. Change button text to "Play Again"
+    }
+
+    // ─── Input ────────────────────────────────────────────────
+    document.addEventListener('keydown', e => {
+      // TODO: Map ArrowUp/Down/Left/Right to direction vectors
+      // Queue as nextDir (do NOT allow 180° reversal)
+      // Hint: 180° reversal means newDir.x === -direction.x && newDir.y === -direction.y
+      // Prevent default scrolling for arrow keys
+    });
+
+    // ─── Pause on tab away ────────────────────────────────────
+    document.addEventListener('visibilitychange', () => {
+      // TODO: if document.hidden, set running = false (pauses loop)
+      // When visible again and !gameOver, resume: running = true; requestAnimationFrame(gameLoop)
+    });
+
+    // ─── Button ───────────────────────────────────────────────
+    btnStart.addEventListener('click', startGame);
+
+    // ─── Initial draw (blank board) ───────────────────────────
+    // TODO: Draw blank canvas on load so the board is visible behind overlay
+  </script>
+</body>
+</html>

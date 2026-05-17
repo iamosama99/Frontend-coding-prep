@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Weather App</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: system-ui, sans-serif;
+      background: linear-gradient(135deg, #1e3a5f 0%, #3b82f6 100%);
+      min-height: 100vh;
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+      padding: 3rem 1.5rem;
+      color: #fff;
+    }
+
+    .container { width: 100%; max-width: 440px; }
+
+    h1 { font-size: 1.75rem; margin-bottom: 1.5rem; text-align: center; }
+
+    /* Search */
+    .search-row { display: flex; gap: .6rem; margin-bottom: 1.5rem; }
+
+    #cityInput {
+      flex: 1;
+      padding: .7rem 1rem;
+      border: none;
+      border-radius: 10px;
+      font-size: 1rem;
+      outline: none;
+      background: rgba(255,255,255,.2);
+      color: #fff;
+    }
+
+    #cityInput::placeholder { color: rgba(255,255,255,.6); }
+    #cityInput:focus { background: rgba(255,255,255,.3); }
+
+    #searchBtn {
+      padding: .7rem 1.2rem;
+      background: #fff;
+      color: #1e3a5f;
+      border: none;
+      border-radius: 10px;
+      font-weight: 700;
+      font-size: .95rem;
+      cursor: pointer;
+    }
+
+    #searchBtn:hover { background: #e0e7ff; }
+
+    /* Status */
+    #status { text-align: center; opacity: .8; font-size: .95rem; min-height: 1.5rem; }
+
+    /* Weather card */
+    #weatherCard {
+      display: none;
+      background: rgba(255,255,255,.15);
+      backdrop-filter: blur(8px);
+      border-radius: 20px;
+      padding: 2rem;
+      text-align: center;
+      margin-top: 1.5rem;
+    }
+
+    #weatherIcon  { font-size: 4rem; margin-bottom: .5rem; }
+    #cityName     { font-size: 1.4rem; font-weight: 700; }
+    #weatherDesc  { font-size: 1rem; opacity: .8; margin-bottom: 1rem; }
+    #tempDisplay  { font-size: 3.5rem; font-weight: 700; margin-bottom: .25rem; }
+    #windDisplay  { font-size: .95rem; opacity: .75; margin-bottom: 1.25rem; }
+
+    #toggleUnit {
+      padding: .4rem 1.1rem;
+      border: 2px solid rgba(255,255,255,.5);
+      border-radius: 99px;
+      background: transparent;
+      color: #fff;
+      font-size: .85rem;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    #toggleUnit:hover { background: rgba(255,255,255,.15); }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Weather</h1>
+
+    <div class="search-row">
+      <input type="text" id="cityInput" placeholder="Enter city name…" />
+      <button id="searchBtn">Search</button>
+    </div>
+
+    <p id="status"></p>
+
+    <div id="weatherCard">
+      <div id="weatherIcon"></div>
+      <div id="cityName"></div>
+      <div id="weatherDesc"></div>
+      <div id="tempDisplay"></div>
+      <div id="windDisplay"></div>
+      <button id="toggleUnit">Switch to °F</button>
+    </div>
+  </div>
+
+  <script>
+    // ─── Weather code → emoji + description ─────────────────────────────────────
+    // TODO: implement getWeatherInfo(code)
+    //   - Return { emoji, description } based on WMO weather code ranges
+    //   - Ranges: 0=Clear, 1-3=Partly cloudy, 45-48=Fog, 51-67=Rain,
+    //             71-77=Snow, 80-82=Showers, 95-99=Thunderstorm
+    function getWeatherInfo(code) {
+      throw new Error('TODO: implement getWeatherInfo');
+    }
+
+    // ─── State ───────────────────────────────────────────────────────────────────
+    // TODO: declare state:
+    //   - tempC: null (stored Celsius value)
+    //   - unit: 'C' | 'F'
+    //   - currentWeather: null (object with city, country, windspeed, code)
+
+    // ─── setStatus ───────────────────────────────────────────────────────────────
+    // TODO: implement setStatus(msg) — set #status textContent, hide weatherCard
+    function setStatus(msg) {
+      throw new Error('TODO: implement setStatus');
+    }
+
+    // ─── renderWeather ───────────────────────────────────────────────────────────
+    // TODO: implement renderWeather()
+    //   - Show #weatherCard
+    //   - Update #weatherIcon, #cityName, #weatherDesc
+    //   - Convert tempC to °F if unit === 'F': (tempC * 9/5 + 32).toFixed(1)
+    //   - Update #tempDisplay: "${temp}°${unit}"
+    //   - Update #windDisplay: "Wind: ${windspeed} km/h"
+    //   - Update #toggleUnit button text
+    function renderWeather() {
+      throw new Error('TODO: implement renderWeather');
+    }
+
+    // ─── fetchWeather ────────────────────────────────────────────────────────────
+    // TODO: implement fetchWeather()
+    //   1. Read city from #cityInput, trim; show validation message if empty, return
+    //   2. setStatus('Loading…'), hide weatherCard
+    //   3. Fetch geocoding URL; check results array — if empty setStatus('City not found.')
+    //   4. Extract lat, lon, name, country_code from results[0]
+    //   5. Fetch weather URL with those coords
+    //   6. Extract temperature, windspeed, weathercode from data.current_weather
+    //   7. Store in state variables, call renderWeather(), clear status
+    //   8. Catch errors: setStatus('Network error. Please try again.')
+    async function fetchWeather() {
+      throw new Error('TODO: implement fetchWeather');
+    }
+
+    // ─── Events ──────────────────────────────────────────────────────────────────
+    // TODO: #searchBtn click → fetchWeather
+    // TODO: #cityInput keydown Enter → fetchWeather
+    // TODO: #toggleUnit click → toggle unit between 'C' and 'F', re-render
+  </script>
+</body>
+</html>

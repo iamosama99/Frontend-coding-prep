@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Stopwatch</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: system-ui, sans-serif;
+      background: #0f172a;
+      color: #f1f5f9;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .app {
+      text-align: center;
+      width: 360px;
+    }
+
+    h1 { font-size: 1.2rem; color: #94a3b8; margin-bottom: 32px; letter-spacing: 0.1em; text-transform: uppercase; }
+
+    .time-display {
+      font-size: 4rem;
+      font-weight: 200;
+      font-variant-numeric: tabular-nums;
+      letter-spacing: 0.05em;
+      color: #fff;
+      margin-bottom: 40px;
+    }
+
+    .controls {
+      display: flex;
+      gap: 16px;
+      justify-content: center;
+      margin-bottom: 32px;
+    }
+
+    .btn {
+      padding: 12px 28px;
+      border: none;
+      border-radius: 50px;
+      font-size: 1rem;
+      cursor: pointer;
+      font-weight: 600;
+      transition: all 0.2s;
+    }
+
+    #start-pause-btn { background: #4f46e5; color: #fff; min-width: 110px; }
+    #start-pause-btn:hover { background: #4338ca; }
+
+    #lap-btn { background: #1e293b; color: #94a3b8; border: 1px solid #334155; }
+    #lap-btn:hover:not(:disabled) { background: #334155; color: #f1f5f9; }
+    #lap-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+    #reset-btn { background: #1e293b; color: #94a3b8; border: 1px solid #334155; }
+    #reset-btn:hover { background: #334155; color: #f1f5f9; }
+
+    .lap-list-container {
+      max-height: 200px;
+      overflow-y: auto;
+      border-top: 1px solid #1e293b;
+    }
+
+    .lap-list { list-style: none; }
+
+    .lap-item {
+      display: flex;
+      justify-content: space-between;
+      padding: 10px 8px;
+      border-bottom: 1px solid #1e293b;
+      font-size: 0.95rem;
+      color: #94a3b8;
+    }
+
+    .lap-item .lap-label { color: #64748b; font-size: 0.85rem; }
+    .lap-item .lap-time { font-variant-numeric: tabular-nums; color: #e2e8f0; }
+
+    .empty-laps { color: #475569; font-size: 0.85rem; padding: 16px; }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <h1>Stopwatch</h1>
+
+    <div class="time-display" id="time-display">00:00:00</div>
+
+    <div class="controls">
+      <button class="btn" id="start-pause-btn">Start</button>
+      <button class="btn" id="lap-btn" disabled>Lap</button>
+      <button class="btn" id="reset-btn">Reset</button>
+    </div>
+
+    <div class="lap-list-container">
+      <ul class="lap-list" id="lap-list">
+        <li class="empty-laps">No laps recorded</li>
+      </ul>
+    </div>
+  </div>
+
+  <script>
+    // --- State ---
+    // TODO: Track:
+    //   elapsed   (number) — total milliseconds elapsed so far
+    //   running   (boolean) — is the timer currently ticking?
+    //   intervalId (number | null) — the setInterval return value
+    //   laps      (array of numbers) — each lap's elapsed ms at time of recording
+    let elapsed = 0;
+    let running = false;
+    let intervalId = null;
+    let laps = [];
+
+    // --- DOM references ---
+    const timeDisplay   = document.getElementById('time-display');
+    const startPauseBtn = document.getElementById('start-pause-btn');
+    const lapBtn        = document.getElementById('lap-btn');
+    const resetBtn      = document.getElementById('reset-btn');
+    const lapList       = document.getElementById('lap-list');
+
+    // --- Format helper ---
+    function formatTime(ms) {
+      // TODO: Convert ms to mm:ss:cs format.
+      //   cs = centiseconds = Math.floor((ms % 1000) / 10)
+      //   ss = Math.floor(ms / 1000) % 60
+      //   mm = Math.floor(ms / 60000)
+      //   Each part should be zero-padded to 2 digits.
+      throw new Error('formatTime() not implemented');
+    }
+
+    // --- Render ---
+    function renderDisplay() {
+      // TODO: Update timeDisplay.textContent with formatTime(elapsed).
+      throw new Error('renderDisplay() not implemented');
+    }
+
+    function renderLaps() {
+      // TODO: If laps array is empty, show the "No laps recorded" message.
+      //       Otherwise render each lap as <li class="lap-item">:
+      //         <span class="lap-label">Lap N</span>
+      //         <span class="lap-time">formatTime(laps[N])</span>
+      //       Newest laps should appear at the top of the list.
+      throw new Error('renderLaps() not implemented');
+    }
+
+    // --- Actions ---
+    function startTimer() {
+      // TODO: Set running = true.
+      //       Record the start timestamp (Date.now() - elapsed) in a variable.
+      //       Use setInterval (every ~10ms) to update elapsed = Date.now() - startTime
+      //       and call renderDisplay().
+      //       Update startPauseBtn label to 'Pause'.
+      //       Enable lapBtn.
+      throw new Error('startTimer() not implemented');
+    }
+
+    function pauseTimer() {
+      // TODO: Set running = false.
+      //       clearInterval(intervalId) and set intervalId = null.
+      //       Update startPauseBtn label to 'Resume'.
+      //       Disable lapBtn.
+      throw new Error('pauseTimer() not implemented');
+    }
+
+    function resetTimer() {
+      // TODO: Pause the timer if running.
+      //       Reset elapsed = 0, laps = [].
+      //       Update startPauseBtn label to 'Start'.
+      //       renderDisplay() and renderLaps().
+      throw new Error('resetTimer() not implemented');
+    }
+
+    function recordLap() {
+      // TODO: Push the current elapsed value to the laps array.
+      //       Re-render laps.
+      throw new Error('recordLap() not implemented');
+    }
+
+    // --- Event listeners ---
+    startPauseBtn.addEventListener('click', () => {
+      // TODO: If running, call pauseTimer(). Otherwise call startTimer().
+    });
+
+    lapBtn.addEventListener('click', () => {
+      // TODO: If running, call recordLap().
+    });
+
+    resetBtn.addEventListener('click', resetTimer);
+
+    // --- Init ---
+    renderDisplay();
+    renderLaps();
+  </script>
+</body>
+</html>

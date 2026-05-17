@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Kanban Board</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: system-ui, sans-serif;
+      background: #0f172a;
+      color: #f1f5f9;
+      min-height: 100vh;
+      padding: 2rem 1rem;
+    }
+
+    h1 { text-align: center; font-size: 1.8rem; margin-bottom: 0.4rem; }
+    .subtitle { text-align: center; color: #94a3b8; margin-bottom: 2rem; }
+
+    /* Add task form */
+    .add-form {
+      background: #1e293b;
+      border-radius: 14px;
+      padding: 1.25rem 1.5rem;
+      max-width: 500px;
+      margin: 0 auto 2rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+    .add-form h3 { font-size: 0.9rem; color: #94a3b8; font-weight: 600; }
+
+    input[type="text"], textarea, select {
+      background: #0f172a;
+      border: 1.5px solid #334155;
+      border-radius: 8px;
+      color: #f1f5f9;
+      padding: 0.6rem 0.9rem;
+      font-size: 0.9rem;
+      font-family: inherit;
+      outline: none;
+      width: 100%;
+      transition: border-color 0.15s;
+    }
+    input[type="text"]:focus, textarea:focus, select:focus { border-color: #6366f1; }
+    input.error { border-color: #f87171; }
+    textarea { resize: vertical; min-height: 60px; }
+
+    .form-row { display: flex; gap: 0.75rem; }
+    .form-row select { flex: 1; }
+    .form-row button { white-space: nowrap; }
+
+    .error-msg { color: #f87171; font-size: 0.8rem; }
+
+    .btn-add {
+      background: #6366f1;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      padding: 0.6rem 1.2rem;
+      font-size: 0.9rem;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+    .btn-add:hover { background: #4f46e5; }
+
+    /* Columns */
+    .board {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.25rem;
+      max-width: 1000px;
+      margin: 0 auto;
+    }
+
+    .column {
+      background: #1e293b;
+      border-radius: 14px;
+      padding: 1rem;
+      min-height: 400px;
+      display: flex;
+      flex-direction: column;
+    }
+    .column.drag-over { outline: 2px dashed #6366f1; background: #1a2744; }
+
+    .column-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 1rem;
+    }
+    .column-title { font-weight: 700; font-size: 0.95rem; }
+    .col-todo .column-title      { color: #94a3b8; }
+    .col-inprogress .column-title { color: #fbbf24; }
+    .col-done .column-title      { color: #34d399; }
+
+    .badge {
+      background: #334155;
+      color: #94a3b8;
+      border-radius: 999px;
+      padding: 0.15rem 0.55rem;
+      font-size: 0.78rem;
+      font-weight: 700;
+    }
+
+    .cards-container {
+      display: flex;
+      flex-direction: column;
+      gap: 0.6rem;
+      flex: 1;
+    }
+
+    /* Placeholder shown in empty column */
+    .placeholder {
+      border: 2px dashed #334155;
+      border-radius: 10px;
+      padding: 1rem;
+      text-align: center;
+      color: #475569;
+      font-size: 0.82rem;
+      flex: 1;
+    }
+
+    /* Task card */
+    .card {
+      background: #0f172a;
+      border: 1.5px solid #334155;
+      border-radius: 10px;
+      padding: 0.75rem 0.9rem;
+      cursor: grab;
+      position: relative;
+      transition: box-shadow 0.15s;
+    }
+    .card:hover { box-shadow: 0 0 0 2px #6366f1; }
+    .card.dragging { opacity: 0.4; }
+
+    .card-title { font-size: 0.9rem; font-weight: 600; margin-bottom: 0.25rem; }
+    .card-desc  { font-size: 0.78rem; color: #64748b; line-height: 1.4; }
+
+    .btn-delete {
+      position: absolute;
+      top: 0.4rem;
+      right: 0.4rem;
+      background: transparent;
+      border: none;
+      color: #475569;
+      cursor: pointer;
+      font-size: 1rem;
+      line-height: 1;
+      opacity: 0;
+      transition: opacity 0.15s, color 0.15s;
+      padding: 0.1rem 0.3rem;
+    }
+    .card:hover .btn-delete { opacity: 1; }
+    .btn-delete:hover { color: #f87171; }
+  </style>
+</head>
+<body>
+  <h1>Kanban Board 📋</h1>
+  <p class="subtitle">Drag tasks between columns to track progress</p>
+
+  <!-- Add task form -->
+  <form class="add-form" id="add-form">
+    <h3>Add a Task</h3>
+    <input type="text" id="task-title" placeholder="Task title (required)" />
+    <div class="error-msg" id="form-error"></div>
+    <textarea id="task-desc" placeholder="Description (optional)"></textarea>
+    <div class="form-row">
+      <select id="task-column">
+        <option value="todo">To Do</option>
+        <option value="inprogress">In Progress</option>
+        <option value="done">Done</option>
+      </select>
+      <button type="submit" class="btn-add">Add Task</button>
+    </div>
+  </form>
+
+  <!-- Board -->
+  <div class="board">
+    <div class="column col-todo" id="col-todo" data-col="todo">
+      <div class="column-header">
+        <span class="column-title">To Do</span>
+        <span class="badge" id="badge-todo">0</span>
+      </div>
+      <div class="cards-container" id="cards-todo"></div>
+    </div>
+
+    <div class="column col-inprogress" id="col-inprogress" data-col="inprogress">
+      <div class="column-header">
+        <span class="column-title">In Progress</span>
+        <span class="badge" id="badge-inprogress">0</span>
+      </div>
+      <div class="cards-container" id="cards-inprogress"></div>
+    </div>
+
+    <div class="column col-done" id="col-done" data-col="done">
+      <div class="column-header">
+        <span class="column-title">Done</span>
+        <span class="badge" id="badge-done">0</span>
+      </div>
+      <div class="cards-container" id="cards-done"></div>
+    </div>
+  </div>
+
+  <script>
+    const STORAGE_KEY = 'kanban-board';
+    const COLUMNS     = ['todo', 'inprogress', 'done'];
+
+    // ─── State ───────────────────────────────────────────────
+    // board: { todo: Card[], inprogress: Card[], done: Card[] }
+    // Card: { id, title, desc }
+    let board = { todo: [], inprogress: [], done: [] };
+    let draggingId = null; // id of the card currently being dragged
+
+    // ─── Persistence ──────────────────────────────────────────
+    function loadBoard() {
+      // TODO: Read STORAGE_KEY from localStorage, parse JSON
+      // Assign to board; fall back to empty columns if missing/corrupt
+    }
+
+    function saveBoard() {
+      // TODO: JSON.stringify board and write to localStorage
+    }
+
+    // ─── Render ───────────────────────────────────────────────
+    function renderColumn(col) {
+      // TODO:
+      // 1. Get the cards-container element (id="cards-{col}")
+      // 2. Clear it
+      // 3. Get badge element (id="badge-{col}") and update count
+      // 4. If column has no cards, append a <div class="placeholder">
+      //    with text "Drop cards here"
+      // 5. Otherwise for each card render:
+      //    <div class="card" draggable="true" data-id="{id}">
+      //      <button class="btn-delete" data-id="{id}">×</button>
+      //      <div class="card-title">{title}</div>
+      //      <div class="card-desc">{desc}</div>  ← only if desc non-empty
+      //    </div>
+      //    Attach dragstart, dragend listeners on each card element
+      //    Attach click on delete button → deleteCard(id)
+    }
+
+    function renderAll() {
+      // TODO: Call renderColumn for each column in COLUMNS
+    }
+
+    // ─── Add card ─────────────────────────────────────────────
+    function addCard(title, desc, col) {
+      // TODO:
+      // 1. Create card { id: Date.now(), title, desc }
+      // 2. Push to board[col]
+      // 3. saveBoard() and renderColumn(col)
+    }
+
+    // ─── Delete card ──────────────────────────────────────────
+    function deleteCard(id) {
+      // TODO:
+      // 1. Find which column contains the card
+      // 2. Filter it out
+      // 3. saveBoard() and renderColumn for that column
+    }
+
+    // ─── Move card ────────────────────────────────────────────
+    function moveCard(id, targetCol) {
+      // TODO:
+      // 1. Find the source column containing the card
+      // 2. If source === targetCol, do nothing and return
+      // 3. Remove card from source column
+      // 4. Unshift (prepend) card into targetCol
+      // 5. saveBoard() and renderAll()
+    }
+
+    // ─── Drag-and-drop handlers ───────────────────────────────
+    // These go on each card element (set up in renderColumn):
+    //   dragstart: set draggingId = card id; add 'dragging' class
+    //   dragend: clear draggingId; remove 'dragging' class; remove all drag-over
+
+    // These go on each column element (set up once below):
+    //   dragover: e.preventDefault() to allow drop; add 'drag-over' class
+    //   dragleave: remove 'drag-over' class (guard: only if leaving the column)
+    //   drop: remove 'drag-over' class; call moveCard(draggingId, col)
+
+    function setupColumnDrop(colEl) {
+      // TODO: Add dragover, dragleave, drop event listeners to colEl
+      // colEl.dataset.col gives the column name ('todo' | 'inprogress' | 'done')
+    }
+
+    // ─── Form submit ──────────────────────────────────────────
+    document.getElementById('add-form').addEventListener('submit', e => {
+      e.preventDefault();
+      // TODO:
+      // 1. Read title, desc, and selected column from form fields
+      // 2. Trim title; if empty show error message and add .error class to input
+      // 3. Otherwise clear error, call addCard(), reset form
+    });
+
+    // ─── Init ─────────────────────────────────────────────────
+    loadBoard();
+
+    COLUMNS.forEach(col => {
+      setupColumnDrop(document.getElementById(`col-${col}`));
+    });
+
+    renderAll();
+  </script>
+</body>
+</html>

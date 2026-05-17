@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Paint Canvas</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html, body {
+      height: 100%;
+      overflow: hidden;
+      font-family: system-ui, sans-serif;
+      background: #0f172a;
+    }
+
+    /* Toolbar */
+    .toolbar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 56px;
+      background: #1e293b;
+      border-bottom: 1px solid #334155;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      padding: 0 1rem;
+      z-index: 10;
+    }
+
+    .tool-label {
+      font-size: 0.75rem;
+      color: #64748b;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      white-space: nowrap;
+    }
+
+    /* Color picker */
+    input[type="color"] {
+      width: 36px;
+      height: 36px;
+      border: 2px solid #334155;
+      border-radius: 8px;
+      background: none;
+      cursor: pointer;
+      padding: 2px;
+    }
+
+    /* Brush size */
+    .brush-group {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    input[type="range"] {
+      width: 90px;
+      accent-color: #6366f1;
+      cursor: pointer;
+    }
+    .size-preview {
+      width: 36px;
+      height: 36px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .size-dot {
+      background: #f1f5f9;
+      border-radius: 50%;
+      transition: width 0.1s, height 0.1s;
+    }
+
+    /* Buttons */
+    .btn-tool {
+      background: #334155;
+      color: #f1f5f9;
+      border: none;
+      border-radius: 8px;
+      padding: 0.4rem 0.85rem;
+      font-size: 0.85rem;
+      cursor: pointer;
+      transition: background 0.15s;
+      white-space: nowrap;
+    }
+    .btn-tool:hover { background: #475569; }
+    .btn-tool.active { background: #6366f1; }
+
+    /* Canvas */
+    canvas {
+      position: fixed;
+      top: 56px;
+      left: 0;
+      background: #fff;
+      cursor: crosshair;
+      touch-action: none; /* prevent scroll during touch drawing */
+    }
+    canvas.eraser { cursor: cell; }
+  </style>
+</head>
+<body>
+  <!-- Toolbar -->
+  <div class="toolbar">
+    <span class="tool-label">Color</span>
+    <input type="color" id="color-picker" value="#6366f1" title="Pick color" />
+
+    <span class="tool-label">Size</span>
+    <div class="brush-group">
+      <input type="range" id="brush-size" min="2" max="40" value="8" />
+      <div class="size-preview">
+        <div class="size-dot" id="size-dot" style="width:8px;height:8px;"></div>
+      </div>
+    </div>
+
+    <button class="btn-tool" id="btn-draw">✏️ Draw</button>
+    <button class="btn-tool" id="btn-eraser">⬜ Eraser</button>
+    <button class="btn-tool" id="btn-clear">🗑 Clear</button>
+    <button class="btn-tool" id="btn-download">💾 Download</button>
+  </div>
+
+  <canvas id="canvas"></canvas>
+
+  <script>
+    const canvas      = document.getElementById('canvas');
+    const ctx         = canvas.getContext('2d');
+    const colorPicker = document.getElementById('color-picker');
+    const brushSlider = document.getElementById('brush-size');
+    const sizeDot     = document.getElementById('size-dot');
+    const btnDraw     = document.getElementById('btn-draw');
+    const btnEraser   = document.getElementById('btn-eraser');
+    const btnClear    = document.getElementById('btn-clear');
+    const btnDownload = document.getElementById('btn-download');
+
+    const TOOLBAR_H = 56;
+    const BG_COLOR  = '#ffffff';
+
+    // ─── State ───────────────────────────────────────────
+    let isDrawing = false;
+    let isEraser  = false;
+    let brushSize = 8;
+    let brushColor = '#6366f1';
+
+    // ─── Init canvas ─────────────────────────────────────
+    function initCanvas() {
+      // TODO:
+      // 1. Set canvas.width  = window.innerWidth
+      // 2. Set canvas.height = window.innerHeight - TOOLBAR_H
+      // 3. Fill canvas with BG_COLOR (so eraser has a colour to draw)
+      // 4. Set ctx line settings:
+      //    lineJoin = 'round', lineCap = 'round'
+      //    strokeStyle = brushColor, lineWidth = brushSize
+    }
+
+    // ─── Get position from event ──────────────────────────
+    function getPos(e) {
+      // TODO: Return { x, y } relative to canvas
+      // Handle both mouse events and touch events
+      // For touch: use e.touches[0] if available, else e.changedTouches[0]
+      // Subtract canvas.getBoundingClientRect() offsets
+    }
+
+    // ─── Start drawing ────────────────────────────────────
+    function startDraw(e) {
+      // TODO:
+      // 1. Set isDrawing = true
+      // 2. Get position, move context to that point (ctx.beginPath, ctx.moveTo)
+      // 3. Apply current stroke style (colour or eraser white) and lineWidth
+    }
+
+    // ─── Draw (mousemove / touchmove) ─────────────────────
+    function draw(e) {
+      // TODO:
+      // 1. If !isDrawing, return
+      // 2. Get position
+      // 3. ctx.lineTo(pos.x, pos.y)
+      // 4. ctx.stroke()
+      // This produces smooth continuous lines
+    }
+
+    // ─── Stop drawing ────────────────────────────────────
+    function stopDraw() {
+      // TODO: Set isDrawing = false
+    }
+
+    // ─── Apply stroke style ───────────────────────────────
+    function applyStyle() {
+      // TODO: Set ctx.strokeStyle = isEraser ? BG_COLOR : brushColor
+      // Set ctx.lineWidth = brushSize
+    }
+
+    // ─── Color picker ─────────────────────────────────────
+    colorPicker.addEventListener('input', () => {
+      // TODO: Update brushColor, call applyStyle()
+    });
+
+    // ─── Brush size ───────────────────────────────────────
+    brushSlider.addEventListener('input', () => {
+      // TODO: Update brushSize from slider value (Number)
+      // Update size-dot dimensions (cap display at 36px)
+      // Call applyStyle()
+    });
+
+    // ─── Draw / Eraser mode toggle ─────────────────────────
+    btnDraw.addEventListener('click', () => {
+      // TODO: Set isEraser = false, update .active classes on buttons
+      // Update canvas cursor, call applyStyle()
+    });
+
+    btnEraser.addEventListener('click', () => {
+      // TODO: Set isEraser = true, update .active classes
+      // Update canvas cursor, call applyStyle()
+    });
+
+    // ─── Clear ────────────────────────────────────────────
+    btnClear.addEventListener('click', () => {
+      // TODO: window.confirm("Clear the canvas?")
+      // If confirmed: fillRect entire canvas with BG_COLOR
+    });
+
+    // ─── Download ─────────────────────────────────────────
+    btnDownload.addEventListener('click', () => {
+      // TODO:
+      // 1. canvas.toDataURL('image/png') → data URL
+      // 2. Create a temporary <a> element, set href = dataURL, download = 'drawing.png'
+      // 3. Click it, then remove it
+    });
+
+    // ─── Mouse events ─────────────────────────────────────
+    canvas.addEventListener('mousedown', startDraw);
+    canvas.addEventListener('mousemove', draw);
+    canvas.addEventListener('mouseup',   stopDraw);
+    canvas.addEventListener('mouseleave', stopDraw);
+
+    // ─── Touch events ─────────────────────────────────────
+    canvas.addEventListener('touchstart', e => {
+      // TODO: preventDefault(), call startDraw(e)
+    });
+    canvas.addEventListener('touchmove', e => {
+      // TODO: preventDefault(), call draw(e)
+    });
+    canvas.addEventListener('touchend', stopDraw);
+
+    // ─── Init ─────────────────────────────────────────────
+    // Set initial active button
+    btnDraw.classList.add('active');
+    // TODO: Call initCanvas()
+    // TODO: Call applyStyle()
+  </script>
+</body>
+</html>

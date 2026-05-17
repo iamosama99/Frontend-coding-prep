@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Quiz App</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: system-ui, sans-serif;
+      background: #f8fafc;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem;
+    }
+
+    .card {
+      background: #fff;
+      border-radius: 14px;
+      box-shadow: 0 4px 24px rgba(0,0,0,.08);
+      padding: 2rem 2.5rem;
+      width: 100%;
+      max-width: 560px;
+    }
+
+    /* Progress */
+    .progress-bar-track {
+      height: 8px;
+      background: #e2e8f0;
+      border-radius: 99px;
+      margin-bottom: 1.5rem;
+      overflow: hidden;
+    }
+
+    #progressBar {
+      height: 100%;
+      background: #6366f1;
+      border-radius: 99px;
+      transition: width .3s;
+      width: 0%;
+    }
+
+    #questionCounter {
+      font-size: .8rem;
+      color: #94a3b8;
+      text-align: right;
+      margin-top: -.8rem;
+      margin-bottom: 1.2rem;
+    }
+
+    /* Question */
+    #questionText {
+      font-size: 1.15rem;
+      font-weight: 600;
+      color: #1e293b;
+      margin-bottom: 1.25rem;
+      line-height: 1.5;
+    }
+
+    #options { display: flex; flex-direction: column; gap: .7rem; }
+
+    .option {
+      padding: .75rem 1rem;
+      border: 2px solid #e2e8f0;
+      border-radius: 10px;
+      cursor: pointer;
+      font-size: .95rem;
+      transition: border-color .15s, background .15s;
+      user-select: none;
+    }
+
+    .option:hover    { border-color: #818cf8; background: #eef2ff; }
+    .option.selected { border-color: #6366f1; background: #eef2ff; font-weight: 600; }
+
+    /* Navigation */
+    .nav {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 1.75rem;
+      gap: 1rem;
+    }
+
+    button {
+      padding: .6rem 1.4rem;
+      border: none;
+      border-radius: 8px;
+      font-size: .95rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: opacity .2s;
+    }
+
+    button:disabled { opacity: .4; cursor: not-allowed; }
+    button:not(:disabled):hover { opacity: .85; }
+
+    #prevBtn   { background: #e2e8f0; color: #1e293b; }
+    #nextBtn   { background: #6366f1; color: #fff;    margin-left: auto; }
+
+    /* Results */
+    #results { display: none; }
+
+    #scoreText {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: #1e293b;
+      margin-bottom: 1.5rem;
+      text-align: center;
+    }
+
+    .review-item {
+      margin-bottom: 1.2rem;
+      padding: .9rem 1rem;
+      border-radius: 10px;
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+    }
+
+    .review-q  { font-weight: 600; margin-bottom: .4rem; }
+    .review-answer { font-size: .88rem; }
+    .review-answer.correct { color: #16a34a; }
+    .review-answer.wrong   { color: #dc2626; }
+
+    #restartBtn { display: block; margin: 1.5rem auto 0; background: #6366f1; color: #fff; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <!-- Quiz screen -->
+    <div id="quiz">
+      <div class="progress-bar-track">
+        <div id="progressBar"></div>
+      </div>
+      <p id="questionCounter"></p>
+      <p id="questionText"></p>
+      <div id="options"></div>
+      <div class="nav">
+        <button id="prevBtn">&#8592; Prev</button>
+        <button id="nextBtn">Next &#8594;</button>
+      </div>
+    </div>
+
+    <!-- Results screen -->
+    <div id="results">
+      <p id="scoreText"></p>
+      <div id="reviewList"></div>
+      <button id="restartBtn">Restart Quiz</button>
+    </div>
+  </div>
+
+  <script>
+    // ─── Quiz data ────────────────────────────────────────────────────────────────
+    const questions = [
+      {
+        text: 'Which CSS property controls the space between flex children?',
+        options: ['margin', 'gap', 'padding', 'spacing'],
+        answer: 1,
+      },
+      {
+        text: 'What does the "V" in MVC stand for?',
+        options: ['Variable', 'Value', 'View', 'Verbose'],
+        answer: 2,
+      },
+      {
+        text: 'Which method removes the last element of a JavaScript array?',
+        options: ['shift()', 'unshift()', 'pop()', 'splice()'],
+        answer: 2,
+      },
+      {
+        text: 'In HTTP, which status code means "Not Found"?',
+        options: ['200', '301', '403', '404'],
+        answer: 3,
+      },
+      {
+        text: 'Which hook lets you run code after every render in React?',
+        options: ['useState', 'useEffect', 'useRef', 'useMemo'],
+        answer: 1,
+      },
+    ];
+
+    // ─── State ────────────────────────────────────────────────────────────────────
+    // TODO: declare state variables
+    //   - currentIndex: which question we are on (0-based)
+    //   - userAnswers: array of length questions.length, filled with null initially
+
+    // ─── renderQuestion ───────────────────────────────────────────────────────────
+    // TODO: implement renderQuestion()
+    //   - Update #progressBar width (percentage = (currentIndex + 1) / total * 100)
+    //   - Update #questionCounter text, e.g. "Question 3 / 5"
+    //   - Update #questionText with questions[currentIndex].text
+    //   - Render option divs in #options; mark the currently selected option with class 'selected'
+    //   - Disable / hide #prevBtn on first question
+    //   - Update #nextBtn text: "Submit" on last question, else "Next →"
+    //   - Enable #nextBtn only if userAnswers[currentIndex] !== null
+    function renderQuestion() {
+      throw new Error('TODO: implement renderQuestion');
+    }
+
+    // ─── showResults ─────────────────────────────────────────────────────────────
+    // TODO: implement showResults()
+    //   - Hide #quiz, show #results
+    //   - Calculate score (how many userAnswers[i] === questions[i].answer)
+    //   - Set #scoreText to "You scored X / Y"
+    //   - Build review list in #reviewList:
+    //     - Each question shown with the user's answer and the correct answer
+    //     - Style user's answer green if correct, red if wrong
+    function showResults() {
+      throw new Error('TODO: implement showResults');
+    }
+
+    // ─── Events ───────────────────────────────────────────────────────────────────
+    // TODO: delegate click on #options
+    //   - Find clicked .option, record its index in userAnswers[currentIndex]
+    //   - Re-render to reflect selection and enable Next
+
+    // TODO: #prevBtn click — decrement currentIndex, re-render
+    // TODO: #nextBtn click — if last question call showResults(); else increment and re-render
+    // TODO: #restartBtn click — reset currentIndex and userAnswers, show quiz, renderQuestion
+
+    // TODO: call renderQuestion() to initialise
+  </script>
+</body>
+</html>

@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Number Guessing Game</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: system-ui, sans-serif;
+      background: #0f172a;
+      color: #f1f5f9;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 3rem 1rem;
+    }
+
+    h1 { font-size: 2rem; margin-bottom: 0.4rem; }
+    .subtitle { color: #94a3b8; margin-bottom: 2rem; }
+
+    .card {
+      background: #1e293b;
+      border-radius: 16px;
+      padding: 1.75rem;
+      width: 100%;
+      max-width: 420px;
+      margin-bottom: 1.5rem;
+    }
+
+    .range-hint {
+      text-align: center;
+      color: #818cf8;
+      font-weight: 600;
+      font-size: 1.05rem;
+      margin-bottom: 1.25rem;
+    }
+
+    .input-row {
+      display: flex;
+      gap: 0.75rem;
+      margin-bottom: 0.4rem;
+    }
+
+    input[type="number"] {
+      flex: 1;
+      background: #0f172a;
+      border: 1.5px solid #334155;
+      border-radius: 8px;
+      color: #f1f5f9;
+      padding: 0.7rem 1rem;
+      font-size: 1.1rem;
+      outline: none;
+      transition: border-color 0.15s;
+      -moz-appearance: textfield;
+    }
+    input[type="number"]::-webkit-inner-spin-button,
+    input[type="number"]::-webkit-outer-spin-button { -webkit-appearance: none; }
+    input[type="number"]:focus  { border-color: #6366f1; }
+    input[type="number"].error  { border-color: #f87171; }
+    input[type="number"]:disabled { opacity: 0.5; }
+
+    .error-msg { color: #f87171; font-size: 0.82rem; min-height: 1.1em; margin-bottom: 0.75rem; }
+
+    .btn {
+      background: #6366f1;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      padding: 0.7rem 1.3rem;
+      font-size: 1rem;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: background 0.15s;
+    }
+    .btn:hover { background: #4f46e5; }
+    .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    /* Feedback */
+    .feedback {
+      text-align: center;
+      font-size: 1.4rem;
+      font-weight: 700;
+      padding: 0.5rem 0;
+      min-height: 2rem;
+    }
+    .feedback.high   { color: #f87171; }
+    .feedback.low    { color: #60a5fa; }
+    .feedback.correct { color: #34d399; }
+
+    .attempts {
+      text-align: center;
+      color: #94a3b8;
+      font-size: 0.88rem;
+      margin-top: 0.25rem;
+    }
+
+    /* Victory */
+    .victory {
+      text-align: center;
+      margin-top: 1rem;
+      padding: 1rem;
+      background: #14532d;
+      border-radius: 10px;
+      display: none;
+    }
+    .victory.visible { display: block; }
+    .victory h3 { color: #34d399; font-size: 1.2rem; margin-bottom: 0.25rem; }
+    .victory p  { color: #86efac; font-size: 0.9rem; }
+
+    .btn-new-game {
+      background: #334155;
+      color: #f1f5f9;
+      border: none;
+      border-radius: 8px;
+      padding: 0.6rem 1.4rem;
+      font-size: 0.9rem;
+      cursor: pointer;
+      margin-top: 1rem;
+      transition: background 0.15s;
+      display: none;
+    }
+    .btn-new-game.visible { display: inline-block; }
+    .btn-new-game:hover { background: #475569; }
+
+    /* History */
+    .history-section { width: 100%; max-width: 420px; }
+    .history-section h3 {
+      font-size: 0.82rem;
+      color: #64748b;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 0.5rem;
+    }
+    #history-list { list-style: none; display: flex; flex-direction: column; gap: 0.35rem; }
+    #history-list li {
+      background: #1e293b;
+      border-radius: 8px;
+      padding: 0.45rem 0.85rem;
+      font-size: 0.88rem;
+      display: flex;
+      justify-content: space-between;
+    }
+    #history-list li .indicator { font-weight: 700; }
+    #history-list li .indicator.high    { color: #f87171; }
+    #history-list li .indicator.low     { color: #60a5fa; }
+    #history-list li .indicator.correct { color: #34d399; }
+  </style>
+</head>
+<body>
+  <h1>🎯 Guess the Number</h1>
+  <p class="subtitle">I'm thinking of a number between 1 and 100</p>
+
+  <div class="card">
+    <div class="range-hint" id="range-hint">Guess between 1 and 100</div>
+
+    <div class="input-row">
+      <input type="number" id="guess-input" placeholder="Your guess" min="1" max="100" />
+      <button class="btn" id="btn-guess">Guess</button>
+    </div>
+    <div class="error-msg" id="error-msg"></div>
+
+    <div class="feedback" id="feedback"></div>
+    <div class="attempts" id="attempts"></div>
+
+    <div class="victory" id="victory">
+      <h3>🎉 Correct!</h3>
+      <p id="victory-msg"></p>
+    </div>
+
+    <button class="btn-new-game" id="btn-new-game">New Game</button>
+  </div>
+
+  <div class="history-section">
+    <h3>Guess History</h3>
+    <ul id="history-list"></ul>
+  </div>
+
+  <script>
+    // ─── State ───────────────────────────────────────────────
+    let secret   = 0;
+    let attempts = 0;
+    let won      = false;
+    let low      = 1;    // current known lower bound
+    let high     = 100;  // current known upper bound
+    let guesses  = [];   // { value, result: 'high'|'low'|'correct' }
+
+    // ─── DOM refs ─────────────────────────────────────────────
+    const guessInput   = document.getElementById('guess-input');
+    const btnGuess     = document.getElementById('btn-guess');
+    const errorMsg     = document.getElementById('error-msg');
+    const feedbackEl   = document.getElementById('feedback');
+    const attemptsEl   = document.getElementById('attempts');
+    const rangeHint    = document.getElementById('range-hint');
+    const victory      = document.getElementById('victory');
+    const victoryMsg   = document.getElementById('victory-msg');
+    const btnNewGame   = document.getElementById('btn-new-game');
+    const historyList  = document.getElementById('history-list');
+
+    // ─── Pick secret number ───────────────────────────────────
+    function pickSecret() {
+      // TODO: Return a random integer between 1 and 100 (inclusive)
+    }
+
+    // ─── New game ─────────────────────────────────────────────
+    function newGame() {
+      // TODO:
+      // 1. Pick new secret, reset all state variables
+      // 2. Clear feedback, error, input, history
+      // 3. Hide victory box and new-game button
+      // 4. Enable guess input and button
+      // 5. Render range hint: "Guess between 1 and 100"
+      // 6. Render empty history
+    }
+
+    // ─── Validate guess ───────────────────────────────────────
+    function validateInput(raw) {
+      // TODO:
+      // Return an error string if:
+      //   - raw is empty or not a valid number
+      //   - parsed value is not an integer (Math.floor check)
+      //   - parsed value is < 1 or > 100
+      // Return null if valid
+    }
+
+    // ─── Update range hint ────────────────────────────────────
+    function updateRangeHint(guess, result) {
+      // TODO: Narrow low/high based on result:
+      //   result === 'high': high = guess - 1
+      //   result === 'low':  low  = guess + 1
+      // Update rangeHint.textContent = "Guess between {low} and {high}"
+    }
+
+    // ─── Render history ───────────────────────────────────────
+    function renderHistory() {
+      // TODO: Clear historyList, render each guess (newest first)
+      // Each <li>: "Attempt N — {value}" on left, indicator symbol on right
+      // Indicator: ▲ (high), ▼ (low), ✓ (correct)
+      // Apply class 'high', 'low', or 'correct' to indicator span
+    }
+
+    // ─── Submit guess ─────────────────────────────────────────
+    function submitGuess() {
+      // TODO:
+      // 1. Clear error, remove .error class from input
+      // 2. Validate: if error, show it and return
+      // 3. Parse integer from input, clear input
+      // 4. Increment attempts
+      // 5. Determine result: 'high', 'low', or 'correct'
+      // 6. Push to guesses array
+      // 7. Update feedback element: text and class
+      //    - high:    "📈 Too high!"
+      //    - low:     "📉 Too low!"
+      //    - correct: "🎉 Correct!"
+      // 8. Update attempts display: "Attempt {n}"
+      // 9. If not correct: call updateRangeHint(guess, result)
+      // 10. Render history
+      // 11. If correct: show victory, disable input/button, show new-game button
+    }
+
+    // ─── Events ───────────────────────────────────────────────
+    btnGuess.addEventListener('click', submitGuess);
+    guessInput.addEventListener('keydown', e => {
+      if (e.key === 'Enter') submitGuess();
+    });
+    btnNewGame.addEventListener('click', newGame);
+
+    // ─── Init ─────────────────────────────────────────────────
+    newGame();
+  </script>
+</body>
+</html>

@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Search & Filter List — Solution</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: system-ui, sans-serif;
+      background: #f8fafc;
+      min-height: 100vh;
+      padding: 40px 16px;
+    }
+
+    .app { max-width: 540px; margin: 0 auto; }
+
+    h1 { font-size: 1.6rem; color: #1e293b; margin-bottom: 24px; }
+
+    .search-box {
+      position: relative;
+      margin-bottom: 12px;
+    }
+
+    .search-box input {
+      width: 100%;
+      padding: 12px 16px 12px 44px;
+      font-size: 1rem;
+      border: 2px solid #e2e8f0;
+      border-radius: 10px;
+      outline: none;
+      background: #fff;
+      transition: border-color 0.2s;
+    }
+
+    .search-box input:focus { border-color: #4f46e5; }
+
+    .search-icon {
+      position: absolute;
+      left: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #94a3b8;
+      font-size: 1.1rem;
+    }
+
+    .result-count { font-size: 0.85rem; color: #64748b; margin-bottom: 12px; }
+
+    .list {
+      background: #fff;
+      border-radius: 10px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.07);
+      overflow: hidden;
+    }
+
+    .list-item {
+      padding: 13px 18px;
+      border-bottom: 1px solid #f1f5f9;
+      font-size: 0.95rem;
+      color: #1e293b;
+    }
+
+    .list-item:last-child { border-bottom: none; }
+
+    .list-item mark {
+      background: #fde68a;
+      color: #92400e;
+      border-radius: 2px;
+      padding: 0 1px;
+    }
+
+    .empty-state {
+      padding: 40px;
+      text-align: center;
+      color: #94a3b8;
+      font-size: 0.95rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <h1>Country Search</h1>
+
+    <div class="search-box">
+      <span class="search-icon">🔍</span>
+      <input type="text" id="search-input" placeholder="Search countries..." />
+    </div>
+
+    <p class="result-count" id="result-count"></p>
+    <div class="list" id="list"></div>
+  </div>
+
+  <script>
+    const ITEMS = [
+      'Afghanistan', 'Albania', 'Algeria', 'Argentina', 'Australia',
+      'Austria', 'Bangladesh', 'Belgium', 'Brazil', 'Canada',
+      'Chile', 'China', 'Colombia', 'Croatia', 'Denmark',
+      'Egypt', 'Finland', 'France', 'Germany', 'Greece',
+      'Hungary', 'India', 'Indonesia', 'Iran', 'Iraq',
+      'Ireland', 'Italy', 'Japan', 'Jordan', 'Kenya',
+    ];
+
+    const searchInput = document.getElementById('search-input');
+    const listEl      = document.getElementById('list');
+    const resultCount = document.getElementById('result-count');
+
+    function highlightMatch(text, query) {
+      if (!query) return escapeHtml(text);
+      const idx = text.toLowerCase().indexOf(query.toLowerCase());
+      if (idx === -1) return escapeHtml(text);
+      const before  = escapeHtml(text.slice(0, idx));
+      const matched = escapeHtml(text.slice(idx, idx + query.length));
+      const after   = escapeHtml(text.slice(idx + query.length));
+      return `${before}<mark>${matched}</mark>${after}`;
+    }
+
+    function escapeHtml(str) {
+      return str
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;');
+    }
+
+    function filterAndRender(rawQuery) {
+      const query    = rawQuery.trim();
+      const filtered = query
+        ? ITEMS.filter(item => item.toLowerCase().includes(query.toLowerCase()))
+        : ITEMS.slice();
+
+      resultCount.textContent = query
+        ? `Showing ${filtered.length} of ${ITEMS.length} items`
+        : `Showing all ${ITEMS.length} items`;
+
+      listEl.innerHTML = '';
+
+      if (filtered.length === 0) {
+        listEl.innerHTML = '<div class="empty-state">No results found</div>';
+        return;
+      }
+
+      filtered.forEach(item => {
+        const div = document.createElement('div');
+        div.className = 'list-item';
+        div.innerHTML = highlightMatch(item, query);
+        listEl.appendChild(div);
+      });
+    }
+
+    searchInput.addEventListener('input', () => {
+      filterAndRender(searchInput.value);
+    });
+
+    filterAndRender('');
+  </script>
+</body>
+</html>

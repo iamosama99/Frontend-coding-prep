@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Memory Match Game — Solution</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: system-ui, sans-serif;
+      background: #0f172a;
+      color: #f1f5f9;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 2rem 1rem;
+    }
+
+    h1 { font-size: 1.8rem; margin-bottom: 0.4rem; }
+    .subtitle { color: #94a3b8; margin-bottom: 1.5rem; }
+
+    .stats { display: flex; gap: 2rem; margin-bottom: 1.5rem; }
+    .stat { text-align: center; }
+    .stat .label { font-size: 0.75rem; color: #64748b; text-transform: uppercase; letter-spacing: 0.05em; }
+    .stat .value { font-size: 1.5rem; font-weight: 700; color: #818cf8; }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 0.75rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .card { width: 80px; height: 80px; perspective: 600px; cursor: pointer; }
+    .card-inner {
+      width: 100%; height: 100%;
+      position: relative;
+      transform-style: preserve-3d;
+      transition: transform 0.4s;
+    }
+    .card.flipped .card-inner, .card.matched .card-inner { transform: rotateY(180deg); }
+
+    .card-face {
+      position: absolute;
+      inset: 0;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2rem;
+      backface-visibility: hidden;
+    }
+    .card-back  { background: #1e293b; border: 2px solid #334155; }
+    .card-front { background: #312e81; border: 2px solid #4338ca; transform: rotateY(180deg); }
+    .card.matched .card-front { background: #14532d; border-color: #16a34a; }
+
+    .overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.75);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 10;
+    }
+    .overlay.hidden { display: none; }
+
+    .victory-card {
+      background: #1e293b;
+      border-radius: 20px;
+      padding: 2.5rem;
+      text-align: center;
+      max-width: 340px;
+    }
+    .victory-card h2 { font-size: 1.8rem; margin-bottom: 0.5rem; }
+    .victory-stats { color: #94a3b8; margin-bottom: 1.5rem; line-height: 1.8; }
+    .victory-stats strong { color: #f1f5f9; }
+
+    .btn {
+      background: #6366f1;
+      color: #fff;
+      border: none;
+      border-radius: 10px;
+      padding: 0.75rem 2rem;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+    .btn:hover { background: #4f46e5; }
+  </style>
+</head>
+<body>
+  <h1>Memory Match 🃏</h1>
+  <p class="subtitle">Find all 8 pairs</p>
+
+  <div class="stats">
+    <div class="stat"><div class="label">Time</div><div class="value" id="timer">00:00</div></div>
+    <div class="stat"><div class="label">Moves</div><div class="value" id="moves">0</div></div>
+    <div class="stat"><div class="label">Pairs</div><div class="value" id="pairs">0 / 8</div></div>
+  </div>
+
+  <div class="grid" id="grid"></div>
+  <button class="btn" id="btn-new-game">New Game</button>
+
+  <div class="overlay hidden" id="overlay">
+    <div class="victory-card">
+      <h2>🎉 You Win!</h2>
+      <div class="victory-stats" id="victory-stats"></div>
+      <button class="btn" id="btn-play-again">Play Again</button>
+    </div>
+  </div>
+
+  <script>
+    const EMOJIS = ['🐶','🐱','🦊','🐸','🦁','🐧','🦋','🌸'];
+
+    let cards          = [];
+    let flipped        = [];
+    let locked         = false;
+    let moves          = 0;
+    let pairs          = 0;
+    let timerInterval  = null;
+    let secondsElapsed = 0;
+    let timerStarted   = false;
+
+    const gridEl       = document.getElementById('grid');
+    const timerEl      = document.getElementById('timer');
+    const movesEl      = document.getElementById('moves');
+    const pairsEl      = document.getElementById('pairs');
+    const overlay      = document.getElementById('overlay');
+    const victoryStats = document.getElementById('victory-stats');
+
+    function shuffle(arr) {
+      for (let i = arr.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [arr[i], arr[j]] = [arr[j], arr[i]];
+      }
+      return arr;
+    }
+
+    function buildDeck() {
+      const deck = [];
+      EMOJIS.forEach((emoji, i) => {
+        deck.push({ id: i * 2,     emoji, flipped: false, matched: false });
+        deck.push({ id: i * 2 + 1, emoji, flipped: false, matched: false });
+      });
+      return shuffle(deck);
+    }
+
+    function formatTime(seconds) {
+      const m = Math.floor(seconds / 60).toString().padStart(2, '0');
+      const s = (seconds % 60).toString().padStart(2, '0');
+      return `${m}:${s}`;
+    }
+
+    function startTimer() {
+      timerStarted = true;
+      timerInterval = setInterval(() => {
+        secondsElapsed++;
+        timerEl.textContent = formatTime(secondsElapsed);
+      }, 1000);
+    }
+
+    function stopTimer() {
+      clearInterval(timerInterval);
+      timerInterval = null;
+    }
+
+    function updateCardElement(index) {
+      const card    = cards[index];
+      const cardEl  = gridEl.children[index];
+      if (!cardEl) return;
+      cardEl.className = 'card' + (card.flipped ? ' flipped' : '') + (card.matched ? ' matched' : '');
+    }
+
+    function renderGrid() {
+      gridEl.innerHTML = '';
+      cards.forEach((card, index) => {
+        const cardEl = document.createElement('div');
+        cardEl.className = 'card' + (card.flipped ? ' flipped' : '') + (card.matched ? ' matched' : '');
+        cardEl.dataset.index = index;
+        cardEl.innerHTML = `
+          <div class="card-inner">
+            <div class="card-face card-back">❓</div>
+            <div class="card-face card-front">${card.emoji}</div>
+          </div>
+        `;
+        cardEl.addEventListener('click', () => handleCardClick(index));
+        gridEl.appendChild(cardEl);
+      });
+    }
+
+    function updateStats() {
+      movesEl.textContent = moves;
+      pairsEl.textContent = `${pairs} / 8`;
+    }
+
+    function handleCardClick(index) {
+      const card = cards[index];
+      // Guard: locked board, already matched, or already in flipped set
+      if (locked || card.matched || card.flipped) return;
+
+      if (!timerStarted) startTimer();
+
+      card.flipped = true;
+      flipped.push(index);
+      updateCardElement(index);
+
+      if (flipped.length === 2) {
+        moves++;
+        updateStats();
+        locked = true;
+
+        const [a, b] = flipped;
+        if (cards[a].emoji === cards[b].emoji) {
+          // Match
+          cards[a].matched = true;
+          cards[b].matched = true;
+          updateCardElement(a);
+          updateCardElement(b);
+          pairs++;
+          flipped = [];
+          locked  = false;
+          updateStats();
+          checkVictory();
+        } else {
+          // No match — flip back after delay
+          setTimeout(() => {
+            cards[a].flipped = false;
+            cards[b].flipped = false;
+            updateCardElement(a);
+            updateCardElement(b);
+            flipped = [];
+            locked  = false;
+          }, 1000);
+        }
+      }
+    }
+
+    function checkVictory() {
+      if (pairs === 8) {
+        stopTimer();
+        victoryStats.innerHTML = `
+          Time: <strong>${formatTime(secondsElapsed)}</strong><br>
+          Moves: <strong>${moves}</strong>
+        `;
+        overlay.classList.remove('hidden');
+      }
+    }
+
+    function newGame() {
+      stopTimer();
+      secondsElapsed = 0;
+      timerEl.textContent = '00:00';
+      moves = 0;
+      pairs = 0;
+      flipped = [];
+      locked = false;
+      timerStarted = false;
+      cards = buildDeck();
+      overlay.classList.add('hidden');
+      renderGrid();
+      updateStats();
+    }
+
+    document.getElementById('btn-new-game').addEventListener('click', newGame);
+    document.getElementById('btn-play-again').addEventListener('click', newGame);
+
+    newGame();
+  </script>
+</body>
+</html>

@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Image Gallery + Lightbox — Solution</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body { font-family: system-ui, sans-serif; background: #0f172a; color: #e2e8f0; padding: 2rem; }
+
+    h1 { font-size: 1.75rem; margin-bottom: 1.5rem; }
+
+    #gallery {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+      gap: 12px;
+    }
+
+    .thumb {
+      width: 100%;
+      aspect-ratio: 4/3;
+      object-fit: cover;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: transform .2s, opacity .2s;
+    }
+
+    .thumb:hover { transform: scale(1.03); opacity: .9; }
+
+    #lightbox {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,.85);
+      z-index: 1000;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      transition: opacity .3s;
+    }
+
+    #lightbox.open    { display: flex; }
+    #lightbox.visible { opacity: 1; }
+
+    .lb-content {
+      position: relative;
+      max-width: 90vw;
+      max-height: 90vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: .75rem;
+    }
+
+    #lbImage {
+      max-width: 100%;
+      max-height: 80vh;
+      border-radius: 8px;
+      object-fit: contain;
+    }
+
+    #lbCaption { font-size: .9rem; color: #cbd5e1; }
+
+    .lb-btn {
+      position: fixed;
+      top: 50%;
+      transform: translateY(-50%);
+      background: rgba(255,255,255,.15);
+      border: none;
+      color: #fff;
+      font-size: 1.75rem;
+      padding: .6rem 1rem;
+      cursor: pointer;
+      border-radius: 8px;
+      transition: background .2s;
+      line-height: 1;
+    }
+
+    .lb-btn:hover { background: rgba(255,255,255,.3); }
+
+    #prevBtn { left: 1.5rem; }
+    #nextBtn { right: 1.5rem; }
+
+    #closeBtn {
+      position: fixed;
+      top: 1.25rem;
+      right: 1.5rem;
+      background: rgba(255,255,255,.15);
+      border: none;
+      color: #fff;
+      font-size: 1.5rem;
+      padding: .35rem .75rem;
+      cursor: pointer;
+      border-radius: 8px;
+      line-height: 1;
+    }
+
+    #closeBtn:hover { background: rgba(255,255,255,.3); }
+  </style>
+</head>
+<body>
+  <h1>Gallery</h1>
+
+  <div id="gallery"></div>
+
+  <div id="lightbox" role="dialog" aria-modal="true">
+    <button id="closeBtn" aria-label="Close">&times;</button>
+    <button class="lb-btn" id="prevBtn" aria-label="Previous">&#8592;</button>
+    <div class="lb-content">
+      <img id="lbImage" src="" alt="Full size image" />
+      <p id="lbCaption"></p>
+    </div>
+    <button class="lb-btn" id="nextBtn" aria-label="Next">&#8594;</button>
+  </div>
+
+  <script>
+    const images = Array.from({ length: 12 }, (_, i) => ({
+      thumb: `https://picsum.photos/id/${10 + i}/400/300`,
+      full:  `https://picsum.photos/id/${10 + i}/1200/900`,
+    }));
+
+    let currentIndex = 0;
+    let isOpen = false;
+
+    const gallery   = document.getElementById('gallery');
+    const lightbox  = document.getElementById('lightbox');
+    const lbImage   = document.getElementById('lbImage');
+    const lbCaption = document.getElementById('lbCaption');
+
+    function buildGallery() {
+      images.forEach((img, i) => {
+        const el = document.createElement('img');
+        el.src = img.thumb;
+        el.alt = `Photo ${i + 1}`;
+        el.className = 'thumb';
+        el.dataset.index = i;
+        gallery.appendChild(el);
+      });
+    }
+
+    function updateLightbox() {
+      lbImage.src = images[currentIndex].full;
+      lbCaption.textContent = `${currentIndex + 1} / ${images.length}`;
+    }
+
+    function openLightbox(index) {
+      currentIndex = index;
+      isOpen = true;
+      lightbox.classList.add('open');
+      document.body.style.overflow = 'hidden';
+      updateLightbox();
+      // Trigger fade-in on next frame so CSS transition fires
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => lightbox.classList.add('visible'));
+      });
+    }
+
+    function closeLightbox() {
+      if (!isOpen) return;
+      isOpen = false;
+      lightbox.classList.remove('visible');
+      lightbox.addEventListener('transitionend', () => {
+        lightbox.classList.remove('open');
+        document.body.style.overflow = '';
+      }, { once: true });
+    }
+
+    function navigate(dir) {
+      currentIndex = (currentIndex + dir + images.length) % images.length;
+      updateLightbox();
+    }
+
+    // Gallery click
+    gallery.addEventListener('click', (e) => {
+      const thumb = e.target.closest('.thumb');
+      if (thumb) openLightbox(Number(thumb.dataset.index));
+    });
+
+    // Lightbox controls
+    document.getElementById('closeBtn').addEventListener('click', closeLightbox);
+    document.getElementById('prevBtn').addEventListener('click', () => navigate(-1));
+    document.getElementById('nextBtn').addEventListener('click', () => navigate(+1));
+
+    // Backdrop click
+    lightbox.addEventListener('click', (e) => {
+      if (e.target === lightbox) closeLightbox();
+    });
+
+    // Keyboard
+    document.addEventListener('keydown', (e) => {
+      if (!isOpen) return;
+      if (e.key === 'Escape')     closeLightbox();
+      if (e.key === 'ArrowLeft')  navigate(-1);
+      if (e.key === 'ArrowRight') navigate(+1);
+    });
+
+    buildGallery();
+  </script>
+</body>
+</html>

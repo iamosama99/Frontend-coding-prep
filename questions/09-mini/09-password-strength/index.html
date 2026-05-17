@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Password Strength Indicator</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: system-ui, sans-serif;
+      background: #f0f2f5;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .card {
+      background: #fff;
+      border-radius: 16px;
+      box-shadow: 0 4px 24px rgba(0,0,0,0.10);
+      padding: 40px;
+      width: 380px;
+    }
+
+    h1 { font-size: 1.3rem; color: #1e293b; margin-bottom: 8px; }
+    .subtitle { font-size: 0.85rem; color: #64748b; margin-bottom: 28px; }
+
+    /* Password field */
+    .input-group {
+      position: relative;
+      margin-bottom: 16px;
+    }
+
+    .input-group input {
+      width: 100%;
+      padding: 12px 44px 12px 14px;
+      font-size: 1rem;
+      border: 2px solid #e2e8f0;
+      border-radius: 10px;
+      outline: none;
+      font-family: monospace;
+      letter-spacing: 0.05em;
+      transition: border-color 0.2s;
+    }
+
+    .input-group input:focus { border-color: #4f46e5; }
+
+    .toggle-visibility {
+      position: absolute;
+      right: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-size: 1.1rem;
+      color: #94a3b8;
+      padding: 4px;
+    }
+
+    /* Strength bar */
+    .strength-bar {
+      display: flex;
+      gap: 4px;
+      margin-bottom: 8px;
+    }
+
+    .segment {
+      flex: 1;
+      height: 6px;
+      border-radius: 3px;
+      background: #e2e8f0;
+      transition: background 0.3s;
+    }
+
+    /* TODO: Add colour classes for each strength level:
+       .segment.weak   → red (#ef4444)
+       .segment.fair   → orange (#f97316)
+       .segment.good   → yellow (#eab308)
+       .segment.strong → green (#22c55e)
+    */
+
+    .strength-label {
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: #94a3b8;
+      min-height: 18px;
+      margin-bottom: 20px;
+    }
+
+    /* Checklist */
+    .checklist { display: flex; flex-direction: column; gap: 8px; }
+
+    .check-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.85rem;
+      color: #64748b;
+    }
+
+    .check-icon {
+      font-size: 0.9rem;
+      width: 20px;
+      text-align: center;
+    }
+
+    .check-item.pass { color: #16a34a; }
+    .check-item.fail { color: #94a3b8; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>Create Password</h1>
+    <p class="subtitle">Password must meet all four requirements</p>
+
+    <div class="input-group">
+      <input type="password" id="password-input" placeholder="Enter password..." autocomplete="new-password" />
+      <button class="toggle-visibility" id="toggle-visibility" aria-label="Toggle password visibility">👁️</button>
+    </div>
+
+    <div class="strength-bar" id="strength-bar">
+      <div class="segment" id="seg-1"></div>
+      <div class="segment" id="seg-2"></div>
+      <div class="segment" id="seg-3"></div>
+      <div class="segment" id="seg-4"></div>
+    </div>
+    <div class="strength-label" id="strength-label"></div>
+
+    <div class="checklist">
+      <div class="check-item" id="rule-length">
+        <span class="check-icon">✗</span>
+        <span>At least 8 characters</span>
+      </div>
+      <div class="check-item" id="rule-upper">
+        <span class="check-icon">✗</span>
+        <span>At least one uppercase letter</span>
+      </div>
+      <div class="check-item" id="rule-digit">
+        <span class="check-icon">✗</span>
+        <span>At least one digit</span>
+      </div>
+      <div class="check-item" id="rule-special">
+        <span class="check-icon">✗</span>
+        <span>At least one special character (!@#$%^&amp;*)</span>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // --- DOM references ---
+    const passwordInput    = document.getElementById('password-input');
+    const toggleBtn        = document.getElementById('toggle-visibility');
+    const strengthBar      = document.getElementById('strength-bar');
+    const strengthLabel    = document.getElementById('strength-label');
+    const segments         = [
+      document.getElementById('seg-1'),
+      document.getElementById('seg-2'),
+      document.getElementById('seg-3'),
+      document.getElementById('seg-4'),
+    ];
+    const ruleEls = {
+      length:  document.getElementById('rule-length'),
+      upper:   document.getElementById('rule-upper'),
+      digit:   document.getElementById('rule-digit'),
+      special: document.getElementById('rule-special'),
+    };
+
+    // --- Rules ---
+    const RULES = {
+      length:  pwd => pwd.length >= 8,
+      upper:   pwd => /[A-Z]/.test(pwd),
+      digit:   pwd => /[0-9]/.test(pwd),
+      special: pwd => /[!@#$%^&*]/.test(pwd),
+    };
+
+    // TODO: Define strength levels (1–4 passing rules):
+    //   1 → { label: 'Weak',   colorClass: 'weak'   }
+    //   2 → { label: 'Fair',   colorClass: 'fair'   }
+    //   3 → { label: 'Good',   colorClass: 'good'   }
+    //   4 → { label: 'Strong', colorClass: 'strong' }
+
+    // --- Render ---
+    function evaluate(password) {
+      // TODO:
+      //   1. If password is empty:
+      //      - Clear all segment colour classes, hide strengthLabel.
+      //      - Set all rule items to fail state (✗, class 'fail').
+      //      Return early.
+      //
+      //   2. Check each rule in RULES — build results object { length: bool, upper: bool, ... }.
+      //
+      //   3. Count how many rules pass (score = 0–4).
+      //
+      //   4. Update each ruleEl: if pass → class 'pass', icon '✓'; else class 'fail', icon '✗'.
+      //
+      //   5. Update strength bar:
+      //      - For segments[0..score-1]: add the colorClass for the current score.
+      //      - For segments[score..3]: remove all colour classes (reset to grey).
+      //
+      //   6. Update strengthLabel.textContent with the label for the current score.
+      //      If score is 0, hide label.
+      throw new Error('evaluate() not implemented');
+    }
+
+    // --- Show/hide toggle ---
+    toggleBtn.addEventListener('click', () => {
+      // TODO: Toggle passwordInput.type between 'password' and 'text'.
+      //       Optionally update the button icon (👁️ / 🙈).
+      throw new Error('Toggle not implemented');
+    });
+
+    // --- Input event ---
+    passwordInput.addEventListener('input', () => {
+      // TODO: Call evaluate(passwordInput.value).
+    });
+
+    // --- Init ---
+    evaluate('');
+  </script>
+</body>
+</html>

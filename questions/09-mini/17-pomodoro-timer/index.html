@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Pomodoro Timer</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: system-ui, sans-serif;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background .6s, color .6s;
+    }
+
+    body.work  { background: #450a0a; color: #fef2f2; }
+    body.break { background: #052e16; color: #f0fdf4; }
+
+    .card {
+      text-align: center;
+      padding: 3rem 4rem;
+      border-radius: 20px;
+      background: rgba(255,255,255,.07);
+      box-shadow: 0 8px 32px rgba(0,0,0,.3);
+      min-width: 360px;
+    }
+
+    #sessionLabel {
+      font-size: .9rem;
+      text-transform: uppercase;
+      letter-spacing: .12em;
+      opacity: .7;
+      margin-bottom: .5rem;
+    }
+
+    #timer {
+      font-size: 5rem;
+      font-weight: 700;
+      letter-spacing: .04em;
+      line-height: 1;
+      margin-bottom: 1.5rem;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .controls { display: flex; gap: .75rem; justify-content: center; margin-bottom: 1.5rem; }
+
+    button {
+      padding: .65rem 1.5rem;
+      border: 2px solid rgba(255,255,255,.3);
+      border-radius: 99px;
+      background: transparent;
+      color: inherit;
+      font-size: .95rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background .2s;
+    }
+
+    button:hover { background: rgba(255,255,255,.15); }
+
+    #startBtn { background: rgba(255,255,255,.2); }
+
+    #pomodoroCount {
+      font-size: .9rem;
+      opacity: .7;
+    }
+
+    .reset-all {
+      margin-top: 1rem;
+      font-size: .8rem;
+      opacity: .5;
+      cursor: pointer;
+      border: none;
+      background: transparent;
+      color: inherit;
+      text-decoration: underline;
+      padding: 0;
+    }
+
+    .reset-all:hover { opacity: .8; }
+  </style>
+</head>
+<body class="work">
+  <div class="card">
+    <p id="sessionLabel">Work Session</p>
+    <div id="timer">25:00</div>
+    <div class="controls">
+      <button id="startBtn">Start</button>
+      <button id="resetBtn">Reset</button>
+    </div>
+    <p id="pomodoroCount">Pomodoros completed: 0</p>
+    <button class="reset-all" id="resetAllBtn">Reset All</button>
+  </div>
+
+  <script>
+    // ─── Config ───────────────────────────────────────────────────────────────────
+    const WORK_MINS       = 25;
+    const SHORT_BREAK     = 5;
+    const LONG_BREAK      = 15;
+    const SESSIONS_BEFORE_LONG = 4;
+
+    // ─── State ───────────────────────────────────────────────────────────────────
+    // TODO: declare state variables
+    //   - mode: 'work' | 'short' | 'long'
+    //   - secondsLeft: number (starts at WORK_MINS * 60)
+    //   - sessionsDone: number (0)
+    //   - isRunning: boolean (false)
+    //   - intervalId: null
+
+    // ─── helpers ─────────────────────────────────────────────────────────────────
+    // TODO: implement formatTime(seconds) → 'mm:ss' string (pad with leading zero)
+    function formatTime(seconds) {
+      throw new Error('TODO: implement formatTime');
+    }
+
+    // TODO: implement getDurationFor(mode) → seconds for that mode
+    function getDurationFor(mode) {
+      throw new Error('TODO: implement getDurationFor');
+    }
+
+    // ─── render ──────────────────────────────────────────────────────────────────
+    // TODO: implement render()
+    //   - Update #timer with formatTime(secondsLeft)
+    //   - Update #sessionLabel: "Work Session" / "Short Break" / "Long Break"
+    //   - Update #pomodoroCount text
+    //   - Update #startBtn text: "Pause" if running, "Start" otherwise
+    //   - Toggle body class: 'work' for work mode, 'break' for break modes
+    function render() {
+      throw new Error('TODO: implement render');
+    }
+
+    // ─── tick ────────────────────────────────────────────────────────────────────
+    // TODO: implement tick()
+    //   - Decrement secondsLeft
+    //   - If secondsLeft reaches 0: call onSessionEnd()
+    //   - Else: render()
+    function tick() {
+      throw new Error('TODO: implement tick');
+    }
+
+    // ─── onSessionEnd ────────────────────────────────────────────────────────────
+    // TODO: implement onSessionEnd()
+    //   - Stop the interval
+    //   - If mode was 'work': increment sessionsDone; determine next mode
+    //     (long break every SESSIONS_BEFORE_LONG sessions, else short break)
+    //   - If mode was a break: next mode is 'work'
+    //   - Send browser notification (if permission granted)
+    //   - Set mode to nextMode, reset secondsLeft, set isRunning false, render
+    function onSessionEnd() {
+      throw new Error('TODO: implement onSessionEnd');
+    }
+
+    // ─── startPause ──────────────────────────────────────────────────────────────
+    // TODO: implement startPause()
+    //   - If not running: request notification permission if not yet asked, start setInterval(tick, 1000)
+    //   - If running: clearInterval
+    //   - Toggle isRunning, render
+    function startPause() {
+      throw new Error('TODO: implement startPause');
+    }
+
+    // ─── reset ───────────────────────────────────────────────────────────────────
+    // TODO: implement reset()
+    //   - Stop interval, set isRunning false
+    //   - Reset secondsLeft to getDurationFor(mode) (current mode, not changing it)
+    //   - render()
+    function reset() {
+      throw new Error('TODO: implement reset');
+    }
+
+    // ─── resetAll ────────────────────────────────────────────────────────────────
+    // TODO: implement resetAll()
+    //   - Stop interval, reset everything: mode='work', secondsLeft=WORK_MINS*60,
+    //     sessionsDone=0, isRunning=false
+    //   - render()
+    function resetAll() {
+      throw new Error('TODO: implement resetAll');
+    }
+
+    // ─── Wire events ─────────────────────────────────────────────────────────────
+    // TODO: #startBtn → startPause
+    // TODO: #resetBtn → reset
+    // TODO: #resetAllBtn → resetAll
+
+    // TODO: render() to initialise
+  </script>
+</body>
+</html>

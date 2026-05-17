@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Form Validation — Solution</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: system-ui, sans-serif;
+      background: #f0f2f5;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem;
+    }
+
+    .card {
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 4px 24px rgba(0,0,0,.08);
+      padding: 2.5rem;
+      width: 100%;
+      max-width: 480px;
+    }
+
+    h1 { font-size: 1.5rem; margin-bottom: 1.75rem; color: #1a1a2e; }
+
+    .field { margin-bottom: 1.25rem; }
+
+    label {
+      display: block;
+      font-size: .875rem;
+      font-weight: 600;
+      color: #374151;
+      margin-bottom: .4rem;
+    }
+
+    input {
+      width: 100%;
+      padding: .65rem .9rem;
+      border: 2px solid #d1d5db;
+      border-radius: 8px;
+      font-size: 1rem;
+      transition: border-color .2s;
+      outline: none;
+    }
+
+    input:focus { border-color: #6366f1; }
+    input.invalid { border-color: #ef4444; }
+    input.valid   { border-color: #22c55e; }
+
+    .error-msg {
+      font-size: .78rem;
+      color: #ef4444;
+      margin-top: .3rem;
+      min-height: 1rem;
+    }
+
+    button[type="submit"] {
+      width: 100%;
+      padding: .75rem;
+      background: #6366f1;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background .2s, opacity .2s;
+      margin-top: .5rem;
+    }
+
+    button[type="submit"]:disabled {
+      opacity: .5;
+      cursor: not-allowed;
+    }
+
+    button[type="submit"]:not(:disabled):hover { background: #4f46e5; }
+
+    .success {
+      display: none;
+      background: #dcfce7;
+      color: #166534;
+      border-radius: 8px;
+      padding: .9rem 1rem;
+      margin-top: 1rem;
+      font-weight: 600;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>Create Account</h1>
+
+    <form id="regForm" novalidate>
+      <div class="field">
+        <label for="name">Full Name</label>
+        <input type="text" id="name" placeholder="Jane Doe" autocomplete="name" />
+        <p class="error-msg" id="nameError"></p>
+      </div>
+
+      <div class="field">
+        <label for="email">Email</label>
+        <input type="email" id="email" placeholder="jane@example.com" autocomplete="email" />
+        <p class="error-msg" id="emailError"></p>
+      </div>
+
+      <div class="field">
+        <label for="password">Password</label>
+        <input type="password" id="password" placeholder="Min 8 characters" autocomplete="new-password" />
+        <p class="error-msg" id="passwordError"></p>
+      </div>
+
+      <div class="field">
+        <label for="confirm">Confirm Password</label>
+        <input type="password" id="confirm" placeholder="Repeat password" autocomplete="new-password" />
+        <p class="error-msg" id="confirmError"></p>
+      </div>
+
+      <div class="field">
+        <label for="age">Age</label>
+        <input type="number" id="age" placeholder="18–120" min="18" max="120" />
+        <p class="error-msg" id="ageError"></p>
+      </div>
+
+      <button type="submit" id="submitBtn" disabled>Create Account</button>
+    </form>
+
+    <div class="success" id="successMsg">Account created successfully!</div>
+  </div>
+
+  <script>
+    // ─── DOM references ──────────────────────────────────────────────────────────
+    const nameEl     = document.getElementById('name');
+    const emailEl    = document.getElementById('email');
+    const passwordEl = document.getElementById('password');
+    const confirmEl  = document.getElementById('confirm');
+    const ageEl      = document.getElementById('age');
+    const submitBtn  = document.getElementById('submitBtn');
+    const successMsg = document.getElementById('successMsg');
+
+    const nameError     = document.getElementById('nameError');
+    const emailError    = document.getElementById('emailError');
+    const passwordError = document.getElementById('passwordError');
+    const confirmError  = document.getElementById('confirmError');
+    const ageError      = document.getElementById('ageError');
+
+    // ─── Validation rules ────────────────────────────────────────────────────────
+    function validateName(value) {
+      const v = value.trim();
+      if (!v)         return 'Full name is required.';
+      if (v.length < 2) return 'Name must be at least 2 characters.';
+      return '';
+    }
+
+    function validateEmail(value) {
+      const v = value.trim();
+      if (!v) return 'Email is required.';
+      const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!re.test(v)) return 'Enter a valid email address.';
+      return '';
+    }
+
+    function validatePassword(value) {
+      if (!value)          return 'Password is required.';
+      if (value.length < 8) return 'Password must be at least 8 characters.';
+      return '';
+    }
+
+    function validateConfirm(value, passwordValue) {
+      if (!value)              return 'Please confirm your password.';
+      if (value !== passwordValue) return 'Passwords do not match.';
+      return '';
+    }
+
+    function validateAge(value) {
+      if (value === '' || value === null) return 'Age is required.';
+      const n = Number(value);
+      if (isNaN(n) || !Number.isInteger(n)) return 'Enter a whole number.';
+      if (n < 18)  return 'You must be at least 18.';
+      if (n > 120) return 'Enter a realistic age (max 120).';
+      return '';
+    }
+
+    // ─── DOM helpers ─────────────────────────────────────────────────────────────
+    function showError(inputEl, errorEl, message) {
+      if (message) {
+        inputEl.classList.add('invalid');
+        inputEl.classList.remove('valid');
+        errorEl.textContent = message;
+      } else {
+        inputEl.classList.remove('invalid');
+        inputEl.classList.add('valid');
+        errorEl.textContent = '';
+      }
+    }
+
+    function updateSubmitButton() {
+      const allValid = [nameEl, emailEl, passwordEl, confirmEl, ageEl]
+        .every(el => el.classList.contains('valid'));
+      submitBtn.disabled = !allValid;
+    }
+
+    // ─── Blur listeners ───────────────────────────────────────────────────────────
+    nameEl.addEventListener('blur', () => {
+      showError(nameEl, nameError, validateName(nameEl.value));
+      updateSubmitButton();
+    });
+
+    emailEl.addEventListener('blur', () => {
+      showError(emailEl, emailError, validateEmail(emailEl.value));
+      updateSubmitButton();
+    });
+
+    passwordEl.addEventListener('blur', () => {
+      showError(passwordEl, passwordError, validatePassword(passwordEl.value));
+      // Re-validate confirm if it has been touched
+      if (confirmEl.classList.contains('valid') || confirmEl.classList.contains('invalid')) {
+        showError(confirmEl, confirmError, validateConfirm(confirmEl.value, passwordEl.value));
+      }
+      updateSubmitButton();
+    });
+
+    confirmEl.addEventListener('blur', () => {
+      showError(confirmEl, confirmError, validateConfirm(confirmEl.value, passwordEl.value));
+      updateSubmitButton();
+    });
+
+    ageEl.addEventListener('blur', () => {
+      showError(ageEl, ageError, validateAge(ageEl.value));
+      updateSubmitButton();
+    });
+
+    // ─── Submit ───────────────────────────────────────────────────────────────────
+    document.getElementById('regForm').addEventListener('submit', (e) => {
+      e.preventDefault();
+
+      // Validate all fields (covers fields not yet blurred)
+      const errors = [
+        { el: nameEl,     errEl: nameError,     msg: validateName(nameEl.value) },
+        { el: emailEl,    errEl: emailError,     msg: validateEmail(emailEl.value) },
+        { el: passwordEl, errEl: passwordError,  msg: validatePassword(passwordEl.value) },
+        { el: confirmEl,  errEl: confirmError,   msg: validateConfirm(confirmEl.value, passwordEl.value) },
+        { el: ageEl,      errEl: ageError,       msg: validateAge(ageEl.value) },
+      ];
+
+      errors.forEach(({ el, errEl, msg }) => showError(el, errEl, msg));
+      updateSubmitButton();
+
+      const firstInvalid = errors.find(({ msg }) => msg);
+      if (firstInvalid) {
+        firstInvalid.el.focus();
+        return;
+      }
+
+      // Fake submission
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Creating…';
+
+      setTimeout(() => {
+        // Reset form
+        document.getElementById('regForm').reset();
+        [nameEl, emailEl, passwordEl, confirmEl, ageEl].forEach(el => {
+          el.classList.remove('valid', 'invalid');
+        });
+        [nameError, emailError, passwordError, confirmError, ageError].forEach(el => {
+          el.textContent = '';
+        });
+        submitBtn.textContent = 'Create Account';
+        submitBtn.disabled = true;
+
+        // Show success
+        successMsg.style.display = 'block';
+        setTimeout(() => { successMsg.style.display = 'none'; }, 3000);
+      }, 1000);
+    });
+  </script>
+</body>
+</html>

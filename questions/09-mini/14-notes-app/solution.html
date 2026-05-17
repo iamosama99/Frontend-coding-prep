@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Notes App — Solution</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: system-ui, sans-serif;
+      background: #f1f5f9;
+      min-height: 100vh;
+      padding: 2rem;
+    }
+
+    .container { max-width: 700px; margin: 0 auto; }
+
+    h1 { font-size: 1.75rem; color: #0f172a; margin-bottom: 1.25rem; }
+
+    .top-bar { display: flex; gap: .75rem; margin-bottom: 1.5rem; }
+
+    #searchInput {
+      flex: 1;
+      padding: .65rem 1rem;
+      border: 2px solid #e2e8f0;
+      border-radius: 8px;
+      font-size: 1rem;
+      outline: none;
+      transition: border-color .2s;
+    }
+
+    #searchInput:focus { border-color: #6366f1; }
+
+    #newNoteBtn {
+      padding: .65rem 1.2rem;
+      background: #6366f1;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      font-size: .95rem;
+      font-weight: 600;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+
+    #newNoteBtn:hover { background: #4f46e5; }
+
+    #noteForm {
+      display: none;
+      background: #fff;
+      border-radius: 12px;
+      padding: 1.5rem;
+      box-shadow: 0 2px 12px rgba(0,0,0,.07);
+      margin-bottom: 1.5rem;
+    }
+
+    #noteForm input, #noteForm textarea {
+      width: 100%;
+      border: 2px solid #e2e8f0;
+      border-radius: 8px;
+      padding: .6rem .9rem;
+      font-size: 1rem;
+      font-family: inherit;
+      outline: none;
+      transition: border-color .2s;
+    }
+
+    #noteForm input:focus, #noteForm textarea:focus { border-color: #6366f1; }
+    #noteForm input { margin-bottom: .75rem; font-weight: 600; }
+    #noteForm textarea { min-height: 120px; resize: vertical; }
+
+    .form-error { font-size: .8rem; color: #ef4444; margin-top: -.6rem; margin-bottom: .5rem; }
+
+    .form-actions { display: flex; gap: .75rem; margin-top: 1rem; justify-content: flex-end; }
+
+    .form-actions button {
+      padding: .5rem 1.2rem;
+      border: none;
+      border-radius: 8px;
+      font-size: .9rem;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    #saveBtn   { background: #6366f1; color: #fff; }
+    #cancelBtn { background: #e2e8f0; color: #374151; }
+
+    #notesList { display: flex; flex-direction: column; gap: .9rem; }
+
+    .note-card {
+      background: #fff;
+      border-radius: 12px;
+      padding: 1.1rem 1.25rem;
+      box-shadow: 0 2px 8px rgba(0,0,0,.05);
+      transition: box-shadow .2s;
+    }
+
+    .note-card:hover { box-shadow: 0 4px 16px rgba(0,0,0,.1); }
+
+    .note-header { display: flex; justify-content: space-between; align-items: flex-start; }
+
+    .note-title { font-weight: 700; color: #0f172a; font-size: 1rem; }
+    .note-time  { font-size: .75rem; color: #94a3b8; white-space: nowrap; margin-left: 1rem; }
+    .note-preview { font-size: .88rem; color: #64748b; margin-top: .35rem; }
+
+    .note-footer { display: flex; justify-content: flex-end; gap: .5rem; margin-top: .75rem; }
+
+    .note-footer button {
+      padding: .3rem .75rem;
+      border: none;
+      border-radius: 6px;
+      font-size: .8rem;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .edit-btn   { background: #ede9fe; color: #6d28d9; }
+    .delete-btn { background: #fee2e2; color: #b91c1c; }
+
+    .empty-state {
+      text-align: center;
+      color: #94a3b8;
+      padding: 3rem 0;
+      font-size: 1rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>My Notes</h1>
+
+    <div class="top-bar">
+      <input type="text" id="searchInput" placeholder="Search notes…" />
+      <button id="newNoteBtn">+ New Note</button>
+    </div>
+
+    <div id="noteForm">
+      <input type="text" id="noteTitle" placeholder="Title" />
+      <p class="form-error" id="titleError"></p>
+      <textarea id="noteBody" placeholder="Write your note…"></textarea>
+      <div class="form-actions">
+        <button id="cancelBtn">Cancel</button>
+        <button id="saveBtn">Save</button>
+      </div>
+    </div>
+
+    <div id="notesList"></div>
+  </div>
+
+  <script>
+    // ─── Storage ─────────────────────────────────────────────────────────────────
+    function loadNotes() {
+      try { return JSON.parse(localStorage.getItem('notes')) || []; }
+      catch { return []; }
+    }
+
+    function saveNotes(notes) {
+      localStorage.setItem('notes', JSON.stringify(notes));
+    }
+
+    // ─── Relative time ───────────────────────────────────────────────────────────
+    function relativeTime(isoString) {
+      const diffMs   = Date.now() - new Date(isoString).getTime();
+      const diffMins = Math.floor(diffMs / 60000);
+      const diffHrs  = Math.floor(diffMs / 3600000);
+      const diffDays = Math.floor(diffMs / 86400000);
+
+      if (diffMins < 1)  return 'Just now';
+      if (diffMins < 60) return `${diffMins} min${diffMins > 1 ? 's' : ''} ago`;
+      if (diffHrs  < 24) return `${diffHrs} hour${diffHrs > 1 ? 's' : ''} ago`;
+      if (diffDays < 2)  return 'Yesterday';
+      return new Date(isoString).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+    }
+
+    // ─── State ───────────────────────────────────────────────────────────────────
+    let notes     = loadNotes();
+    let editingId = null;
+
+    // ─── DOM refs ────────────────────────────────────────────────────────────────
+    const searchInput = document.getElementById('searchInput');
+    const noteForm    = document.getElementById('noteForm');
+    const noteTitleEl = document.getElementById('noteTitle');
+    const noteBodyEl  = document.getElementById('noteBody');
+    const titleError  = document.getElementById('titleError');
+    const notesList   = document.getElementById('notesList');
+
+    // ─── Render ──────────────────────────────────────────────────────────────────
+    function renderNotes() {
+      const q = searchInput.value.trim().toLowerCase();
+
+      const filtered = notes
+        .filter(n =>
+          !q ||
+          n.title.toLowerCase().includes(q) ||
+          n.body.toLowerCase().includes(q)
+        )
+        .sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt));
+
+      if (filtered.length === 0) {
+        notesList.innerHTML = `<p class="empty-state">${q ? 'No notes match your search.' : 'No notes yet. Create one!'}</p>`;
+        return;
+      }
+
+      notesList.innerHTML = filtered.map(n => `
+        <div class="note-card" data-id="${n.id}">
+          <div class="note-header">
+            <span class="note-title">${escHtml(n.title)}</span>
+            <span class="note-time">${relativeTime(n.updatedAt)}</span>
+          </div>
+          <p class="note-preview">${escHtml(n.body.slice(0, 80))}${n.body.length > 80 ? '…' : ''}</p>
+          <div class="note-footer">
+            <button class="edit-btn">Edit</button>
+            <button class="delete-btn">Delete</button>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function escHtml(str) {
+      return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+    }
+
+    // ─── Form ────────────────────────────────────────────────────────────────────
+    function openForm(note = null) {
+      editingId = note ? note.id : null;
+      noteTitleEl.value = note ? note.title : '';
+      noteBodyEl.value  = note ? note.body  : '';
+      titleError.textContent = '';
+      noteForm.style.display = 'block';
+      noteTitleEl.focus();
+    }
+
+    function closeForm() {
+      noteForm.style.display = 'none';
+      editingId = null;
+    }
+
+    function saveNote() {
+      const title = noteTitleEl.value.trim();
+      const body  = noteBodyEl.value.trim();
+
+      if (!title) {
+        titleError.textContent = 'Title is required.';
+        noteTitleEl.focus();
+        return;
+      }
+
+      const now = new Date().toISOString();
+
+      if (editingId !== null) {
+        const idx = notes.findIndex(n => n.id === editingId);
+        if (idx !== -1) {
+          notes[idx] = { ...notes[idx], title, body, updatedAt: now };
+        }
+      } else {
+        notes.push({ id: Date.now(), title, body, createdAt: now, updatedAt: now });
+      }
+
+      saveNotes(notes);
+      closeForm();
+      renderNotes();
+    }
+
+    function deleteNote(id) {
+      if (!confirm('Delete this note?')) return;
+      notes = notes.filter(n => n.id !== id);
+      saveNotes(notes);
+      renderNotes();
+    }
+
+    // ─── Events ──────────────────────────────────────────────────────────────────
+    document.getElementById('newNoteBtn').addEventListener('click', () => openForm());
+    document.getElementById('cancelBtn').addEventListener('click', closeForm);
+    document.getElementById('saveBtn').addEventListener('click', saveNote);
+    searchInput.addEventListener('input', renderNotes);
+
+    notesList.addEventListener('click', (e) => {
+      const card = e.target.closest('[data-id]');
+      if (!card) return;
+      const id = Number(card.dataset.id);
+
+      if (e.target.classList.contains('delete-btn')) {
+        deleteNote(id);
+      } else if (e.target.classList.contains('edit-btn')) {
+        const note = notes.find(n => n.id === id);
+        if (note) openForm(note);
+      }
+    });
+
+    renderNotes();
+  </script>
+</body>
+</html>

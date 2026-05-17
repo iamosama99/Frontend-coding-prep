@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Paint Canvas — Solution</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html, body { height: 100%; overflow: hidden; font-family: system-ui, sans-serif; background: #0f172a; }
+
+    .toolbar {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      height: 56px;
+      background: #1e293b;
+      border-bottom: 1px solid #334155;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      padding: 0 1rem;
+      z-index: 10;
+      flex-wrap: nowrap;
+      overflow-x: auto;
+    }
+
+    .tool-label { font-size: 0.75rem; color: #64748b; text-transform: uppercase; letter-spacing: 0.05em; white-space: nowrap; }
+
+    input[type="color"] {
+      width: 36px;
+      height: 36px;
+      border: 2px solid #334155;
+      border-radius: 8px;
+      background: none;
+      cursor: pointer;
+      padding: 2px;
+    }
+
+    .brush-group { display: flex; align-items: center; gap: 0.5rem; }
+    input[type="range"] { width: 90px; accent-color: #6366f1; cursor: pointer; }
+
+    .size-preview { width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; }
+    .size-dot { background: #f1f5f9; border-radius: 50%; transition: width 0.1s, height 0.1s; }
+
+    .btn-tool {
+      background: #334155;
+      color: #f1f5f9;
+      border: none;
+      border-radius: 8px;
+      padding: 0.4rem 0.85rem;
+      font-size: 0.85rem;
+      cursor: pointer;
+      transition: background 0.15s;
+      white-space: nowrap;
+    }
+    .btn-tool:hover  { background: #475569; }
+    .btn-tool.active { background: #6366f1; }
+
+    canvas {
+      position: fixed;
+      top: 56px; left: 0;
+      background: #fff;
+      cursor: crosshair;
+      touch-action: none;
+    }
+    canvas.eraser { cursor: cell; }
+  </style>
+</head>
+<body>
+  <div class="toolbar">
+    <span class="tool-label">Color</span>
+    <input type="color" id="color-picker" value="#6366f1" title="Pick color" />
+
+    <span class="tool-label">Size</span>
+    <div class="brush-group">
+      <input type="range" id="brush-size" min="2" max="40" value="8" />
+      <div class="size-preview">
+        <div class="size-dot" id="size-dot" style="width:8px;height:8px;"></div>
+      </div>
+    </div>
+
+    <button class="btn-tool active" id="btn-draw">✏️ Draw</button>
+    <button class="btn-tool" id="btn-eraser">⬜ Eraser</button>
+    <button class="btn-tool" id="btn-clear">🗑 Clear</button>
+    <button class="btn-tool" id="btn-download">💾 Download</button>
+  </div>
+
+  <canvas id="canvas"></canvas>
+
+  <script>
+    const canvas      = document.getElementById('canvas');
+    const ctx         = canvas.getContext('2d');
+    const colorPicker = document.getElementById('color-picker');
+    const brushSlider = document.getElementById('brush-size');
+    const sizeDot     = document.getElementById('size-dot');
+    const btnDraw     = document.getElementById('btn-draw');
+    const btnEraser   = document.getElementById('btn-eraser');
+    const btnClear    = document.getElementById('btn-clear');
+    const btnDownload = document.getElementById('btn-download');
+
+    const TOOLBAR_H = 56;
+    const BG_COLOR  = '#ffffff';
+
+    let isDrawing  = false;
+    let isEraser   = false;
+    let brushSize  = 8;
+    let brushColor = '#6366f1';
+
+    function initCanvas() {
+      canvas.width  = window.innerWidth;
+      canvas.height = window.innerHeight - TOOLBAR_H;
+      ctx.fillStyle = BG_COLOR;
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      ctx.lineJoin  = 'round';
+      ctx.lineCap   = 'round';
+      applyStyle();
+    }
+
+    function getPos(e) {
+      const rect = canvas.getBoundingClientRect();
+      const src  = e.touches ? (e.touches[0] || e.changedTouches[0]) : e;
+      return {
+        x: src.clientX - rect.left,
+        y: src.clientY - rect.top,
+      };
+    }
+
+    function applyStyle() {
+      ctx.strokeStyle = isEraser ? BG_COLOR : brushColor;
+      ctx.lineWidth   = brushSize;
+    }
+
+    function startDraw(e) {
+      isDrawing = true;
+      const pos = getPos(e);
+      ctx.beginPath();
+      ctx.moveTo(pos.x, pos.y);
+      applyStyle();
+    }
+
+    function draw(e) {
+      if (!isDrawing) return;
+      const pos = getPos(e);
+      ctx.lineTo(pos.x, pos.y);
+      ctx.stroke();
+    }
+
+    function stopDraw() {
+      isDrawing = false;
+    }
+
+    colorPicker.addEventListener('input', () => {
+      brushColor = colorPicker.value;
+      applyStyle();
+    });
+
+    brushSlider.addEventListener('input', () => {
+      brushSize = Number(brushSlider.value);
+      const display = Math.min(brushSize, 36);
+      sizeDot.style.width  = display + 'px';
+      sizeDot.style.height = display + 'px';
+      applyStyle();
+    });
+
+    btnDraw.addEventListener('click', () => {
+      isEraser = false;
+      btnDraw.classList.add('active');
+      btnEraser.classList.remove('active');
+      canvas.classList.remove('eraser');
+      applyStyle();
+    });
+
+    btnEraser.addEventListener('click', () => {
+      isEraser = true;
+      btnEraser.classList.add('active');
+      btnDraw.classList.remove('active');
+      canvas.classList.add('eraser');
+      applyStyle();
+    });
+
+    btnClear.addEventListener('click', () => {
+      if (window.confirm('Clear the canvas? This cannot be undone.')) {
+        ctx.fillStyle = BG_COLOR;
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        applyStyle();
+      }
+    });
+
+    btnDownload.addEventListener('click', () => {
+      const url  = canvas.toDataURL('image/png');
+      const link = document.createElement('a');
+      link.href     = url;
+      link.download = 'drawing.png';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    });
+
+    // Mouse
+    canvas.addEventListener('mousedown',  startDraw);
+    canvas.addEventListener('mousemove',  draw);
+    canvas.addEventListener('mouseup',    stopDraw);
+    canvas.addEventListener('mouseleave', stopDraw);
+
+    // Touch
+    canvas.addEventListener('touchstart', e => { e.preventDefault(); startDraw(e); }, { passive: false });
+    canvas.addEventListener('touchmove',  e => { e.preventDefault(); draw(e); },      { passive: false });
+    canvas.addEventListener('touchend',   stopDraw);
+
+    // Init
+    initCanvas();
+  </script>
+</body>
+</html>

@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Markdown Previewer — Solution</title>
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/dompurify/dist/purify.min.js"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html, body { height: 100%; font-family: system-ui, sans-serif; background: #0f172a; color: #f1f5f9; }
+
+    .app { display: flex; flex-direction: column; height: 100vh; }
+
+    .topbar {
+      background: #1e293b;
+      border-bottom: 1px solid #334155;
+      padding: 0.75rem 1.25rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-shrink: 0;
+    }
+    .topbar h1 { font-size: 1.1rem; font-weight: 700; }
+
+    .toolbar { display: flex; gap: 0.4rem; }
+    .toolbar button {
+      background: #334155;
+      color: #f1f5f9;
+      border: none;
+      border-radius: 6px;
+      padding: 0.3rem 0.65rem;
+      font-size: 0.82rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.15s;
+      font-family: monospace;
+    }
+    .toolbar button:hover { background: #475569; }
+
+    .panes { display: grid; grid-template-columns: 1fr 1fr; flex: 1; overflow: hidden; }
+    .pane { display: flex; flex-direction: column; overflow: hidden; }
+    .pane + .pane { border-left: 1px solid #334155; }
+
+    .pane-label {
+      background: #1e293b;
+      border-bottom: 1px solid #334155;
+      padding: 0.35rem 1rem;
+      font-size: 0.72rem;
+      color: #64748b;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      flex-shrink: 0;
+    }
+
+    #editor {
+      flex: 1;
+      background: #0f172a;
+      color: #e2e8f0;
+      border: none;
+      outline: none;
+      resize: none;
+      padding: 1.25rem;
+      font-family: 'Courier New', Courier, monospace;
+      font-size: 0.9rem;
+      line-height: 1.6;
+      overflow-y: auto;
+    }
+
+    #preview {
+      flex: 1;
+      padding: 1.25rem 1.5rem;
+      overflow-y: auto;
+      line-height: 1.7;
+    }
+
+    #preview h1, #preview h2, #preview h3 { margin: 1rem 0 0.5rem; line-height: 1.3; }
+    #preview h1 { font-size: 1.8rem; border-bottom: 1px solid #334155; padding-bottom: 0.4rem; }
+    #preview h2 { font-size: 1.35rem; }
+    #preview h3 { font-size: 1.1rem; }
+    #preview p  { margin: 0.6rem 0; }
+    #preview a  { color: #818cf8; }
+    #preview ul, #preview ol { margin: 0.5rem 0 0.5rem 1.5rem; }
+    #preview li { margin: 0.25rem 0; }
+    #preview code { background: #1e293b; padding: 0.15em 0.4em; border-radius: 4px; font-size: 0.88em; color: #f472b6; }
+    #preview pre  { background: #1e293b; border-radius: 8px; padding: 1rem; overflow-x: auto; margin: 0.75rem 0; }
+    #preview pre code { background: none; padding: 0; color: #e2e8f0; }
+    #preview blockquote { border-left: 3px solid #6366f1; padding-left: 1rem; color: #94a3b8; margin: 0.75rem 0; }
+    #preview hr { border: none; border-top: 1px solid #334155; margin: 1rem 0; }
+    #preview strong { color: #f8fafc; }
+    #preview em { color: #a5b4fc; }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <div class="topbar">
+      <h1>Markdown Previewer</h1>
+      <div class="toolbar">
+        <button data-action="bold"   title="Bold">B</button>
+        <button data-action="italic" title="Italic"><em>I</em></button>
+        <button data-action="code"   title="Inline code">`code`</button>
+        <button data-action="link"   title="Link">🔗</button>
+      </div>
+    </div>
+    <div class="panes">
+      <div class="pane">
+        <div class="pane-label">Editor</div>
+        <textarea id="editor" spellcheck="false"></textarea>
+      </div>
+      <div class="pane">
+        <div class="pane-label">Preview</div>
+        <div id="preview"></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const editor  = document.getElementById('editor');
+    const preview = document.getElementById('preview');
+
+    const DEFAULT_MD = `# Welcome to Markdown Previewer
+
+## Features
+
+Type in the **editor** on the left and see the *live preview* on the right.
+
+### Inline code
+
+Use backticks for \`inline code\` snippets.
+
+### Code blocks
+
+\`\`\`js
+function greet(name) {
+  return \`Hello, \${name}!\`;
+}
+\`\`\`
+
+### Lists
+
+- Item one
+- Item two
+- Item three
+
+### Links
+
+[Visit MDN](https://developer.mozilla.org)
+
+---
+
+> Markdown makes writing for the web fast and fun.
+`;
+
+    function updatePreview() {
+      const md = editor.value;
+      if (!md) {
+        preview.innerHTML = '';
+        return;
+      }
+      const rawHtml       = marked.parse(md);
+      const cleanHtml     = DOMPurify.sanitize(rawHtml);
+      preview.innerHTML   = cleanHtml;
+    }
+
+    let scrollSyncing = false;
+    function syncScroll() {
+      if (scrollSyncing) return;
+      scrollSyncing = true;
+      const ratio = editor.scrollTop / (editor.scrollHeight - editor.clientHeight || 1);
+      preview.scrollTop = ratio * (preview.scrollHeight - preview.clientHeight);
+      requestAnimationFrame(() => { scrollSyncing = false; });
+    }
+
+    const ACTIONS = {
+      bold:   { before: '**', after: '**',     placeholder: 'bold text' },
+      italic: { before: '*',  after: '*',      placeholder: 'italic text' },
+      code:   { before: '`',  after: '`',      placeholder: 'code' },
+      link:   { before: '[',  after: '](url)', placeholder: 'link text' },
+    };
+
+    function insertMarkdown(action) {
+      const { before, after, placeholder } = ACTIONS[action];
+      const start    = editor.selectionStart;
+      const end      = editor.selectionEnd;
+      const selected = editor.value.slice(start, end) || placeholder;
+      const inserted = before + selected + after;
+
+      editor.value =
+        editor.value.slice(0, start) +
+        inserted +
+        editor.value.slice(end);
+
+      // Place cursor to select the inserted text (the original selected/placeholder part)
+      const newStart = start + before.length;
+      const newEnd   = newStart + selected.length;
+      editor.setSelectionRange(newStart, newEnd);
+      editor.focus();
+      updatePreview();
+    }
+
+    editor.addEventListener('input', updatePreview);
+    editor.addEventListener('scroll', syncScroll);
+
+    document.querySelectorAll('.toolbar button').forEach(btn => {
+      btn.addEventListener('click', () => insertMarkdown(btn.dataset.action));
+    });
+
+    editor.value = DEFAULT_MD;
+    updatePreview();
+  </script>
+</body>
+</html>

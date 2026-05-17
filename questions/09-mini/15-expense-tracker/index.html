@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Expense Tracker</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: system-ui, sans-serif;
+      background: #f8fafc;
+      min-height: 100vh;
+      padding: 2rem;
+      color: #1e293b;
+    }
+
+    .container { max-width: 680px; margin: 0 auto; }
+
+    h1 { font-size: 1.75rem; margin-bottom: 1.5rem; }
+
+    /* Total */
+    .total-card {
+      background: #6366f1;
+      color: #fff;
+      border-radius: 12px;
+      padding: 1.25rem 1.5rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .total-label { font-size: .85rem; opacity: .8; }
+    .total-amount { font-size: 2.25rem; font-weight: 700; }
+
+    /* Add form */
+    .add-form {
+      background: #fff;
+      border-radius: 12px;
+      padding: 1.25rem 1.5rem;
+      box-shadow: 0 2px 10px rgba(0,0,0,.06);
+      margin-bottom: 1.5rem;
+    }
+
+    .add-form h2 { font-size: 1rem; margin-bottom: 1rem; color: #475569; }
+
+    .form-row { display: flex; gap: .75rem; flex-wrap: wrap; }
+
+    .form-row input, .form-row select {
+      flex: 1;
+      min-width: 130px;
+      padding: .6rem .9rem;
+      border: 2px solid #e2e8f0;
+      border-radius: 8px;
+      font-size: .95rem;
+      outline: none;
+    }
+
+    .form-row input:focus, .form-row select:focus { border-color: #6366f1; }
+
+    .add-form button {
+      padding: .6rem 1.4rem;
+      background: #6366f1;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      font-weight: 600;
+      font-size: .95rem;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+
+    .add-form button:hover { background: #4f46e5; }
+
+    .form-error { font-size: .8rem; color: #ef4444; margin-top: .5rem; }
+
+    /* Expense list */
+    .section-title { font-size: 1rem; font-weight: 700; color: #475569; margin-bottom: .75rem; }
+
+    #expenseList { display: flex; flex-direction: column; gap: .6rem; margin-bottom: 1.75rem; }
+
+    .expense-item {
+      background: #fff;
+      border-radius: 10px;
+      padding: .8rem 1rem;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      box-shadow: 0 1px 4px rgba(0,0,0,.05);
+    }
+
+    .exp-desc { flex: 1; font-weight: 500; }
+    .exp-cat  { font-size: .78rem; background: #ede9fe; color: #6d28d9; border-radius: 99px; padding: .15rem .6rem; }
+    .exp-amt  { font-weight: 700; color: #0f172a; }
+    .del-btn  { background: #fee2e2; color: #b91c1c; border: none; border-radius: 6px; padding: .25rem .6rem; cursor: pointer; font-size: .8rem; font-weight: 600; }
+
+    .empty-state { color: #94a3b8; text-align: center; padding: 1.5rem; }
+
+    /* Chart */
+    #chart { background: #fff; border-radius: 12px; padding: 1.25rem 1.5rem; box-shadow: 0 2px 10px rgba(0,0,0,.06); }
+
+    .bar-row { margin-bottom: .9rem; }
+    .bar-label { display: flex; justify-content: space-between; font-size: .85rem; margin-bottom: .3rem; }
+    .bar-track { height: 16px; background: #f1f5f9; border-radius: 99px; overflow: hidden; }
+    .bar-fill  { height: 100%; background: #6366f1; border-radius: 99px; transition: width .4s; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Expense Tracker</h1>
+
+    <div class="total-card">
+      <div class="total-label">Total Expenses</div>
+      <div class="total-amount" id="totalAmount">$0.00</div>
+    </div>
+
+    <div class="add-form">
+      <h2>Add Expense</h2>
+      <div class="form-row">
+        <input type="text"   id="descInput"   placeholder="Description" />
+        <input type="number" id="amountInput" placeholder="Amount" min="0.01" step="0.01" />
+        <select id="categorySelect">
+          <option value="Food">Food</option>
+          <option value="Transport">Transport</option>
+          <option value="Entertainment">Entertainment</option>
+          <option value="Other">Other</option>
+        </select>
+        <button id="addBtn">Add</button>
+      </div>
+      <p class="form-error" id="formError"></p>
+    </div>
+
+    <p class="section-title">Transactions</p>
+    <div id="expenseList"></div>
+
+    <p class="section-title">Spending by Category</p>
+    <div id="chart"></div>
+  </div>
+
+  <script>
+    const CATEGORIES = ['Food', 'Transport', 'Entertainment', 'Other'];
+
+    // ─── Storage ─────────────────────────────────────────────────────────────────
+    // TODO: implement loadExpenses() — read 'expenses' from localStorage, return array
+    function loadExpenses() {
+      throw new Error('TODO: implement loadExpenses');
+    }
+
+    // TODO: implement saveExpenses(expenses)
+    function saveExpenses(expenses) {
+      throw new Error('TODO: implement saveExpenses');
+    }
+
+    // ─── State ───────────────────────────────────────────────────────────────────
+    // TODO: let expenses = loadExpenses();
+
+    // ─── render ───────────────────────────────────────────────────────────────────
+    // TODO: implement render()
+    //   1. Update #totalAmount (sum of all amounts, formatted $X.XX)
+    //   2. Render #expenseList — newest first
+    //      Each item: description, category badge, amount, delete button (data-id)
+    //   3. Render #chart — one bar-row per category
+    //      - Compute total per category
+    //      - Find max total across categories
+    //      - Width of each bar = (catTotal / maxTotal) * 100 %
+    //      - Show $0.00 bars (width 0) when category has no spend
+    function render() {
+      throw new Error('TODO: implement render');
+    }
+
+    // ─── addExpense ──────────────────────────────────────────────────────────────
+    // TODO: implement addExpense()
+    //   - Read description, amount, category from inputs
+    //   - Validate: description required, amount must be > 0
+    //   - Push { id: Date.now(), description, amount: parseFloat, category, date: now }
+    //   - saveExpenses, clear form, render
+    function addExpense() {
+      throw new Error('TODO: implement addExpense');
+    }
+
+    // ─── deleteExpense ───────────────────────────────────────────────────────────
+    // TODO: implement deleteExpense(id)
+    //   - Filter out expense with matching id, save, render
+    function deleteExpense(id) {
+      throw new Error('TODO: implement deleteExpense');
+    }
+
+    // ─── Events ──────────────────────────────────────────────────────────────────
+    // TODO: wire #addBtn → addExpense
+    // TODO: delegate clicks on #expenseList for .del-btn buttons
+
+    // TODO: render() to initialise
+  </script>
+</body>
+</html>

@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Memory Match Game</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: system-ui, sans-serif;
+      background: #0f172a;
+      color: #f1f5f9;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 2rem 1rem;
+    }
+
+    h1 { font-size: 1.8rem; margin-bottom: 0.4rem; }
+    .subtitle { color: #94a3b8; margin-bottom: 1.5rem; }
+
+    /* Stats bar */
+    .stats {
+      display: flex;
+      gap: 2rem;
+      margin-bottom: 1.5rem;
+    }
+    .stat { text-align: center; }
+    .stat .label { font-size: 0.75rem; color: #64748b; text-transform: uppercase; letter-spacing: 0.05em; }
+    .stat .value { font-size: 1.5rem; font-weight: 700; color: #818cf8; }
+
+    /* Card grid */
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 0.75rem;
+      margin-bottom: 1.5rem;
+    }
+
+    /* Card flip effect */
+    .card {
+      width: 80px;
+      height: 80px;
+      perspective: 600px;
+      cursor: pointer;
+    }
+    .card-inner {
+      width: 100%;
+      height: 100%;
+      position: relative;
+      transform-style: preserve-3d;
+      transition: transform 0.4s;
+    }
+    .card.flipped .card-inner,
+    .card.matched .card-inner { transform: rotateY(180deg); }
+
+    .card-face {
+      position: absolute;
+      inset: 0;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2rem;
+      backface-visibility: hidden;
+    }
+    .card-back {
+      background: #1e293b;
+      border: 2px solid #334155;
+    }
+    .card-front {
+      background: #312e81;
+      border: 2px solid #4338ca;
+      transform: rotateY(180deg);
+    }
+    .card.matched .card-front {
+      background: #14532d;
+      border-color: #16a34a;
+    }
+
+    /* Victory overlay */
+    .overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.75);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 10;
+    }
+    .overlay.hidden { display: none; }
+
+    .victory-card {
+      background: #1e293b;
+      border-radius: 20px;
+      padding: 2.5rem;
+      text-align: center;
+      max-width: 340px;
+    }
+    .victory-card h2 { font-size: 1.8rem; margin-bottom: 0.5rem; }
+    .victory-stats { color: #94a3b8; margin-bottom: 1.5rem; line-height: 1.8; }
+    .victory-stats strong { color: #f1f5f9; }
+
+    .btn {
+      background: #6366f1;
+      color: #fff;
+      border: none;
+      border-radius: 10px;
+      padding: 0.75rem 2rem;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+    .btn:hover { background: #4f46e5; }
+  </style>
+</head>
+<body>
+  <h1>Memory Match 🃏</h1>
+  <p class="subtitle">Find all 8 pairs</p>
+
+  <div class="stats">
+    <div class="stat">
+      <div class="label">Time</div>
+      <div class="value" id="timer">00:00</div>
+    </div>
+    <div class="stat">
+      <div class="label">Moves</div>
+      <div class="value" id="moves">0</div>
+    </div>
+    <div class="stat">
+      <div class="label">Pairs</div>
+      <div class="value" id="pairs">0 / 8</div>
+    </div>
+  </div>
+
+  <div class="grid" id="grid"></div>
+
+  <button class="btn" id="btn-new-game">New Game</button>
+
+  <!-- Victory overlay -->
+  <div class="overlay hidden" id="overlay">
+    <div class="victory-card">
+      <h2>🎉 You Win!</h2>
+      <div class="victory-stats" id="victory-stats"></div>
+      <button class="btn" id="btn-play-again">Play Again</button>
+    </div>
+  </div>
+
+  <script>
+    const EMOJIS = ['🐶','🐱','🦊','🐸','🦁','🐧','🦋','🌸'];
+    // Each emoji appears twice — 16 cards total
+
+    // ─── State ───────────────────────────────────────────────
+    let cards       = [];   // array of { id, emoji, flipped, matched }
+    let flipped     = [];   // indices of currently flipped (unmatched) cards
+    let locked      = false; // board locked during check delay
+    let moves       = 0;
+    let pairs       = 0;
+    let timerInterval = null;
+    let secondsElapsed = 0;
+    let timerStarted = false;
+
+    // ─── DOM refs ─────────────────────────────────────────────
+    const gridEl        = document.getElementById('grid');
+    const timerEl       = document.getElementById('timer');
+    const movesEl       = document.getElementById('moves');
+    const pairsEl       = document.getElementById('pairs');
+    const overlay       = document.getElementById('overlay');
+    const victoryStats  = document.getElementById('victory-stats');
+
+    // ─── Fisher-Yates shuffle ─────────────────────────────────
+    function shuffle(arr) {
+      // TODO: Implement in-place Fisher-Yates shuffle and return arr
+      // Hint: iterate from last index down to 1, swap with random index <= i
+    }
+
+    // ─── Build deck ───────────────────────────────────────────
+    function buildDeck() {
+      // TODO: Create an array of 16 card objects
+      // Duplicate each emoji so there are 8 pairs
+      // Each card: { id: unique number, emoji, flipped: false, matched: false }
+      // Shuffle the array before returning
+    }
+
+    // ─── Format time ──────────────────────────────────────────
+    function formatTime(seconds) {
+      // TODO: Return "MM:SS" string from seconds
+      // Pad with leading zeros (e.g. 65 → "01:05")
+    }
+
+    // ─── Start timer ──────────────────────────────────────────
+    function startTimer() {
+      // TODO: Set timerStarted = true, start a setInterval that
+      // increments secondsElapsed every 1000ms and updates timerEl
+    }
+
+    // ─── Stop timer ───────────────────────────────────────────
+    function stopTimer() {
+      // TODO: clearInterval(timerInterval) and set timerInterval = null
+    }
+
+    // ─── Render grid ──────────────────────────────────────────
+    function renderGrid() {
+      // TODO: Clear gridEl, then for each card create a .card element
+      // Structure:
+      //   <div class="card [flipped] [matched]" data-index="i">
+      //     <div class="card-inner">
+      //       <div class="card-face card-back">❓</div>
+      //       <div class="card-face card-front">{emoji}</div>
+      //     </div>
+      //   </div>
+      // Add click listener: call handleCardClick(index)
+    }
+
+    // ─── Update stats display ─────────────────────────────────
+    function updateStats() {
+      // TODO: Update movesEl, pairsEl text content
+    }
+
+    // ─── Handle card click ────────────────────────────────────
+    function handleCardClick(index) {
+      // TODO:
+      // 1. Return early if: locked, card already matched, or card already flipped
+      // 2. If timer hasn't started, start it
+      // 3. Flip the card: set cards[index].flipped = true
+      // 4. Add the index to flipped[]
+      // 5. Re-render the clicked card (update its DOM classes)
+      // 6. If flipped.length === 2:
+      //    a. Increment moves, update stats
+      //    b. Lock the board
+      //    c. Check if the two cards share the same emoji
+      //       - Match: mark both .matched = true, clear flipped[], increment pairs
+      //                unlock board, check for victory
+      //       - No match: setTimeout 1000ms, then unflip both cards,
+      //                   clear flipped[], unlock board, re-render those cards
+    }
+
+    // ─── Check for victory ────────────────────────────────────
+    function checkVictory() {
+      // TODO: If pairs === 8, stop timer, show overlay
+      // Populate victoryStats with time and moves
+    }
+
+    // ─── New game ─────────────────────────────────────────────
+    function newGame() {
+      // TODO:
+      // 1. Stop and reset timer (secondsElapsed = 0, timerEl = '00:00')
+      // 2. Reset state: moves, pairs, flipped[], locked, timerStarted
+      // 3. Build a new deck
+      // 4. Hide overlay
+      // 5. Render grid and update stats
+    }
+
+    // ─── Events ───────────────────────────────────────────────
+    document.getElementById('btn-new-game').addEventListener('click', newGame);
+    document.getElementById('btn-play-again').addEventListener('click', newGame);
+
+    // ─── Init ─────────────────────────────────────────────────
+    newGame();
+  </script>
+</body>
+</html>

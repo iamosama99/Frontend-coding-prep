@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>GitHub User Search</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: system-ui, sans-serif;
+      background: #0d1117;
+      color: #c9d1d9;
+      min-height: 100vh;
+      padding: 3rem 1.5rem;
+    }
+
+    .container { max-width: 500px; margin: 0 auto; }
+
+    h1 { font-size: 1.75rem; margin-bottom: 1.5rem; color: #f0f6fc; }
+
+    #searchInput {
+      width: 100%;
+      padding: .75rem 1rem;
+      background: #161b22;
+      border: 1px solid #30363d;
+      border-radius: 10px;
+      font-size: 1rem;
+      color: #c9d1d9;
+      outline: none;
+      transition: border-color .2s;
+      margin-bottom: 1.5rem;
+    }
+
+    #searchInput:focus { border-color: #388bfd; }
+    #searchInput::placeholder { color: #6e7681; }
+
+    /* Spinner */
+    #spinner {
+      display: none;
+      text-align: center;
+      padding: 2rem 0;
+      color: #6e7681;
+    }
+
+    /* Error */
+    #errorMsg {
+      display: none;
+      background: #1f1f1f;
+      border: 1px solid #f85149;
+      border-radius: 10px;
+      padding: 1rem 1.25rem;
+      color: #f85149;
+      font-size: .95rem;
+    }
+
+    /* Profile card */
+    #profileCard {
+      display: none;
+      background: #161b22;
+      border: 1px solid #30363d;
+      border-radius: 12px;
+      padding: 1.5rem;
+    }
+
+    .card-header { display: flex; gap: 1.25rem; align-items: center; margin-bottom: 1rem; }
+
+    #avatar {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 2px solid #30363d;
+    }
+
+    .card-names { flex: 1; }
+    #displayName { font-size: 1.2rem; font-weight: 700; color: #f0f6fc; }
+    #username    { font-size: .9rem; color: #6e7681; margin-top: .1rem; }
+
+    #bio { font-size: .9rem; color: #8b949e; margin-bottom: 1rem; line-height: 1.5; }
+
+    .stats { display: flex; gap: 1.5rem; margin-bottom: 1rem; }
+
+    .stat { text-align: center; }
+    .stat-value { font-size: 1.1rem; font-weight: 700; color: #f0f6fc; }
+    .stat-label { font-size: .75rem; color: #6e7681; }
+
+    .card-meta { font-size: .85rem; color: #8b949e; display: flex; flex-direction: column; gap: .35rem; }
+
+    #ghLink {
+      display: inline-block;
+      margin-top: .75rem;
+      color: #388bfd;
+      font-size: .9rem;
+      text-decoration: none;
+    }
+
+    #ghLink:hover { text-decoration: underline; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>GitHub User Search</h1>
+
+    <input type="text" id="searchInput" placeholder="Search username… (e.g. torvalds)" autocomplete="off" />
+
+    <div id="spinner">Searching…</div>
+    <div id="errorMsg"></div>
+
+    <div id="profileCard">
+      <div class="card-header">
+        <img id="avatar" src="" alt="Avatar" />
+        <div class="card-names">
+          <div id="displayName"></div>
+          <div id="username"></div>
+        </div>
+      </div>
+      <p id="bio"></p>
+      <div class="stats">
+        <div class="stat">
+          <div class="stat-value" id="repoCount">0</div>
+          <div class="stat-label">Repos</div>
+        </div>
+        <div class="stat">
+          <div class="stat-value" id="followers">0</div>
+          <div class="stat-label">Followers</div>
+        </div>
+        <div class="stat">
+          <div class="stat-value" id="following">0</div>
+          <div class="stat-label">Following</div>
+        </div>
+      </div>
+      <div class="card-meta">
+        <span id="location"></span>
+      </div>
+      <a id="ghLink" href="#" target="_blank" rel="noopener noreferrer">View on GitHub →</a>
+    </div>
+  </div>
+
+  <script>
+    // ─── State ───────────────────────────────────────────────────────────────────
+    // TODO: let debounceTimer = null;
+
+    // ─── showSpinner / showError / showCard / clearAll ───────────────────────────
+    // TODO: implement helper functions to show/hide the three sections:
+    //   - showSpinner() — show #spinner, hide error + card
+    //   - showError(msg) — show #errorMsg with text, hide spinner + card
+    //   - showCard(data) — populate and show #profileCard, hide spinner + error
+    //   - clearAll() — hide all three sections
+
+    // TODO: implement showCard(data) using the GitHub API response shape:
+    //   data.avatar_url, data.name || data.login, data.login, data.bio,
+    //   data.public_repos, data.followers, data.following, data.location,
+    //   data.html_url
+
+    // ─── fetchUser ───────────────────────────────────────────────────────────────
+    // TODO: implement async fetchUser(username)
+    //   - showSpinner()
+    //   - fetch `https://api.github.com/users/${username}`
+    //   - If response.status === 404: showError('User not found.')
+    //   - If response.status === 403: showError('GitHub API rate limit reached. Try later.')
+    //   - If !response.ok: showError('Something went wrong.')
+    //   - Else: showCard(await response.json())
+    //   - Catch: showError('Network error.')
+    async function fetchUser(username) {
+      throw new Error('TODO: implement fetchUser');
+    }
+
+    // ─── handleInput ─────────────────────────────────────────────────────────────
+    // TODO: implement handleInput(value)
+    //   - If value is empty: clearAll(), clearTimeout(debounceTimer), return
+    //   - clearTimeout(debounceTimer)
+    //   - debounceTimer = setTimeout(() => fetchUser(value.trim()), 400)
+    function handleInput(value) {
+      throw new Error('TODO: implement handleInput');
+    }
+
+    // ─── Events ──────────────────────────────────────────────────────────────────
+    // TODO: #searchInput 'input' event → handleInput(e.target.value)
+  </script>
+</body>
+</html>

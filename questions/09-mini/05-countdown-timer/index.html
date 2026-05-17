@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Countdown Timer</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: system-ui, sans-serif;
+      background: #1a1a2e;
+      color: #e2e8f0;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .app {
+      text-align: center;
+      width: 400px;
+    }
+
+    h1 { font-size: 1.2rem; color: #7c3aed; margin-bottom: 40px; letter-spacing: 0.15em; text-transform: uppercase; }
+
+    /* Input section */
+    .time-inputs {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+      margin-bottom: 40px;
+    }
+
+    .time-inputs input {
+      width: 72px;
+      padding: 12px 4px;
+      font-size: 2rem;
+      font-weight: 200;
+      text-align: center;
+      background: #16213e;
+      border: 1px solid #334155;
+      border-radius: 8px;
+      color: #fff;
+      outline: none;
+    }
+
+    .time-inputs input:focus { border-color: #7c3aed; }
+
+    .time-inputs .colon {
+      font-size: 2rem;
+      color: #475569;
+      margin: 0 2px;
+    }
+
+    .time-inputs label {
+      display: block;
+      font-size: 0.7rem;
+      color: #64748b;
+      margin-top: 4px;
+      letter-spacing: 0.1em;
+    }
+
+    /* Display section (hidden until running/paused) */
+    .countdown-display {
+      font-size: 5rem;
+      font-weight: 200;
+      font-variant-numeric: tabular-nums;
+      color: #fff;
+      margin-bottom: 16px;
+      letter-spacing: 0.05em;
+    }
+
+    .countdown-display.flash {
+      animation: pulse 0.5s ease-in-out infinite alternate;
+    }
+
+    @keyframes pulse {
+      from { opacity: 1; color: #fff; }
+      to   { opacity: 0.3; color: #f43f5e; }
+    }
+
+    .times-up {
+      font-size: 1.4rem;
+      color: #f43f5e;
+      margin-bottom: 24px;
+      min-height: 32px;
+      font-weight: 600;
+    }
+
+    /* Controls */
+    .controls {
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+      margin-bottom: 16px;
+    }
+
+    .btn {
+      padding: 12px 28px;
+      border: none;
+      border-radius: 50px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    #start-pause-btn { background: #7c3aed; color: #fff; min-width: 110px; }
+    #start-pause-btn:hover { background: #6d28d9; }
+    #start-pause-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+    #reset-btn { background: #1e293b; color: #94a3b8; border: 1px solid #334155; }
+    #reset-btn:hover { background: #334155; }
+
+    .error-msg {
+      color: #f87171;
+      font-size: 0.85rem;
+      min-height: 20px;
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <h1>Countdown Timer</h1>
+
+    <div class="time-inputs">
+      <div>
+        <input type="number" id="hours-input" value="0" min="0" max="99" placeholder="00" />
+        <label>HH</label>
+      </div>
+      <span class="colon">:</span>
+      <div>
+        <input type="number" id="minutes-input" value="0" min="0" max="59" placeholder="00" />
+        <label>MM</label>
+      </div>
+      <span class="colon">:</span>
+      <div>
+        <input type="number" id="seconds-input" value="0" min="0" max="59" placeholder="00" />
+        <label>SS</label>
+      </div>
+    </div>
+
+    <div class="countdown-display" id="countdown-display">00:00:00</div>
+    <div class="times-up" id="times-up"></div>
+
+    <div class="controls">
+      <button class="btn" id="start-pause-btn">Start</button>
+      <button class="btn" id="reset-btn">Reset</button>
+    </div>
+
+    <p class="error-msg" id="error-msg"></p>
+  </div>
+
+  <script>
+    // --- State ---
+    // TODO: Track:
+    //   remaining   (number) — seconds remaining (integer)
+    //   savedTotal  (number) — the total seconds from the last Start (for Reset)
+    //   running     (boolean)
+    //   intervalId  (number | null)
+    let remaining = 0;
+    let savedTotal = 0;
+    let running = false;
+    let intervalId = null;
+
+    // --- DOM references ---
+    const hoursInput    = document.getElementById('hours-input');
+    const minutesInput  = document.getElementById('minutes-input');
+    const secondsInput  = document.getElementById('seconds-input');
+    const display       = document.getElementById('countdown-display');
+    const timesUpEl     = document.getElementById('times-up');
+    const startPauseBtn = document.getElementById('start-pause-btn');
+    const resetBtn      = document.getElementById('reset-btn');
+    const errorMsg      = document.getElementById('error-msg');
+
+    // --- Helpers ---
+    function formatTime(totalSeconds) {
+      // TODO: Convert totalSeconds to hh:mm:ss.
+      //   hh = Math.floor(totalSeconds / 3600)
+      //   mm = Math.floor((totalSeconds % 3600) / 60)
+      //   ss = totalSeconds % 60
+      //   Zero-pad each to 2 digits.
+      throw new Error('formatTime() not implemented');
+    }
+
+    function getTotalSecondsFromInputs() {
+      // TODO: Read hours, minutes, seconds from the input fields.
+      //       Clamp: minutes 0–59, seconds 0–59, hours 0–99.
+      //       Return total in seconds.
+      throw new Error('getTotalSecondsFromInputs() not implemented');
+    }
+
+    // --- Render ---
+    function renderDisplay() {
+      // TODO: Update display.textContent with formatTime(remaining).
+      throw new Error('renderDisplay() not implemented');
+    }
+
+    // --- Actions ---
+    function startTimer() {
+      // TODO:
+      //   1. Read input values and compute total seconds.
+      //   2. If total === 0, show error message and return early.
+      //   3. Set remaining = total, savedTotal = total.
+      //   4. Hide error message, hide "Time's up!" message.
+      //   5. Set running = true, update button label to 'Pause'.
+      //   6. Use setInterval (every 1000ms) to:
+      //      - Decrement remaining by 1.
+      //      - renderDisplay().
+      //      - If remaining === 0: stop interval, show "Time's up!",
+      //        add 'flash' class to display, set running = false, update button label.
+      throw new Error('startTimer() not implemented');
+    }
+
+    function pauseTimer() {
+      // TODO: clearInterval, set running = false, update button label to 'Resume'.
+      throw new Error('pauseTimer() not implemented');
+    }
+
+    function resumeTimer() {
+      // TODO: Restart the interval from the current remaining value.
+      //       Same tick logic as startTimer.
+      throw new Error('resumeTimer() not implemented');
+    }
+
+    function resetTimer() {
+      // TODO: clearInterval, set running = false.
+      //       Restore remaining = savedTotal (or 0 if never started).
+      //       Remove 'flash' class, hide "Time's up!" message, clear error.
+      //       renderDisplay(), reset button label to 'Start'.
+      throw new Error('resetTimer() not implemented');
+    }
+
+    // --- Event listeners ---
+    startPauseBtn.addEventListener('click', () => {
+      // TODO: Route to startTimer(), pauseTimer(), or resumeTimer()
+      //       based on the current state (running, remaining, intervalId).
+    });
+
+    resetBtn.addEventListener('click', resetTimer);
+
+    // --- Init ---
+    renderDisplay();
+  </script>
+</body>
+</html>

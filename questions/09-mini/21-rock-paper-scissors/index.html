@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Rock Paper Scissors</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: system-ui, sans-serif;
+      background: #0f172a;
+      color: #f1f5f9;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 2rem 1rem;
+    }
+
+    h1 { font-size: 2rem; margin-bottom: 0.5rem; }
+    .subtitle { color: #94a3b8; margin-bottom: 2rem; }
+
+    /* Score board */
+    .scoreboard {
+      display: flex;
+      gap: 1.5rem;
+      margin-bottom: 2rem;
+    }
+    .score-box {
+      background: #1e293b;
+      border-radius: 12px;
+      padding: 1rem 1.5rem;
+      text-align: center;
+      min-width: 90px;
+    }
+    .score-box .label { font-size: 0.75rem; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.05em; }
+    .score-box .value { font-size: 2rem; font-weight: 700; margin-top: 0.25rem; }
+    .score-box.player .value  { color: #34d399; }
+    .score-box.computer .value { color: #f87171; }
+    .score-box.draws .value   { color: #fbbf24; }
+
+    /* Choice buttons */
+    .choices {
+      display: flex;
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+    .choice-btn {
+      background: #1e293b;
+      border: 2px solid #334155;
+      border-radius: 16px;
+      padding: 1.25rem 1.5rem;
+      font-size: 2.5rem;
+      cursor: pointer;
+      transition: transform 0.15s, border-color 0.15s, background 0.15s;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.4rem;
+    }
+    .choice-btn span.label { font-size: 0.8rem; color: #94a3b8; }
+    .choice-btn:hover { transform: scale(1.08); border-color: #6366f1; background: #1e3a5f; }
+    .choice-btn:active { transform: scale(0.96); }
+
+    /* Result area */
+    .result-area {
+      background: #1e293b;
+      border-radius: 16px;
+      padding: 1.5rem 2rem;
+      text-align: center;
+      min-width: 320px;
+      margin-bottom: 1.5rem;
+      min-height: 130px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+    .result-area.hidden { visibility: hidden; }
+
+    .matchup {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      font-size: 2.5rem;
+      margin-bottom: 0.75rem;
+    }
+    .matchup .vs { font-size: 1rem; color: #64748b; }
+
+    .result-label {
+      font-size: 1.4rem;
+      font-weight: 700;
+    }
+    .result-label.win  { color: #34d399; }
+    .result-label.lose { color: #f87171; }
+    .result-label.draw { color: #fbbf24; }
+
+    .result-msg { color: #94a3b8; font-size: 0.9rem; margin-top: 0.25rem; }
+
+    /* Animate result — add this class via JS each new round */
+    @keyframes pop-in {
+      0%   { opacity: 0; transform: scale(0.8); }
+      60%  { transform: scale(1.05); }
+      100% { opacity: 1; transform: scale(1); }
+    }
+    .result-area.animate { animation: pop-in 0.35s ease forwards; }
+
+    /* History */
+    .history-section { width: 100%; max-width: 360px; margin-bottom: 1.5rem; }
+    .history-section h3 { font-size: 0.85rem; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.5rem; }
+    #history-list { list-style: none; display: flex; flex-direction: column; gap: 0.4rem; }
+    #history-list li {
+      background: #1e293b;
+      border-radius: 8px;
+      padding: 0.5rem 0.75rem;
+      font-size: 0.88rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    #history-list li .outcome { font-weight: 600; }
+    #history-list li .outcome.win  { color: #34d399; }
+    #history-list li .outcome.lose { color: #f87171; }
+    #history-list li .outcome.draw { color: #fbbf24; }
+
+    /* Legend */
+    .legend {
+      background: #1e293b;
+      border-radius: 12px;
+      padding: 0.75rem 1.25rem;
+      font-size: 0.82rem;
+      color: #94a3b8;
+      display: flex;
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+    }
+
+    /* Buttons */
+    .btn-reset {
+      background: #334155;
+      color: #f1f5f9;
+      border: none;
+      border-radius: 8px;
+      padding: 0.6rem 1.4rem;
+      cursor: pointer;
+      font-size: 0.9rem;
+      transition: background 0.15s;
+    }
+    .btn-reset:hover { background: #475569; }
+  </style>
+</head>
+<body>
+  <h1>Rock Paper Scissors ✂️</h1>
+  <p class="subtitle">Pick your move!</p>
+
+  <!-- Score board -->
+  <div class="scoreboard">
+    <div class="score-box player">
+      <div class="label">You</div>
+      <div class="value" id="score-player">0</div>
+    </div>
+    <div class="score-box draws">
+      <div class="label">Draws</div>
+      <div class="value" id="score-draws">0</div>
+    </div>
+    <div class="score-box computer">
+      <div class="label">CPU</div>
+      <div class="value" id="score-computer">0</div>
+    </div>
+  </div>
+
+  <!-- Choice buttons -->
+  <div class="choices">
+    <button class="choice-btn" data-choice="rock">🪨<span class="label">Rock</span></button>
+    <button class="choice-btn" data-choice="paper">📄<span class="label">Paper</span></button>
+    <button class="choice-btn" data-choice="scissors">✂️<span class="label">Scissors</span></button>
+  </div>
+
+  <!-- Result display -->
+  <div class="result-area hidden" id="result-area">
+    <div class="matchup" id="matchup"></div>
+    <div class="result-label" id="result-label"></div>
+    <div class="result-msg" id="result-msg"></div>
+  </div>
+
+  <!-- Legend -->
+  <div class="legend">
+    <span>🪨 beats ✂️</span>
+    <span>✂️ beats 📄</span>
+    <span>📄 beats 🪨</span>
+  </div>
+
+  <!-- History -->
+  <div class="history-section">
+    <h3>Last 5 Rounds</h3>
+    <ul id="history-list"></ul>
+  </div>
+
+  <!-- Reset -->
+  <button class="btn-reset" id="btn-reset">Reset Score</button>
+
+  <script>
+    // ─── State ───────────────────────────────────────────────
+    const state = {
+      scores: { player: 0, computer: 0, draws: 0 },
+      history: [], // array of { player, computer, outcome }
+    };
+
+    // Emoji map and choices array
+    const EMOJIS = { rock: '🪨', paper: '📄', scissors: '✂️' };
+    const CHOICES = ['rock', 'paper', 'scissors'];
+
+    // ─── DOM refs ─────────────────────────────────────────────
+    const scorePlayerEl  = document.getElementById('score-player');
+    const scoreDrawsEl   = document.getElementById('score-draws');
+    const scoreComputerEl = document.getElementById('score-computer');
+    const resultArea     = document.getElementById('result-area');
+    const matchupEl      = document.getElementById('matchup');
+    const resultLabelEl  = document.getElementById('result-label');
+    const resultMsgEl    = document.getElementById('result-msg');
+    const historyList    = document.getElementById('history-list');
+    const btnReset       = document.getElementById('btn-reset');
+
+    // ─── Helper: get computer choice ─────────────────────────
+    function getComputerChoice() {
+      // TODO: Return a random element from CHOICES array
+      // Hint: use Math.random() and Math.floor()
+    }
+
+    // ─── Helper: determine outcome ───────────────────────────
+    function getOutcome(player, computer) {
+      // TODO: Return 'draw', 'win', or 'lose'
+      // Hint: handle draw first, then the 3 win conditions for player
+    }
+
+    // ─── Helper: build result message ────────────────────────
+    function getResultMessage(outcome, player, computer) {
+      // TODO: Return a descriptive string
+      // e.g. "Your Rock crushes Computer's Scissors!"
+      // Use EMOJIS map and capitalise the choice names
+    }
+
+    // ─── Render score board ──────────────────────────────────
+    function renderScores() {
+      // TODO: Update scorePlayerEl, scoreDrawsEl, scoreComputerEl
+      // with values from state.scores
+    }
+
+    // ─── Render result area ──────────────────────────────────
+    function renderResult(player, computer, outcome) {
+      // TODO:
+      // 1. Build the matchup string: "PLAYER_EMOJI  vs  CPU_EMOJI"
+      // 2. Set result label text ('You Win!' / 'You Lose!' / 'Draw!')
+      //    and apply class 'win' / 'lose' / 'draw' to resultLabelEl
+      // 3. Set result message via getResultMessage()
+      // 4. Remove 'hidden' class from resultArea
+      // 5. Trigger animation: remove then re-add 'animate' class
+      //    (use requestAnimationFrame or a tiny setTimeout to force reflow)
+    }
+
+    // ─── Render history list ──────────────────────────────────
+    function renderHistory() {
+      // TODO:
+      // 1. Clear historyList
+      // 2. Show last 5 entries from state.history (most recent first)
+      // 3. Each <li> should show: "🪨 vs 📄" on the left and outcome label on the right
+      //    Apply class 'win'/'lose'/'draw' to the outcome span
+    }
+
+    // ─── Play a round ─────────────────────────────────────────
+    function play(playerChoice) {
+      // TODO:
+      // 1. Get computer choice
+      // 2. Determine outcome
+      // 3. Update state.scores
+      // 4. Push to state.history (keep only last 5)
+      // 5. Call renderScores(), renderResult(), renderHistory()
+    }
+
+    // ─── Reset ────────────────────────────────────────────────
+    function resetScore() {
+      // TODO: Reset state.scores to 0, clear state.history
+      // Re-render scores and history (do NOT clear the result area)
+    }
+
+    // ─── Event listeners ──────────────────────────────────────
+    document.querySelectorAll('.choice-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        // TODO: Call play() with btn.dataset.choice
+      });
+    });
+
+    btnReset.addEventListener('click', resetScore);
+
+    // ─── Initial render ───────────────────────────────────────
+    renderScores();
+    renderHistory();
+  </script>
+</body>
+</html>

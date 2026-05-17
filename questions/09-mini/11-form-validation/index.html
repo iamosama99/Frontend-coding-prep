@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Form Validation</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: system-ui, sans-serif;
+      background: #f0f2f5;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem;
+    }
+
+    .card {
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 4px 24px rgba(0,0,0,.08);
+      padding: 2.5rem;
+      width: 100%;
+      max-width: 480px;
+    }
+
+    h1 { font-size: 1.5rem; margin-bottom: 1.75rem; color: #1a1a2e; }
+
+    .field { margin-bottom: 1.25rem; }
+
+    label {
+      display: block;
+      font-size: .875rem;
+      font-weight: 600;
+      color: #374151;
+      margin-bottom: .4rem;
+    }
+
+    input {
+      width: 100%;
+      padding: .65rem .9rem;
+      border: 2px solid #d1d5db;
+      border-radius: 8px;
+      font-size: 1rem;
+      transition: border-color .2s;
+      outline: none;
+    }
+
+    input:focus { border-color: #6366f1; }
+    input.invalid { border-color: #ef4444; }
+    input.valid   { border-color: #22c55e; }
+
+    .error-msg {
+      font-size: .78rem;
+      color: #ef4444;
+      margin-top: .3rem;
+      min-height: 1rem;
+    }
+
+    button[type="submit"] {
+      width: 100%;
+      padding: .75rem;
+      background: #6366f1;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background .2s, opacity .2s;
+      margin-top: .5rem;
+    }
+
+    button[type="submit"]:disabled {
+      opacity: .5;
+      cursor: not-allowed;
+    }
+
+    button[type="submit"]:not(:disabled):hover { background: #4f46e5; }
+
+    .success {
+      display: none;
+      background: #dcfce7;
+      color: #166534;
+      border-radius: 8px;
+      padding: .9rem 1rem;
+      margin-top: 1rem;
+      font-weight: 600;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>Create Account</h1>
+
+    <form id="regForm" novalidate>
+      <div class="field">
+        <label for="name">Full Name</label>
+        <input type="text" id="name" placeholder="Jane Doe" autocomplete="name" />
+        <p class="error-msg" id="nameError"></p>
+      </div>
+
+      <div class="field">
+        <label for="email">Email</label>
+        <input type="email" id="email" placeholder="jane@example.com" autocomplete="email" />
+        <p class="error-msg" id="emailError"></p>
+      </div>
+
+      <div class="field">
+        <label for="password">Password</label>
+        <input type="password" id="password" placeholder="Min 8 characters" autocomplete="new-password" />
+        <p class="error-msg" id="passwordError"></p>
+      </div>
+
+      <div class="field">
+        <label for="confirm">Confirm Password</label>
+        <input type="password" id="confirm" placeholder="Repeat password" autocomplete="new-password" />
+        <p class="error-msg" id="confirmError"></p>
+      </div>
+
+      <div class="field">
+        <label for="age">Age</label>
+        <input type="number" id="age" placeholder="18–120" min="18" max="120" />
+        <p class="error-msg" id="ageError"></p>
+      </div>
+
+      <button type="submit" id="submitBtn" disabled>Create Account</button>
+    </form>
+
+    <div class="success" id="successMsg">Account created successfully!</div>
+  </div>
+
+  <script>
+    // ─── Validation rules ───────────────────────────────────────────────────────
+    // TODO: implement validateName(value)
+    //   - Trim whitespace
+    //   - Return an error string if: empty, or length < 2
+    //   - Return '' (empty string) when valid
+    function validateName(value) {
+      throw new Error('TODO: implement validateName');
+    }
+
+    // TODO: implement validateEmail(value)
+    //   - Trim whitespace
+    //   - Return error string if empty or doesn't match a basic email regex
+    //   - Hint: /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+    function validateEmail(value) {
+      throw new Error('TODO: implement validateEmail');
+    }
+
+    // TODO: implement validatePassword(value)
+    //   - Return error string if empty or length < 8
+    function validatePassword(value) {
+      throw new Error('TODO: implement validatePassword');
+    }
+
+    // TODO: implement validateConfirm(value, passwordValue)
+    //   - Return error string if empty or value !== passwordValue
+    function validateConfirm(value, passwordValue) {
+      throw new Error('TODO: implement validateConfirm');
+    }
+
+    // TODO: implement validateAge(value)
+    //   - Return error string if empty, not a number, or outside 18–120
+    function validateAge(value) {
+      throw new Error('TODO: implement validateAge');
+    }
+
+    // ─── DOM helpers ────────────────────────────────────────────────────────────
+    // TODO: implement showError(inputEl, errorEl, message)
+    //   - If message is non-empty: add class 'invalid', remove 'valid', set errorEl.textContent
+    //   - If message is empty: add class 'valid', remove 'invalid', clear errorEl.textContent
+    function showError(inputEl, errorEl, message) {
+      throw new Error('TODO: implement showError');
+    }
+
+    // TODO: implement updateSubmitButton()
+    //   - Check that all 5 inputs have class 'valid'
+    //   - Enable submitBtn if all valid, disable otherwise
+    function updateSubmitButton() {
+      throw new Error('TODO: implement updateSubmitButton');
+    }
+
+    // ─── Event listeners ────────────────────────────────────────────────────────
+    // TODO: add a 'blur' event listener on #name
+    //   - Call validateName, then showError, then updateSubmitButton
+
+    // TODO: add a 'blur' event listener on #email
+
+    // TODO: add a 'blur' event listener on #password
+    //   - Also re-validate confirm if it has already been touched (has 'valid' or 'invalid' class)
+
+    // TODO: add a 'blur' event listener on #confirm
+
+    // TODO: add a 'blur' event listener on #age
+
+    // ─── Form submit ─────────────────────────────────────────────────────────────
+    // TODO: add a 'submit' event listener on #regForm
+    //   - Prevent default
+    //   - Run all validations (show errors for untouched fields too)
+    //   - If any errors: focus first invalid field and return
+    //   - Disable submitBtn, change text to 'Creating…'
+    //   - After 1 second fake delay: show #successMsg, reset form, re-disable button
+    //   - Hide #successMsg after 3 more seconds
+  </script>
+</body>
+</html>

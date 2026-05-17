@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Infinite Photo Feed</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: system-ui, sans-serif;
+      background: #0f172a;
+      color: #f1f5f9;
+      padding: 2rem 1rem;
+    }
+
+    h1 { text-align: center; font-size: 1.8rem; margin-bottom: 0.4rem; }
+    .subtitle { text-align: center; color: #94a3b8; margin-bottom: 2rem; }
+
+    /* Masonry grid using CSS columns */
+    .photo-grid {
+      columns: 3;
+      column-gap: 1rem;
+      max-width: 1100px;
+      margin: 0 auto 1.5rem;
+    }
+
+    /* Each photo item breaks cleanly between columns */
+    .photo-item {
+      break-inside: avoid;
+      margin-bottom: 1rem;
+      position: relative;
+      border-radius: 10px;
+      overflow: hidden;
+      cursor: pointer;
+    }
+
+    .photo-item img {
+      width: 100%;
+      display: block;
+      border-radius: 10px;
+      transition: transform 0.3s;
+    }
+    .photo-item:hover img { transform: scale(1.03); }
+
+    /* Caption overlay shown on hover */
+    .photo-caption {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: linear-gradient(transparent, rgba(0,0,0,0.7));
+      color: #fff;
+      padding: 1rem 0.75rem 0.5rem;
+      font-size: 0.85rem;
+      opacity: 0;
+      transition: opacity 0.25s;
+      border-radius: 0 0 10px 10px;
+    }
+    .photo-item:hover .photo-caption { opacity: 1; }
+
+    /* Loading spinner */
+    .spinner-container {
+      text-align: center;
+      padding: 1.5rem;
+    }
+    .spinner-container.hidden { display: none; }
+
+    .spinner {
+      width: 36px;
+      height: 36px;
+      border: 4px solid #334155;
+      border-top-color: #6366f1;
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      display: inline-block;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* Sentinel div (invisible, triggers IntersectionObserver) */
+    #sentinel {
+      height: 1px;
+      margin-top: 1rem;
+    }
+
+    /* End message */
+    .end-message {
+      text-align: center;
+      color: #475569;
+      padding: 2rem;
+      display: none;
+    }
+    .end-message.visible { display: block; }
+
+    @media (max-width: 700px) {
+      .photo-grid { columns: 2; }
+    }
+    @media (max-width: 480px) {
+      .photo-grid { columns: 1; }
+    }
+  </style>
+</head>
+<body>
+  <h1>Infinite Photo Feed 📷</h1>
+  <p class="subtitle">Scroll down to load more photos</p>
+
+  <!-- Photo grid -->
+  <div class="photo-grid" id="photo-grid"></div>
+
+  <!-- Spinner shown while loading -->
+  <div class="spinner-container" id="spinner">
+    <div class="spinner"></div>
+  </div>
+
+  <!-- End-of-feed message -->
+  <div class="end-message" id="end-message">You've reached the end — 120 photos loaded!</div>
+
+  <!-- Sentinel: IntersectionObserver watches this element -->
+  <div id="sentinel"></div>
+
+  <script>
+    const BATCH_SIZE  = 12;
+    const MAX_PHOTOS  = 120;
+    const DELAY_MS    = 800;
+
+    // ─── State ───────────────────────────────────────────────
+    let nextSeed   = 1;   // next picsum seed to use
+    let isLoading  = false;
+    let observer   = null;
+
+    // ─── DOM refs ─────────────────────────────────────────────
+    const grid       = document.getElementById('photo-grid');
+    const spinner    = document.getElementById('spinner');
+    const sentinel   = document.getElementById('sentinel');
+    const endMessage = document.getElementById('end-message');
+
+    // ─── Build photo URL ──────────────────────────────────────
+    function photoUrl(seed) {
+      // TODO: Return "https://picsum.photos/400/300?random={seed}"
+    }
+
+    // ─── Create a photo item element ──────────────────────────
+    function createPhotoEl(seed) {
+      // TODO: Create and return a <div class="photo-item"> containing:
+      //   <img src="{photoUrl(seed)}" alt="Photo #{seed}" loading="lazy" />
+      //   <div class="photo-caption">Photo #{seed}</div>
+    }
+
+    // ─── Show/hide spinner ────────────────────────────────────
+    function showSpinner() {
+      // TODO: Remove 'hidden' class from spinner
+    }
+    function hideSpinner() {
+      // TODO: Add 'hidden' class to spinner
+    }
+
+    // ─── Load a batch of photos ───────────────────────────────
+    function loadBatch() {
+      // TODO:
+      // 1. If isLoading, return early
+      // 2. Set isLoading = true, showSpinner()
+      // 3. setTimeout(DELAY_MS, then):
+      //    a. Determine how many photos to load this batch:
+      //       count = Math.min(BATCH_SIZE, MAX_PHOTOS - (nextSeed - 1))
+      //    b. If count <= 0: hideSpinner(), show endMessage, disconnect observer, return
+      //    c. Loop count times: createPhotoEl(nextSeed) and append to grid; nextSeed++
+      //    d. hideSpinner()
+      //    e. If nextSeed > MAX_PHOTOS: show endMessage, disconnect observer
+      //    f. Set isLoading = false
+    }
+
+    // ─── Set up IntersectionObserver ─────────────────────────
+    function setupObserver() {
+      // TODO:
+      // Create an IntersectionObserver that calls loadBatch()
+      // when sentinel enters the viewport (isIntersecting === true)
+      // Options: { root: null, rootMargin: '0px', threshold: 0.1 }
+      // Observe the sentinel element
+    }
+
+    // ─── Init ─────────────────────────────────────────────────
+    hideSpinner(); // hidden until first batch triggers
+    // TODO: Call loadBatch() for the initial load
+    // TODO: Call setupObserver()
+  </script>
+</body>
+</html>

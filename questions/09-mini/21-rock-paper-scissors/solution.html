@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Rock Paper Scissors — Solution</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: system-ui, sans-serif;
+      background: #0f172a;
+      color: #f1f5f9;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 2rem 1rem;
+    }
+
+    h1 { font-size: 2rem; margin-bottom: 0.5rem; }
+    .subtitle { color: #94a3b8; margin-bottom: 2rem; }
+
+    .scoreboard {
+      display: flex;
+      gap: 1.5rem;
+      margin-bottom: 2rem;
+    }
+    .score-box {
+      background: #1e293b;
+      border-radius: 12px;
+      padding: 1rem 1.5rem;
+      text-align: center;
+      min-width: 90px;
+    }
+    .score-box .label { font-size: 0.75rem; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.05em; }
+    .score-box .value { font-size: 2rem; font-weight: 700; margin-top: 0.25rem; }
+    .score-box.player .value   { color: #34d399; }
+    .score-box.computer .value { color: #f87171; }
+    .score-box.draws .value    { color: #fbbf24; }
+
+    .choices {
+      display: flex;
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+    .choice-btn {
+      background: #1e293b;
+      border: 2px solid #334155;
+      border-radius: 16px;
+      padding: 1.25rem 1.5rem;
+      font-size: 2.5rem;
+      cursor: pointer;
+      transition: transform 0.15s, border-color 0.15s, background 0.15s;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.4rem;
+    }
+    .choice-btn span.label { font-size: 0.8rem; color: #94a3b8; }
+    .choice-btn:hover { transform: scale(1.08); border-color: #6366f1; background: #1e3a5f; }
+    .choice-btn:active { transform: scale(0.96); }
+
+    .result-area {
+      background: #1e293b;
+      border-radius: 16px;
+      padding: 1.5rem 2rem;
+      text-align: center;
+      min-width: 320px;
+      margin-bottom: 1.5rem;
+      min-height: 130px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+    .result-area.hidden { visibility: hidden; }
+
+    .matchup {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      font-size: 2.5rem;
+      margin-bottom: 0.75rem;
+    }
+    .matchup .vs { font-size: 1rem; color: #64748b; }
+
+    .result-label {
+      font-size: 1.4rem;
+      font-weight: 700;
+    }
+    .result-label.win  { color: #34d399; }
+    .result-label.lose { color: #f87171; }
+    .result-label.draw { color: #fbbf24; }
+
+    .result-msg { color: #94a3b8; font-size: 0.9rem; margin-top: 0.25rem; }
+
+    @keyframes pop-in {
+      0%   { opacity: 0; transform: scale(0.8); }
+      60%  { transform: scale(1.05); }
+      100% { opacity: 1; transform: scale(1); }
+    }
+    .result-area.animate { animation: pop-in 0.35s ease forwards; }
+
+    .history-section { width: 100%; max-width: 360px; margin-bottom: 1.5rem; }
+    .history-section h3 { font-size: 0.85rem; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.5rem; }
+    #history-list { list-style: none; display: flex; flex-direction: column; gap: 0.4rem; }
+    #history-list li {
+      background: #1e293b;
+      border-radius: 8px;
+      padding: 0.5rem 0.75rem;
+      font-size: 0.88rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    #history-list li .outcome { font-weight: 600; }
+    #history-list li .outcome.win  { color: #34d399; }
+    #history-list li .outcome.lose { color: #f87171; }
+    #history-list li .outcome.draw { color: #fbbf24; }
+
+    .legend {
+      background: #1e293b;
+      border-radius: 12px;
+      padding: 0.75rem 1.25rem;
+      font-size: 0.82rem;
+      color: #94a3b8;
+      display: flex;
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .btn-reset {
+      background: #334155;
+      color: #f1f5f9;
+      border: none;
+      border-radius: 8px;
+      padding: 0.6rem 1.4rem;
+      cursor: pointer;
+      font-size: 0.9rem;
+      transition: background 0.15s;
+    }
+    .btn-reset:hover { background: #475569; }
+  </style>
+</head>
+<body>
+  <h1>Rock Paper Scissors ✂️</h1>
+  <p class="subtitle">Pick your move!</p>
+
+  <div class="scoreboard">
+    <div class="score-box player">
+      <div class="label">You</div>
+      <div class="value" id="score-player">0</div>
+    </div>
+    <div class="score-box draws">
+      <div class="label">Draws</div>
+      <div class="value" id="score-draws">0</div>
+    </div>
+    <div class="score-box computer">
+      <div class="label">CPU</div>
+      <div class="value" id="score-computer">0</div>
+    </div>
+  </div>
+
+  <div class="choices">
+    <button class="choice-btn" data-choice="rock">🪨<span class="label">Rock</span></button>
+    <button class="choice-btn" data-choice="paper">📄<span class="label">Paper</span></button>
+    <button class="choice-btn" data-choice="scissors">✂️<span class="label">Scissors</span></button>
+  </div>
+
+  <div class="result-area hidden" id="result-area">
+    <div class="matchup" id="matchup"></div>
+    <div class="result-label" id="result-label"></div>
+    <div class="result-msg" id="result-msg"></div>
+  </div>
+
+  <div class="legend">
+    <span>🪨 beats ✂️</span>
+    <span>✂️ beats 📄</span>
+    <span>📄 beats 🪨</span>
+  </div>
+
+  <div class="history-section">
+    <h3>Last 5 Rounds</h3>
+    <ul id="history-list"></ul>
+  </div>
+
+  <button class="btn-reset" id="btn-reset">Reset Score</button>
+
+  <script>
+    const EMOJIS = { rock: '🪨', paper: '📄', scissors: '✂️' };
+    const CHOICES = ['rock', 'paper', 'scissors'];
+    // Wins matrix: wins[x] beats wins[y]
+    const BEATS = { rock: 'scissors', scissors: 'paper', paper: 'rock' };
+
+    const state = {
+      scores: { player: 0, computer: 0, draws: 0 },
+      history: [],
+    };
+
+    const scorePlayerEl   = document.getElementById('score-player');
+    const scoreDrawsEl    = document.getElementById('score-draws');
+    const scoreComputerEl = document.getElementById('score-computer');
+    const resultArea      = document.getElementById('result-area');
+    const matchupEl       = document.getElementById('matchup');
+    const resultLabelEl   = document.getElementById('result-label');
+    const resultMsgEl     = document.getElementById('result-msg');
+    const historyList     = document.getElementById('history-list');
+    const btnReset        = document.getElementById('btn-reset');
+
+    function getComputerChoice() {
+      return CHOICES[Math.floor(Math.random() * CHOICES.length)];
+    }
+
+    function getOutcome(player, computer) {
+      if (player === computer) return 'draw';
+      return BEATS[player] === computer ? 'win' : 'lose';
+    }
+
+    function capitalise(s) {
+      return s.charAt(0).toUpperCase() + s.slice(1);
+    }
+
+    function getResultMessage(outcome, player, computer) {
+      if (outcome === 'draw') return `Both picked ${capitalise(player)} — it's a draw!`;
+      if (outcome === 'win')  return `Your ${capitalise(player)} beats Computer's ${capitalise(computer)}!`;
+      return `Computer's ${capitalise(computer)} beats your ${capitalise(player)}!`;
+    }
+
+    function renderScores() {
+      scorePlayerEl.textContent   = state.scores.player;
+      scoreDrawsEl.textContent    = state.scores.draws;
+      scoreComputerEl.textContent = state.scores.computer;
+    }
+
+    function renderResult(player, computer, outcome) {
+      matchupEl.innerHTML = `${EMOJIS[player]} <span class="vs">vs</span> ${EMOJIS[computer]}`;
+
+      resultLabelEl.className = 'result-label ' + outcome;
+      resultLabelEl.textContent = outcome === 'win' ? 'You Win!' : outcome === 'lose' ? 'You Lose!' : 'Draw!';
+
+      resultMsgEl.textContent = getResultMessage(outcome, player, computer);
+
+      resultArea.classList.remove('hidden');
+      // Trigger animation by removing then re-adding the class
+      resultArea.classList.remove('animate');
+      void resultArea.offsetWidth; // force reflow
+      resultArea.classList.add('animate');
+    }
+
+    function renderHistory() {
+      historyList.innerHTML = '';
+      const recent = [...state.history].reverse().slice(0, 5);
+      recent.forEach(({ player, computer, outcome }) => {
+        const li = document.createElement('li');
+        const outcomeText = outcome === 'win' ? 'Win' : outcome === 'lose' ? 'Lose' : 'Draw';
+        li.innerHTML = `
+          <span>${EMOJIS[player]} vs ${EMOJIS[computer]}</span>
+          <span class="outcome ${outcome}">${outcomeText}</span>
+        `;
+        historyList.appendChild(li);
+      });
+    }
+
+    function play(playerChoice) {
+      const computer = getComputerChoice();
+      const outcome  = getOutcome(playerChoice, computer);
+
+      if (outcome === 'win')  state.scores.player++;
+      else if (outcome === 'lose') state.scores.computer++;
+      else state.scores.draws++;
+
+      state.history.push({ player: playerChoice, computer, outcome });
+      if (state.history.length > 5) state.history.shift();
+
+      renderScores();
+      renderResult(playerChoice, computer, outcome);
+      renderHistory();
+    }
+
+    function resetScore() {
+      state.scores = { player: 0, computer: 0, draws: 0 };
+      state.history = [];
+      renderScores();
+      renderHistory();
+    }
+
+    document.querySelectorAll('.choice-btn').forEach(btn => {
+      btn.addEventListener('click', () => play(btn.dataset.choice));
+    });
+
+    btnReset.addEventListener('click', resetScore);
+
+    renderScores();
+    renderHistory();
+  </script>
+</body>
+</html>

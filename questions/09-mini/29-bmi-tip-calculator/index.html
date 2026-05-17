@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>BMI + Tip Calculator</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: system-ui, sans-serif;
+      background: #0f172a;
+      color: #f1f5f9;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 2.5rem 1rem;
+    }
+
+    h1 { font-size: 1.8rem; margin-bottom: 0.4rem; }
+    .subtitle { color: #94a3b8; margin-bottom: 2rem; }
+
+    /* Tabs */
+    .tabs {
+      display: flex;
+      background: #1e293b;
+      border-radius: 12px;
+      padding: 4px;
+      margin-bottom: 1.5rem;
+      gap: 4px;
+    }
+    .tab-btn {
+      background: transparent;
+      border: none;
+      color: #64748b;
+      padding: 0.55rem 1.5rem;
+      border-radius: 9px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.15s, color 0.15s;
+    }
+    .tab-btn.active { background: #6366f1; color: #fff; }
+
+    /* Card */
+    .card {
+      background: #1e293b;
+      border-radius: 16px;
+      padding: 1.75rem;
+      width: 100%;
+      max-width: 440px;
+    }
+
+    /* Tab panels */
+    .tab-panel { display: none; }
+    .tab-panel.active { display: block; }
+
+    /* Form elements */
+    label {
+      display: block;
+      font-size: 0.82rem;
+      color: #94a3b8;
+      margin-bottom: 0.35rem;
+      margin-top: 0.85rem;
+    }
+    label:first-of-type { margin-top: 0; }
+
+    input[type="number"] {
+      width: 100%;
+      background: #0f172a;
+      border: 1.5px solid #334155;
+      border-radius: 8px;
+      color: #f1f5f9;
+      padding: 0.65rem 0.9rem;
+      font-size: 0.95rem;
+      outline: none;
+      transition: border-color 0.15s;
+      -moz-appearance: textfield;
+    }
+    input[type="number"]::-webkit-inner-spin-button,
+    input[type="number"]::-webkit-outer-spin-button { -webkit-appearance: none; }
+    input[type="number"]:focus { border-color: #6366f1; }
+    input[type="number"].error { border-color: #f87171; }
+
+    /* Unit toggle */
+    .unit-toggle {
+      display: flex;
+      gap: 4px;
+      background: #0f172a;
+      border-radius: 8px;
+      padding: 3px;
+      margin-bottom: 1rem;
+    }
+    .unit-btn {
+      flex: 1;
+      background: transparent;
+      border: none;
+      color: #64748b;
+      padding: 0.45rem;
+      border-radius: 6px;
+      font-size: 0.85rem;
+      cursor: pointer;
+      transition: background 0.15s, color 0.15s;
+    }
+    .unit-btn.active { background: #334155; color: #f1f5f9; }
+
+    /* Inline heights (ft + in) */
+    .height-imperial { display: none; gap: 0.5rem; }
+    .height-imperial.visible { display: flex; }
+    .height-imperial input { flex: 1; }
+
+    /* Error message */
+    .error-msg { color: #f87171; font-size: 0.8rem; margin-top: 0.35rem; min-height: 1em; }
+
+    /* Calculate button */
+    .btn-calc {
+      width: 100%;
+      background: #6366f1;
+      color: #fff;
+      border: none;
+      border-radius: 10px;
+      padding: 0.75rem;
+      font-size: 1rem;
+      cursor: pointer;
+      margin-top: 1.25rem;
+      transition: background 0.15s;
+    }
+    .btn-calc:hover { background: #4f46e5; }
+
+    /* BMI Result */
+    .bmi-result {
+      display: none;
+      text-align: center;
+      margin-top: 1.25rem;
+      padding: 1rem;
+      background: #0f172a;
+      border-radius: 12px;
+    }
+    .bmi-result.visible { display: block; }
+    .bmi-value { font-size: 2.5rem; font-weight: 800; }
+    .bmi-badge {
+      display: inline-block;
+      margin-top: 0.35rem;
+      padding: 0.3rem 1rem;
+      border-radius: 999px;
+      font-size: 0.88rem;
+      font-weight: 700;
+    }
+    .bmi-badge.underweight { background: #1e3a5f; color: #60a5fa; }
+    .bmi-badge.normal      { background: #14532d; color: #4ade80; }
+    .bmi-badge.overweight  { background: #713f12; color: #fbbf24; }
+    .bmi-badge.obese       { background: #450a0a; color: #f87171; }
+
+    /* Tip quick-select */
+    .tip-presets {
+      display: flex;
+      gap: 0.4rem;
+      flex-wrap: wrap;
+      margin-top: 0.5rem;
+    }
+    .tip-preset-btn {
+      background: #334155;
+      color: #f1f5f9;
+      border: none;
+      border-radius: 6px;
+      padding: 0.35rem 0.7rem;
+      font-size: 0.82rem;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+    .tip-preset-btn:hover,
+    .tip-preset-btn.active { background: #6366f1; }
+
+    /* Tip result */
+    .tip-results {
+      margin-top: 1.25rem;
+      background: #0f172a;
+      border-radius: 12px;
+      overflow: hidden;
+    }
+    .result-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.65rem 1rem;
+      border-bottom: 1px solid #1e293b;
+    }
+    .result-row:last-child { border-bottom: none; }
+    .result-label { font-size: 0.85rem; color: #94a3b8; }
+    .result-value { font-size: 1.05rem; font-weight: 700; color: #34d399; }
+  </style>
+</head>
+<body>
+  <h1>BMI + Tip Calculator</h1>
+  <p class="subtitle">Two handy tools in one</p>
+
+  <!-- Tabs -->
+  <div class="tabs">
+    <button class="tab-btn active" data-tab="bmi">BMI</button>
+    <button class="tab-btn" data-tab="tip">Tip</button>
+  </div>
+
+  <div class="card">
+    <!-- ── BMI Tab ──────────────────────────────────────── -->
+    <div class="tab-panel active" id="tab-bmi">
+      <!-- Unit toggle -->
+      <div class="unit-toggle">
+        <button class="unit-btn active" data-unit="metric">Metric (kg / cm)</button>
+        <button class="unit-btn" data-unit="imperial">Imperial (lbs / ft)</button>
+      </div>
+
+      <!-- Metric inputs -->
+      <div id="metric-inputs">
+        <label for="weight-kg">Weight (kg)</label>
+        <input type="number" id="weight-kg" placeholder="e.g. 70" min="0" step="0.1" />
+
+        <label for="height-cm">Height (cm)</label>
+        <input type="number" id="height-cm" placeholder="e.g. 175" min="0" step="1" />
+      </div>
+
+      <!-- Imperial inputs -->
+      <div id="imperial-inputs" style="display:none">
+        <label for="weight-lbs">Weight (lbs)</label>
+        <input type="number" id="weight-lbs" placeholder="e.g. 154" min="0" step="0.1" />
+
+        <label>Height</label>
+        <div class="height-imperial visible">
+          <input type="number" id="height-ft" placeholder="ft" min="0" step="1" />
+          <input type="number" id="height-in" placeholder="in" min="0" max="11" step="0.1" />
+        </div>
+      </div>
+
+      <div class="error-msg" id="bmi-error"></div>
+
+      <button class="btn-calc" id="btn-calc-bmi">Calculate BMI</button>
+
+      <!-- BMI Result -->
+      <div class="bmi-result" id="bmi-result">
+        <div class="bmi-value" id="bmi-value">—</div>
+        <div class="bmi-badge" id="bmi-badge">—</div>
+      </div>
+    </div>
+
+    <!-- ── Tip Tab ──────────────────────────────────────── -->
+    <div class="tab-panel" id="tab-tip">
+      <label for="bill-amount">Bill Amount ($)</label>
+      <input type="number" id="bill-amount" placeholder="e.g. 45.00" min="0" step="0.01" />
+
+      <label for="tip-pct">Tip Percentage</label>
+      <input type="number" id="tip-pct" placeholder="e.g. 18" min="0" step="1" />
+      <div class="tip-presets">
+        <button class="tip-preset-btn" data-tip="10">10%</button>
+        <button class="tip-preset-btn" data-tip="15">15%</button>
+        <button class="tip-preset-btn" data-tip="18">18%</button>
+        <button class="tip-preset-btn active" data-tip="20">20%</button>
+        <button class="tip-preset-btn" data-tip="25">25%</button>
+      </div>
+
+      <label for="num-people">Number of People</label>
+      <input type="number" id="num-people" value="1" min="1" step="1" />
+
+      <!-- Tip results (live) -->
+      <div class="tip-results">
+        <div class="result-row">
+          <span class="result-label">Tip Amount</span>
+          <span class="result-value" id="tip-amount">$0.00</span>
+        </div>
+        <div class="result-row">
+          <span class="result-label">Total Bill</span>
+          <span class="result-value" id="total-bill">$0.00</span>
+        </div>
+        <div class="result-row">
+          <span class="result-label">Per Person</span>
+          <span class="result-value" id="per-person">$0.00</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ═══════════════════════════════════════════════════════
+    //  TABS
+    // ═══════════════════════════════════════════════════════
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        // TODO: Switch active tab
+        // Remove 'active' from all tab-btn elements, add to clicked one
+        // Hide all tab-panel elements, show the one with matching id ("tab-{data-tab}")
+      });
+    });
+
+    // ═══════════════════════════════════════════════════════
+    //  BMI CALCULATOR
+    // ═══════════════════════════════════════════════════════
+    let currentUnit = 'metric';
+
+    // ─── Unit toggle ──────────────────────────────────────
+    document.querySelectorAll('.unit-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        // TODO:
+        // 1. Update .active class on unit buttons
+        // 2. Set currentUnit to btn.dataset.unit
+        // 3. Show/hide metric-inputs vs imperial-inputs
+        // 4. Clear and hide bmi-result, clear bmi-error
+      });
+    });
+
+    // ─── Calculate BMI ────────────────────────────────────
+    function calcBMI() {
+      // TODO:
+      // 1. Clear previous error and result
+      // 2. Read inputs based on currentUnit
+      //    Metric:   weightKg, heightM = heightCm / 100
+      //    Imperial: weightKg = lbs * 0.453592
+      //              heightM  = (ft * 12 + in) * 0.0254
+      // 3. Validate: all values must be positive numbers, heightM > 0
+      //    Show error and return if invalid
+      // 4. Calculate BMI = weightKg / (heightM * heightM)
+      // 5. Determine category:
+      //    bmi < 18.5        → 'Underweight' (class: underweight)
+      //    bmi < 25          → 'Normal'       (class: normal)
+      //    bmi < 30          → 'Overweight'   (class: overweight)
+      //    else              → 'Obese'        (class: obese)
+      // 6. Show bmi-result: set bmi-value to bmi.toFixed(1)
+      //    Set bmi-badge text and class
+    }
+
+    document.getElementById('btn-calc-bmi').addEventListener('click', calcBMI);
+
+    // ═══════════════════════════════════════════════════════
+    //  TIP CALCULATOR
+    // ═══════════════════════════════════════════════════════
+
+    // ─── Quick-select tip buttons ─────────────────────────
+    document.querySelectorAll('.tip-preset-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        // TODO:
+        // 1. Update .active class on preset buttons
+        // 2. Set tip-pct input value to btn.dataset.tip
+        // 3. Call calcTip()
+      });
+    });
+
+    // ─── Calculate tip (live) ─────────────────────────────
+    function calcTip() {
+      // TODO:
+      // 1. Read bill, tipPct (as decimal), and people from inputs
+      // 2. Validate: bill >= 0, tipPct >= 0, people >= 1
+      //    If invalid show zeros or silently skip
+      // 3. tipAmount = bill * (tipPct / 100)
+      // 4. totalBill = bill + tipAmount
+      // 5. perPerson = totalBill / people
+      // 6. Update tip-amount, total-bill, per-person display
+      //    Format as "$X.XX" with toFixed(2)
+    }
+
+    document.getElementById('bill-amount').addEventListener('input', calcTip);
+    document.getElementById('tip-pct').addEventListener('input', () => {
+      // Clear active preset buttons when user types manually
+      document.querySelectorAll('.tip-preset-btn').forEach(b => b.classList.remove('active'));
+      calcTip();
+    });
+    document.getElementById('num-people').addEventListener('input', calcTip);
+
+    // ─── Init ─────────────────────────────────────────────
+    // Set default tip % to 20 and calculate
+    document.getElementById('tip-pct').value = 20;
+    calcTip();
+  </script>
+</body>
+</html>

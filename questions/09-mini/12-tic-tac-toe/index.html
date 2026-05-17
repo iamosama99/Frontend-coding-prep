@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Tic-Tac-Toe</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: system-ui, sans-serif;
+      background: #0f172a;
+      color: #e2e8f0;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 1.5rem;
+      padding: 2rem;
+    }
+
+    h1 { font-size: 2rem; letter-spacing: .05em; }
+
+    #status {
+      font-size: 1.25rem;
+      font-weight: 600;
+      min-height: 2rem;
+      color: #94a3b8;
+    }
+
+    #board {
+      display: grid;
+      grid-template-columns: repeat(3, 100px);
+      grid-template-rows: repeat(3, 100px);
+      gap: 8px;
+    }
+
+    .cell {
+      background: #1e293b;
+      border-radius: 10px;
+      font-size: 2.5rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: background .15s;
+      user-select: none;
+    }
+
+    .cell:hover:empty { background: #334155; }
+    .cell[data-player="X"] { color: #f472b6; }
+    .cell[data-player="O"] { color: #38bdf8; }
+    .cell.winner { background: #164e63; }
+
+    .scores {
+      display: flex;
+      gap: 2rem;
+      font-size: .9rem;
+      color: #94a3b8;
+    }
+
+    .score-box { text-align: center; }
+    .score-box .label { font-size: .75rem; text-transform: uppercase; letter-spacing: .08em; }
+    .score-box .value { font-size: 1.75rem; font-weight: 700; color: #e2e8f0; }
+
+    .buttons { display: flex; gap: 1rem; }
+
+    button {
+      padding: .55rem 1.4rem;
+      border: none;
+      border-radius: 8px;
+      font-size: .9rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: opacity .2s;
+    }
+
+    button:hover { opacity: .85; }
+
+    #resetBtn      { background: #6366f1; color: #fff; }
+    #resetScoreBtn { background: #334155; color: #e2e8f0; }
+  </style>
+</head>
+<body>
+  <h1>Tic-Tac-Toe</h1>
+
+  <p id="status">X's turn</p>
+
+  <div id="board">
+    <div class="cell" data-index="0"></div>
+    <div class="cell" data-index="1"></div>
+    <div class="cell" data-index="2"></div>
+    <div class="cell" data-index="3"></div>
+    <div class="cell" data-index="4"></div>
+    <div class="cell" data-index="5"></div>
+    <div class="cell" data-index="6"></div>
+    <div class="cell" data-index="7"></div>
+    <div class="cell" data-index="8"></div>
+  </div>
+
+  <div class="scores">
+    <div class="score-box">
+      <div class="label">X Wins</div>
+      <div class="value" id="scoreX">0</div>
+    </div>
+    <div class="score-box">
+      <div class="label">Draws</div>
+      <div class="value" id="scoreD">0</div>
+    </div>
+    <div class="score-box">
+      <div class="label">O Wins</div>
+      <div class="value" id="scoreO">0</div>
+    </div>
+  </div>
+
+  <div class="buttons">
+    <button id="resetBtn">New Game</button>
+    <button id="resetScoreBtn">Reset Score</button>
+  </div>
+
+  <script>
+    // ─── State ───────────────────────────────────────────────────────────────────
+    // TODO: declare the following state variables
+    //   - board: array of 9 strings ('' | 'X' | 'O')
+    //   - currentPlayer: 'X' or 'O'
+    //   - gameOver: boolean
+    //   - scores: { X: 0, O: 0, D: 0 }
+
+    const WIN_LINES = [
+      [0,1,2],[3,4,5],[6,7,8], // rows
+      [0,3,6],[1,4,7],[2,5,8], // cols
+      [0,4,8],[2,4,6],         // diagonals
+    ];
+
+    // ─── checkWinner ─────────────────────────────────────────────────────────────
+    // TODO: implement checkWinner(board)
+    //   - Iterate WIN_LINES
+    //   - If all three cells in a line contain the same non-empty player, return
+    //     { winner: 'X'|'O', line: [i,j,k] }
+    //   - Otherwise return null
+    function checkWinner(board) {
+      throw new Error('TODO: implement checkWinner');
+    }
+
+    // ─── render ───────────────────────────────────────────────────────────────────
+    // TODO: implement render()
+    //   - For each cell element: set textContent from board[], set data-player attribute
+    //   - Update #status text based on gameOver / currentPlayer
+    //   - Update score display
+    //   - Highlight winner cells if applicable (add class 'winner')
+    function render() {
+      throw new Error('TODO: implement render');
+    }
+
+    // ─── handleClick ─────────────────────────────────────────────────────────────
+    // TODO: implement handleClick(index)
+    //   - Return early if gameOver or cell already filled
+    //   - Place currentPlayer mark on board[index]
+    //   - Call checkWinner; if winner: update scores, set gameOver, update status
+    //   - Else if board is full: it's a draw — update scores, set gameOver
+    //   - Else: switch currentPlayer
+    //   - Call render()
+    function handleClick(index) {
+      throw new Error('TODO: implement handleClick');
+    }
+
+    // ─── resetGame ───────────────────────────────────────────────────────────────
+    // TODO: implement resetGame()
+    //   - Reset board to 9 empty strings
+    //   - Reset currentPlayer to 'X', gameOver to false
+    //   - Call render()
+    function resetGame() {
+      throw new Error('TODO: implement resetGame');
+    }
+
+    // ─── resetScore ──────────────────────────────────────────────────────────────
+    // TODO: implement resetScore()
+    //   - Reset scores.X, scores.O, scores.D to 0
+    //   - Call render() to update the display
+    function resetScore() {
+      throw new Error('TODO: implement resetScore');
+    }
+
+    // ─── Wire up events ───────────────────────────────────────────────────────────
+    // TODO: add click listeners on each .cell (use data-index to get the index)
+    // TODO: wire #resetBtn to resetGame
+    // TODO: wire #resetScoreBtn to resetScore
+
+    // TODO: call resetGame() to initialise
+  </script>
+</body>
+</html>

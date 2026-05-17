@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>BMI + Tip Calculator — Solution</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: system-ui, sans-serif;
+      background: #0f172a;
+      color: #f1f5f9;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 2.5rem 1rem;
+    }
+
+    h1 { font-size: 1.8rem; margin-bottom: 0.4rem; }
+    .subtitle { color: #94a3b8; margin-bottom: 2rem; }
+
+    .tabs { display: flex; background: #1e293b; border-radius: 12px; padding: 4px; margin-bottom: 1.5rem; gap: 4px; }
+    .tab-btn {
+      background: transparent;
+      border: none;
+      color: #64748b;
+      padding: 0.55rem 1.5rem;
+      border-radius: 9px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.15s, color 0.15s;
+    }
+    .tab-btn.active { background: #6366f1; color: #fff; }
+
+    .card { background: #1e293b; border-radius: 16px; padding: 1.75rem; width: 100%; max-width: 440px; }
+    .tab-panel { display: none; }
+    .tab-panel.active { display: block; }
+
+    label { display: block; font-size: 0.82rem; color: #94a3b8; margin-bottom: 0.35rem; margin-top: 0.85rem; }
+    label:first-of-type { margin-top: 0; }
+
+    input[type="number"] {
+      width: 100%;
+      background: #0f172a;
+      border: 1.5px solid #334155;
+      border-radius: 8px;
+      color: #f1f5f9;
+      padding: 0.65rem 0.9rem;
+      font-size: 0.95rem;
+      outline: none;
+      transition: border-color 0.15s;
+      -moz-appearance: textfield;
+    }
+    input[type="number"]::-webkit-inner-spin-button,
+    input[type="number"]::-webkit-outer-spin-button { -webkit-appearance: none; }
+    input[type="number"]:focus { border-color: #6366f1; }
+
+    .unit-toggle { display: flex; gap: 4px; background: #0f172a; border-radius: 8px; padding: 3px; margin-bottom: 1rem; }
+    .unit-btn {
+      flex: 1;
+      background: transparent;
+      border: none;
+      color: #64748b;
+      padding: 0.45rem;
+      border-radius: 6px;
+      font-size: 0.85rem;
+      cursor: pointer;
+      transition: background 0.15s, color 0.15s;
+    }
+    .unit-btn.active { background: #334155; color: #f1f5f9; }
+
+    .height-imperial { display: none; gap: 0.5rem; }
+    .height-imperial.visible { display: flex; }
+    .height-imperial input { flex: 1; }
+
+    .error-msg { color: #f87171; font-size: 0.8rem; margin-top: 0.35rem; min-height: 1em; }
+
+    .btn-calc {
+      width: 100%;
+      background: #6366f1;
+      color: #fff;
+      border: none;
+      border-radius: 10px;
+      padding: 0.75rem;
+      font-size: 1rem;
+      cursor: pointer;
+      margin-top: 1.25rem;
+      transition: background 0.15s;
+    }
+    .btn-calc:hover { background: #4f46e5; }
+
+    .bmi-result { display: none; text-align: center; margin-top: 1.25rem; padding: 1rem; background: #0f172a; border-radius: 12px; }
+    .bmi-result.visible { display: block; }
+    .bmi-value { font-size: 2.5rem; font-weight: 800; }
+    .bmi-badge { display: inline-block; margin-top: 0.35rem; padding: 0.3rem 1rem; border-radius: 999px; font-size: 0.88rem; font-weight: 700; }
+    .bmi-badge.underweight { background: #1e3a5f; color: #60a5fa; }
+    .bmi-badge.normal      { background: #14532d; color: #4ade80; }
+    .bmi-badge.overweight  { background: #713f12; color: #fbbf24; }
+    .bmi-badge.obese       { background: #450a0a; color: #f87171; }
+
+    .tip-presets { display: flex; gap: 0.4rem; flex-wrap: wrap; margin-top: 0.5rem; }
+    .tip-preset-btn {
+      background: #334155;
+      color: #f1f5f9;
+      border: none;
+      border-radius: 6px;
+      padding: 0.35rem 0.7rem;
+      font-size: 0.82rem;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+    .tip-preset-btn:hover, .tip-preset-btn.active { background: #6366f1; }
+
+    .tip-results { margin-top: 1.25rem; background: #0f172a; border-radius: 12px; overflow: hidden; }
+    .result-row { display: flex; justify-content: space-between; align-items: center; padding: 0.65rem 1rem; border-bottom: 1px solid #1e293b; }
+    .result-row:last-child { border-bottom: none; }
+    .result-label { font-size: 0.85rem; color: #94a3b8; }
+    .result-value { font-size: 1.05rem; font-weight: 700; color: #34d399; }
+  </style>
+</head>
+<body>
+  <h1>BMI + Tip Calculator</h1>
+  <p class="subtitle">Two handy tools in one</p>
+
+  <div class="tabs">
+    <button class="tab-btn active" data-tab="bmi">BMI</button>
+    <button class="tab-btn" data-tab="tip">Tip</button>
+  </div>
+
+  <div class="card">
+    <!-- BMI Tab -->
+    <div class="tab-panel active" id="tab-bmi">
+      <div class="unit-toggle">
+        <button class="unit-btn active" data-unit="metric">Metric (kg / cm)</button>
+        <button class="unit-btn" data-unit="imperial">Imperial (lbs / ft)</button>
+      </div>
+
+      <div id="metric-inputs">
+        <label for="weight-kg">Weight (kg)</label>
+        <input type="number" id="weight-kg" placeholder="e.g. 70" min="0" step="0.1" />
+        <label for="height-cm">Height (cm)</label>
+        <input type="number" id="height-cm" placeholder="e.g. 175" min="0" step="1" />
+      </div>
+
+      <div id="imperial-inputs" style="display:none">
+        <label for="weight-lbs">Weight (lbs)</label>
+        <input type="number" id="weight-lbs" placeholder="e.g. 154" min="0" step="0.1" />
+        <label>Height</label>
+        <div class="height-imperial visible">
+          <input type="number" id="height-ft" placeholder="ft" min="0" step="1" />
+          <input type="number" id="height-in" placeholder="in" min="0" max="11" step="0.1" />
+        </div>
+      </div>
+
+      <div class="error-msg" id="bmi-error"></div>
+      <button class="btn-calc" id="btn-calc-bmi">Calculate BMI</button>
+      <div class="bmi-result" id="bmi-result">
+        <div class="bmi-value" id="bmi-value">—</div>
+        <div class="bmi-badge" id="bmi-badge">—</div>
+      </div>
+    </div>
+
+    <!-- Tip Tab -->
+    <div class="tab-panel" id="tab-tip">
+      <label for="bill-amount">Bill Amount ($)</label>
+      <input type="number" id="bill-amount" placeholder="e.g. 45.00" min="0" step="0.01" />
+
+      <label for="tip-pct">Tip Percentage</label>
+      <input type="number" id="tip-pct" placeholder="e.g. 18" min="0" step="1" />
+      <div class="tip-presets">
+        <button class="tip-preset-btn" data-tip="10">10%</button>
+        <button class="tip-preset-btn" data-tip="15">15%</button>
+        <button class="tip-preset-btn" data-tip="18">18%</button>
+        <button class="tip-preset-btn active" data-tip="20">20%</button>
+        <button class="tip-preset-btn" data-tip="25">25%</button>
+      </div>
+
+      <label for="num-people">Number of People</label>
+      <input type="number" id="num-people" value="1" min="1" step="1" />
+
+      <div class="tip-results">
+        <div class="result-row">
+          <span class="result-label">Tip Amount</span>
+          <span class="result-value" id="tip-amount">$0.00</span>
+        </div>
+        <div class="result-row">
+          <span class="result-label">Total Bill</span>
+          <span class="result-value" id="total-bill">$0.00</span>
+        </div>
+        <div class="result-row">
+          <span class="result-label">Per Person</span>
+          <span class="result-value" id="per-person">$0.00</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ── Tabs ────────────────────────────────────────────────
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+        btn.classList.add('active');
+        document.getElementById(`tab-${btn.dataset.tab}`).classList.add('active');
+      });
+    });
+
+    // ── BMI ──────────────────────────────────────────────────
+    let currentUnit = 'metric';
+
+    document.querySelectorAll('.unit-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.unit-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        currentUnit = btn.dataset.unit;
+        document.getElementById('metric-inputs').style.display   = currentUnit === 'metric'   ? '' : 'none';
+        document.getElementById('imperial-inputs').style.display = currentUnit === 'imperial' ? '' : 'none';
+        document.getElementById('bmi-result').classList.remove('visible');
+        document.getElementById('bmi-error').textContent = '';
+      });
+    });
+
+    function calcBMI() {
+      const errorEl  = document.getElementById('bmi-error');
+      const resultEl = document.getElementById('bmi-result');
+      errorEl.textContent = '';
+      resultEl.classList.remove('visible');
+
+      let weightKg, heightM;
+
+      if (currentUnit === 'metric') {
+        const wRaw = parseFloat(document.getElementById('weight-kg').value);
+        const hRaw = parseFloat(document.getElementById('height-cm').value);
+        if (!wRaw || wRaw <= 0 || !hRaw || hRaw <= 0) {
+          errorEl.textContent = 'Please enter valid positive values.'; return;
+        }
+        weightKg = wRaw;
+        heightM  = hRaw / 100;
+      } else {
+        const lbs  = parseFloat(document.getElementById('weight-lbs').value);
+        const ft   = parseFloat(document.getElementById('height-ft').value) || 0;
+        const inch = parseFloat(document.getElementById('height-in').value) || 0;
+        if (!lbs || lbs <= 0 || (ft === 0 && inch === 0)) {
+          errorEl.textContent = 'Please enter valid positive values.'; return;
+        }
+        weightKg = lbs * 0.453592;
+        heightM  = (ft * 12 + inch) * 0.0254;
+      }
+
+      if (heightM <= 0) { errorEl.textContent = 'Height must be greater than 0.'; return; }
+
+      const bmi = weightKg / (heightM * heightM);
+
+      let category, cls;
+      if      (bmi < 18.5) { category = 'Underweight'; cls = 'underweight'; }
+      else if (bmi < 25)   { category = 'Normal';       cls = 'normal'; }
+      else if (bmi < 30)   { category = 'Overweight';   cls = 'overweight'; }
+      else                 { category = 'Obese';         cls = 'obese'; }
+
+      document.getElementById('bmi-value').textContent = bmi.toFixed(1);
+      const badge = document.getElementById('bmi-badge');
+      badge.textContent = category;
+      badge.className   = `bmi-badge ${cls}`;
+      resultEl.classList.add('visible');
+    }
+
+    document.getElementById('btn-calc-bmi').addEventListener('click', calcBMI);
+
+    // ── Tip ──────────────────────────────────────────────────
+    document.querySelectorAll('.tip-preset-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.tip-preset-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        document.getElementById('tip-pct').value = btn.dataset.tip;
+        calcTip();
+      });
+    });
+
+    function fmt(n) { return `$${n.toFixed(2)}`; }
+
+    function calcTip() {
+      const bill   = parseFloat(document.getElementById('bill-amount').value) || 0;
+      const tipPct = parseFloat(document.getElementById('tip-pct').value)    || 0;
+      const people = parseInt(document.getElementById('num-people').value,10) || 1;
+
+      if (bill < 0 || tipPct < 0 || people < 1) {
+        document.getElementById('tip-amount').textContent = '$0.00';
+        document.getElementById('total-bill').textContent = '$0.00';
+        document.getElementById('per-person').textContent = '$0.00';
+        return;
+      }
+
+      const tipAmt  = bill * (tipPct / 100);
+      const total   = bill + tipAmt;
+      const perHead = total / people;
+
+      document.getElementById('tip-amount').textContent = fmt(tipAmt);
+      document.getElementById('total-bill').textContent = fmt(total);
+      document.getElementById('per-person').textContent = fmt(perHead);
+    }
+
+    document.getElementById('bill-amount').addEventListener('input', calcTip);
+    document.getElementById('tip-pct').addEventListener('input', () => {
+      document.querySelectorAll('.tip-preset-btn').forEach(b => b.classList.remove('active'));
+      calcTip();
+    });
+    document.getElementById('num-people').addEventListener('input', calcTip);
+
+    document.getElementById('tip-pct').value = 20;
+    calcTip();
+  </script>
+</body>
+</html>

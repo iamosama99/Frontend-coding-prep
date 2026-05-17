@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Counter App — Solution</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: system-ui, sans-serif;
+      background: #f0f2f5;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .card {
+      background: #fff;
+      border-radius: 16px;
+      box-shadow: 0 4px 24px rgba(0,0,0,0.10);
+      padding: 40px;
+      width: 340px;
+      text-align: center;
+    }
+
+    h1 { font-size: 1.3rem; color: #374151; margin-bottom: 32px; }
+
+    .count-display {
+      font-size: 5rem;
+      font-weight: 700;
+      color: #1f2937;
+      margin-bottom: 32px;
+      min-height: 96px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: color 0.3s;
+    }
+
+    .count-display.at-min { color: #ef4444; }
+    .count-display.at-max { color: #22c55e; }
+
+    .controls {
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+      margin-bottom: 28px;
+    }
+
+    .controls button {
+      width: 72px;
+      height: 48px;
+      font-size: 1.4rem;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: all 0.15s;
+    }
+
+    #decrement-btn { background: #fee2e2; color: #dc2626; }
+    #decrement-btn:hover:not(:disabled) { background: #fca5a5; }
+    #increment-btn { background: #dcfce7; color: #16a34a; }
+    #increment-btn:hover:not(:disabled) { background: #86efac; }
+    #reset-btn { background: #f3f4f6; color: #374151; }
+    #reset-btn:hover { background: #e5e7eb; }
+
+    .controls button:disabled { opacity: 0.4; cursor: not-allowed; }
+
+    .config {
+      border-top: 1px solid #e5e7eb;
+      padding-top: 20px;
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 12px;
+      text-align: left;
+    }
+
+    .config label {
+      display: flex;
+      flex-direction: column;
+      font-size: 0.8rem;
+      color: #6b7280;
+      gap: 4px;
+    }
+
+    .config input {
+      padding: 6px 8px;
+      border: 1px solid #d1d5db;
+      border-radius: 6px;
+      font-size: 0.9rem;
+      width: 100%;
+      outline: none;
+    }
+
+    .config input:focus { border-color: #4f46e5; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>Counter</h1>
+    <div class="count-display" id="count-display">0</div>
+    <div class="controls">
+      <button id="decrement-btn">−</button>
+      <button id="reset-btn">↺</button>
+      <button id="increment-btn">+</button>
+    </div>
+    <div class="config">
+      <label>Step<input type="number" id="step-input" value="1" min="1" /></label>
+      <label>Min<input type="number" id="min-input" placeholder="none" /></label>
+      <label>Max<input type="number" id="max-input" placeholder="none" /></label>
+    </div>
+  </div>
+
+  <script>
+    let count = 0;
+
+    const display      = document.getElementById('count-display');
+    const decrementBtn = document.getElementById('decrement-btn');
+    const incrementBtn = document.getElementById('increment-btn');
+    const resetBtn     = document.getElementById('reset-btn');
+    const stepInput    = document.getElementById('step-input');
+    const minInput     = document.getElementById('min-input');
+    const maxInput     = document.getElementById('max-input');
+
+    function getStep() {
+      const v = parseInt(stepInput.value, 10);
+      return (isNaN(v) || v < 1) ? 1 : v;
+    }
+
+    function getMin() {
+      const v = parseFloat(minInput.value);
+      return minInput.value.trim() === '' || isNaN(v) ? -Infinity : v;
+    }
+
+    function getMax() {
+      const v = parseFloat(maxInput.value);
+      return maxInput.value.trim() === '' || isNaN(v) ? Infinity : v;
+    }
+
+    function clamp(value, min, max) {
+      return Math.min(Math.max(value, min), max);
+    }
+
+    function render() {
+      const min = getMin();
+      const max = getMax();
+
+      display.textContent = count;
+      display.classList.toggle('at-min', min !== -Infinity && count <= min);
+      display.classList.toggle('at-max', max !== Infinity  && count >= max);
+
+      decrementBtn.disabled = count <= min;
+      incrementBtn.disabled = count >= max;
+    }
+
+    function increment() {
+      count = clamp(count + getStep(), getMin(), getMax());
+      render();
+    }
+
+    function decrement() {
+      count = clamp(count - getStep(), getMin(), getMax());
+      render();
+    }
+
+    function reset() {
+      count = 0;
+      render();
+    }
+
+    incrementBtn.addEventListener('click', increment);
+    decrementBtn.addEventListener('click', decrement);
+    resetBtn.addEventListener('click', reset);
+
+    [stepInput, minInput, maxInput].forEach(inp => {
+      inp.addEventListener('input', () => {
+        count = clamp(count, getMin(), getMax());
+        render();
+      });
+    });
+
+    render();
+  </script>
+</body>
+</html>
