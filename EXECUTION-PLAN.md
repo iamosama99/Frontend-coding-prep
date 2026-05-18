@@ -504,7 +504,7 @@ git commit -m "feat: phase 6 — performance (9 questions)"
 
 ---
 
-## [ ] Phase 7 — Data Structures (8 questions)
+## [x] Phase 7 — Data Structures (8 questions)
 
 Algorithmic thinking for frontend: DOM traversal, trie for autocomplete, DP for string problems.
 
@@ -556,7 +556,7 @@ git commit -m "feat: phase 7 — data structures (8 questions)"
 
 ---
 
-## [ ] Phase 8 — System Design (7 questions)
+## [x] Phase 8 — System Design (7 questions)
 
 Architecture-level thinking: component libraries, real-time systems, offline-first. Usually the "senior" tier of an interview.
 
@@ -607,7 +607,7 @@ git commit -m "feat: phase 8 — system design (7 questions)"
 
 ---
 
-## [ ] Phase 9 — Mini Apps: Build This (30 questions)
+## [x] Phase 9 — Mini Apps: Build This (30 questions)
 
 End-to-end machine round practice. These are full features built from scratch — no starter API, just a spec. Do this phase after Phases 1–3 so you have JS, hooks, and UI foundations in place.
 
@@ -680,7 +680,7 @@ git commit -m "feat: phase 9 — mini apps (30 questions)"
 
 ---
 
-## [ ] Phase 10 — Mock Interviews & Interview Communication
+## [x] Phase 10 — Mock Interviews & Interview Communication
 
 Ties everything together. Run these after completing at least Phases 1–3.
 
